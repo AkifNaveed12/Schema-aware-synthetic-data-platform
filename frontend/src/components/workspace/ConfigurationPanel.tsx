@@ -45,7 +45,7 @@ export const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
               CONFIGURATION
             </span>
           </div>
-          <span className="text-[11px] font-mono text-brand-secondary">Slide 10 Specs</span>
+          <span className="text-[11px] font-mono text-brand-secondary">Engine Controls</span>
         </div>
 
         {/* 1. Row Count */}

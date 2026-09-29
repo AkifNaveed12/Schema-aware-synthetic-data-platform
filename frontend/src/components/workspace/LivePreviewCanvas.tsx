@@ -50,7 +50,7 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({
         <div>
           <div className="flex items-center gap-2">
             <span className="text-[11px] font-semibold uppercase tracking-wider text-brand-teal">
-              LIVE PREVIEW CANVAS · THEME SLIDE 10
+              LIVE SYNTHESIS STAGE · REAL-TIME
             </span>
             <button
               onClick={onOpenEvaluation}
@@ -111,7 +111,11 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({
       {/* Main Canvas Body */}
       <div className="flex-1 overflow-hidden pt-4">
         {modality === 'tabular' && (
-          <TabularGridPreview rows={tabularRows} isLoading={isLoading} />
+          <TabularGridPreview
+            rows={tabularRows}
+            isLoading={isLoading}
+            onOpenUploadModal={onOpenUploadModal}
+          />
         )}
 
         {modality === 'relational' && (

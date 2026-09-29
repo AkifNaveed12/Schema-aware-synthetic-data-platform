@@ -7,6 +7,13 @@ import {
   EvaluationData,
   ExportData,
   ModalityType,
+  SyntheticColumnSpec,
+  ModelBenchmarkResult,
+  TstrEvaluationResult,
+  RegenerationRunResult,
+  SemanticUnderstandingReport,
+  SynthiaSession,
+  SynthiaMessage,
 } from '../types';
 import {
   generateTabularData,
@@ -451,7 +458,7 @@ export async function uploadDatasetFile(
 // 8. Generate Synthetic Dataset (Async with Job ID)
 export async function triggerDatasetGenerationAsync(
   datasetId: string,
-  config: { row_count?: number; seed?: number; model_strategy?: string }
+  config: { row_count?: number; seed?: number; model_strategy?: string; synthetic_columns?: SyntheticColumnSpec[] }
 ): Promise<ApiResponse<{ job_id: string; state: string; message: string }>> {
   const start = performance.now();
   try {
@@ -475,7 +482,7 @@ export async function triggerDatasetGenerationAsync(
 // 9. Generate Synthetic Dataset (Sync - for Fast Preview)
 export async function triggerDatasetGenerationSync(
   datasetId: string,
-  config: { row_count?: number; seed?: number; model_strategy?: string }
+  config: { row_count?: number; seed?: number; model_strategy?: string; synthetic_columns?: SyntheticColumnSpec[] }
 ): Promise<ApiResponse<any>> {
   const start = performance.now();
   try {
@@ -517,5 +524,227 @@ export async function pollJobStatus(jobId: string): Promise<ApiResponse<any>> {
 export function getDatasetExportUrl(datasetId: string, format: 'csv' | 'json'): string {
   return `${API_BASE_URL}/datasets/${datasetId}/export?format=${format}`;
 }
+
+// ── Differentiator APIs ──────────────────────────────────────────────────────
+
+// 12. Add Synthetic Column to Dataset
+export async function addSyntheticColumnToDataset(
+  datasetId: string,
+  columnSpec: SyntheticColumnSpec
+): Promise<ApiResponse<any>> {
+  const start = performance.now();
+  try {
+    const res = await fetch(`${API_BASE_URL}/datasets/${datasetId}/synthetic-columns`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(columnSpec),
+    });
+    const json = await res.json();
+    return {
+      success: res.ok,
+      data: json.data,
+      source: 'live_backend',
+      executionTimeMs: Math.round(performance.now() - start),
+    };
+  } catch (err: any) {
+    throw new Error(err.message || 'Failed to add synthetic column');
+  }
+}
+
+// 13. Fetch Model Benchmark
+export async function fetchModelBenchmark(
+  datasetId: string
+): Promise<ApiResponse<ModelBenchmarkResult>> {
+  const start = performance.now();
+  try {
+    const res = await fetch(`${API_BASE_URL}/datasets/${datasetId}/benchmark`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+    });
+    const json = await res.json();
+    return {
+      success: res.ok,
+      data: json.data,
+      source: 'live_backend',
+      executionTimeMs: Math.round(performance.now() - start),
+    };
+  } catch (err: any) {
+    throw new Error(err.message || 'Failed to run model benchmark');
+  }
+}
+
+// 14. Run TSTR Evaluation
+export async function runTstrEvaluation(
+  datasetId: string,
+  targetColumn?: string,
+  taskType?: 'classification' | 'regression'
+): Promise<ApiResponse<TstrEvaluationResult>> {
+  const start = performance.now();
+  try {
+    const res = await fetch(`${API_BASE_URL}/datasets/${datasetId}/tstr`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        target_column: targetColumn,
+        task_type: taskType || 'auto',
+      }),
+    });
+    const json = await res.json();
+    return {
+      success: res.ok,
+      data: json.data,
+      source: 'live_backend',
+      executionTimeMs: Math.round(performance.now() - start),
+    };
+  } catch (err: any) {
+    throw new Error(err.message || 'Failed to run TSTR evaluation');
+  }
+}
+
+// 15. Trigger Controlled Diagnostic Regeneration
+export async function triggerRegeneration(
+  datasetId: string,
+  strategy: string,
+  parameters: Record<string, any> = {}
+): Promise<ApiResponse<RegenerationRunResult>> {
+  const start = performance.now();
+  try {
+    const res = await fetch(`${API_BASE_URL}/datasets/${datasetId}/regenerate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ strategy, parameters }),
+    });
+    const json = await res.json();
+    return {
+      success: res.ok,
+      data: json.data,
+      source: 'live_backend',
+      executionTimeMs: Math.round(performance.now() - start),
+    };
+  } catch (err: any) {
+    throw new Error(err.message || 'Failed to trigger controlled regeneration');
+  }
+}
+
+// 16. Fetch Semantic Understanding & AI Column Suggestions
+export async function fetchSemanticUnderstanding(
+  datasetId: string
+): Promise<ApiResponse<SemanticUnderstandingReport>> {
+  const start = performance.now();
+  try {
+    const res = await fetch(`${API_BASE_URL}/datasets/${datasetId}/semantic-understanding`);
+    const json = await res.json();
+    return {
+      success: res.ok,
+      data: json.data,
+      source: 'live_backend',
+      executionTimeMs: Math.round(performance.now() - start),
+    };
+  } catch (err: any) {
+    throw new Error(err.message || 'Failed to fetch semantic understanding');
+  }
+}
+
+// 17. Synthia Assistant: Create Session
+export async function synthiaCreateSession(
+  datasetId?: string,
+  language: string = 'en'
+): Promise<ApiResponse<SynthiaSession>> {
+  const start = performance.now();
+  try {
+    const res = await fetch(`${API_BASE_URL}/assistant/synthia/session`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dataset_id: datasetId, language }),
+    });
+    const json = await res.json();
+    return {
+      success: res.ok,
+      data: json.data,
+      source: 'live_backend',
+      executionTimeMs: Math.round(performance.now() - start),
+    };
+  } catch (err: any) {
+    throw new Error(err.message || 'Failed to initialize Synthia session');
+  }
+}
+
+// 18. Synthia Assistant: Send Message
+export async function synthiaSendMessage(
+  sessionId: string,
+  message: string,
+  language: string = 'en',
+  context?: Record<string, any>
+): Promise<ApiResponse<SynthiaMessage>> {
+  const start = performance.now();
+  try {
+    const res = await fetch(`${API_BASE_URL}/assistant/synthia/message`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id: sessionId,
+        message,
+        language,
+        context,
+      }),
+    });
+    const json = await res.json();
+    return {
+      success: res.ok,
+      data: json.data,
+      source: 'live_backend',
+      executionTimeMs: Math.round(performance.now() - start),
+    };
+  } catch (err: any) {
+    throw new Error(err.message || 'Failed to send message to Synthia');
+  }
+}
+
+// 19. Synthia Assistant: Execute Proposal Action
+export async function synthiaExecuteAction(
+  sessionId: string,
+  actionType: string,
+  parameters: Record<string, any>
+): Promise<ApiResponse<any>> {
+  const start = performance.now();
+  try {
+    const res = await fetch(`${API_BASE_URL}/assistant/synthia/action`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id: sessionId,
+        action_type: actionType,
+        parameters,
+      }),
+    });
+    const json = await res.json();
+    return {
+      success: res.ok,
+      data: json.data,
+      source: 'live_backend',
+      executionTimeMs: Math.round(performance.now() - start),
+    };
+  } catch (err: any) {
+    throw new Error(err.message || 'Failed to execute Synthia action');
+  }
+}
+
+// 20. Fetch Durable Run History
+export async function fetchExecutionHistory(): Promise<ApiResponse<{ total_records: number; history: any[] }>> {
+  const start = performance.now();
+  try {
+    const res = await fetch(`${API_BASE_URL}/history/runs`);
+    const json = await res.json();
+    return {
+      success: res.ok,
+      data: json.data,
+      source: 'live_backend',
+      executionTimeMs: Math.round(performance.now() - start),
+    };
+  } catch (err: any) {
+    throw new Error(err.message || 'Failed to fetch execution history');
+  }
+}
+
 
 

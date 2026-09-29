@@ -12,6 +12,9 @@ import {
   Sliders,
   ShieldAlert,
   Sparkles,
+  Plus,
+  Trash2,
+  Tag,
 } from 'lucide-react';
 import {
   uploadDatasetFile,
@@ -24,12 +27,14 @@ import {
   IngestedDatasetResponse,
   GenerationJobStatus,
   TabularRow,
+  SyntheticColumnSpec,
 } from '../../types';
+import { AddSyntheticColumnModal } from './AddSyntheticColumnModal';
 
 interface DatasetUploadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onApplyGeneratedData: (rows: TabularRow[], datasetName: string) => void;
+  onApplyGeneratedData: (rows: TabularRow[], datasetName: string, datasetId?: string, columns?: string[]) => void;
 }
 
 export const DatasetUploadModal: React.FC<DatasetUploadModalProps> = ({
@@ -54,6 +59,10 @@ export const DatasetUploadModal: React.FC<DatasetUploadModalProps> = ({
   // Job progress state
   const [jobStatus, setJobStatus] = useState<GenerationJobStatus | null>(null);
   const [generatedRows, setGeneratedRows] = useState<any[]>([]);
+
+  // Synthetic Columns state
+  const [syntheticColumns, setSyntheticColumns] = useState<SyntheticColumnSpec[]>([]);
+  const [isAddColModalOpen, setIsAddColModalOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -102,6 +111,7 @@ export const DatasetUploadModal: React.FC<DatasetUploadModalProps> = ({
           row_count: rowCount,
           seed: randomSeed,
           model_strategy: modelStrategy,
+          synthetic_columns: syntheticColumns,
         });
 
         if (genRes.success && genRes.data) {
@@ -140,6 +150,7 @@ export const DatasetUploadModal: React.FC<DatasetUploadModalProps> = ({
         row_count: rowCount,
         seed: randomSeed,
         model_strategy: modelStrategy,
+        synthetic_columns: syntheticColumns,
       });
 
       if (!jobRes.success || !jobRes.data?.job_id) {
@@ -180,18 +191,19 @@ export const DatasetUploadModal: React.FC<DatasetUploadModalProps> = ({
   const handleApplyToCanvas = () => {
     if (!generatedRows.length || !ingestedData) return;
 
-    // Normalize rows to TabularRow format for LivePreviewCanvas
+    // Normalize rows to TabularRow format for LivePreviewCanvas while preserving all dynamic fields
     const normalized: TabularRow[] = generatedRows.map((r: any, idx: number) => ({
       id: r.id ?? r.ID ?? (idx + 1),
       name: r.name ?? r.full_name ?? r.Name ?? `Record #${idx + 1}`,
-      email: r.email ?? r.Email ?? `synth_user_${idx + 1}@example.com`,
+      email: r.email ?? r.Email ?? `synth_user_${idx + 1}@synthdata.io`,
       signupDate: r.signup_date ?? r.signupDate ?? r.date ?? '2026-09-29',
       balance: typeof r.balance === 'number' ? r.balance : (typeof r.salary === 'number' ? r.salary : 1000),
       status: r.status ?? 'verified',
       syntheticHash: '0x' + (10231 + idx).toString(16),
+      ...r,
     }));
 
-    onApplyGeneratedData(normalized, ingestedData.filename);
+    onApplyGeneratedData(normalized, ingestedData.filename, ingestedData.dataset_id, ingestedData.columns);
     onClose();
   };
 
@@ -426,6 +438,98 @@ export const DatasetUploadModal: React.FC<DatasetUploadModalProps> = ({
                 </div>
               </div>
 
+              {/* Synthetic Columns Section (First Priority Differentiator) */}
+              <div className="border border-slate-200 rounded-lg overflow-hidden bg-white">
+                <div className="bg-slate-100/70 px-4 py-3 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Tag className="w-4 h-4 text-teal-600" />
+                    <div>
+                      <span className="text-xs font-bold text-slate-800">Synthetic Columns</span>
+                      <span className="ml-2 font-mono text-[10px] text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+                        Source: {ingestedData.column_count} | Synthetic: {syntheticColumns.length} | Final Schema: {ingestedData.column_count + syntheticColumns.length}
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsAddColModalOpen(true)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-white bg-teal-600 hover:bg-teal-500 shadow-xs transition-all cursor-pointer active:scale-98"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    Add Synthetic Column
+                  </button>
+                </div>
+
+                <div className="p-4">
+                  {syntheticColumns.length === 0 ? (
+                    <div className="text-center py-6 px-4 border border-dashed border-slate-200 rounded-lg bg-slate-50/50">
+                      <p className="text-xs font-medium text-slate-600">No synthetic columns configured yet.</p>
+                      <p className="text-[11px] text-slate-400 mt-1 max-w-md mx-auto">
+                        Add calculated or custom distribution-driven columns (e.g. salary bands, loyalty tiers, credit ratings) to extend the schema before generation.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => setIsAddColModalOpen(true)}
+                        className="mt-3 inline-flex items-center gap-1.5 px-3 py-1 text-xs font-medium text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-md border border-teal-200 transition-colors cursor-pointer"
+                      >
+                        <Plus className="w-3 h-3" />
+                        + Add Column
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      {syntheticColumns.map((sc, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-start justify-between p-3 rounded-lg border border-teal-200 bg-teal-50/30 text-xs hover:border-teal-300 transition-all"
+                        >
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono font-bold text-teal-900">{sc.name}</span>
+                              <span className="text-[10px] font-mono uppercase bg-teal-100 text-teal-800 px-1.5 py-0.5 rounded font-semibold">
+                                {sc.data_type}
+                              </span>
+                              {sc.semantic_type && (
+                                <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-mono">
+                                  {sc.semantic_type}
+                                </span>
+                              )}
+                            </div>
+                            {sc.description && (
+                              <p className="text-[11px] text-slate-500 mt-1 italic">{sc.description}</p>
+                            )}
+                            <div className="text-[10px] font-mono text-slate-500 mt-1.5">
+                              {sc.data_type === 'categorical' && sc.categorical_values && (
+                                <span>Classes: {sc.categorical_values.join(', ')}</span>
+                              )}
+                              {(sc.data_type === 'integer' || sc.data_type === 'float') && (
+                                <span>Range: [{sc.range_min} .. {sc.range_max}] · {sc.distribution?.type || 'uniform'}</span>
+                              )}
+                              {sc.data_type === 'date' && (
+                                <span>Range: {sc.date_start} to {sc.date_end}</span>
+                              )}
+                              {sc.data_type === 'string' && (
+                                <span>Role: {sc.string_role || 'semantic'} · {sc.string_locale || 'en_US'}</span>
+                              )}
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => setSyntheticColumns((prev) => prev.filter((_, i) => i !== idx))}
+                            className="p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded transition-colors"
+                            title="Remove synthetic column"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
               {/* Generation Configuration Controls */}
               <div className="p-4 rounded-lg bg-slate-50 border border-slate-200 space-y-4">
                 <div className="flex items-center gap-2">
@@ -625,6 +729,15 @@ export const DatasetUploadModal: React.FC<DatasetUploadModalProps> = ({
           )}
         </div>
       </div>
+
+      {/* Add Synthetic Column Dialog */}
+      <AddSyntheticColumnModal
+        isOpen={isAddColModalOpen}
+        onClose={() => setIsAddColModalOpen(false)}
+        existingColumnNames={ingestedData?.columns || []}
+        existingSyntheticColumns={syntheticColumns}
+        onAddColumn={(newCol) => setSyntheticColumns((prev) => [...prev, newCol])}
+      />
     </div>
   );
 };

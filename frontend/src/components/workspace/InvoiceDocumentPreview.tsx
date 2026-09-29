@@ -22,7 +22,7 @@ export const InvoiceDocumentPreview: React.FC<InvoiceDocumentPreviewProps> = ({
           </span>
           <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700 border border-emerald-200">
             <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-            Theme Slide 7: Automatic Math Reconciliation
+            Deterministic Financial Reconciliation
           </span>
         </div>
 
@@ -52,7 +52,7 @@ export const InvoiceDocumentPreview: React.FC<InvoiceDocumentPreviewProps> = ({
         <div className="flex flex-col sm:flex-row justify-between items-start gap-6 border-b border-brand-border pb-8">
           <div>
             <span className="text-[11px] font-mono tracking-widest uppercase text-brand-secondary font-semibold">
-              DOCUMENT GENERATOR · THEME SLIDE 7
+              DOCUMENT GENERATOR · INVOICE SYNTHESIS
             </span>
             <h1 className="text-3xl font-bold text-brand-hero mt-1 tracking-tight">
               INVOICE

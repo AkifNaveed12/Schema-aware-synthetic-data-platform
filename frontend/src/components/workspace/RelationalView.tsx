@@ -15,7 +15,7 @@ export const RelationalView: React.FC<RelationalViewProps> = ({
   const [activeTable, setActiveTable] = useState<'customers' | 'orders' | 'order_items'>('customers');
 
   return (
-    <div className="flex flex-col gap-4 w-full h-full">
+    <div className="flex flex-col gap-4 w-full h-full overflow-y-auto pr-1">
       {/* 1. Visual Topology Diagram */}
       <SchemaGraphSVG
         activeTable={activeTable}
@@ -23,7 +23,7 @@ export const RelationalView: React.FC<RelationalViewProps> = ({
       />
 
       {/* 2. Multi-Table Inspector */}
-      <div className="flex-1 bg-white rounded-xl border border-brand-border shadow-micro overflow-hidden flex flex-col">
+      <div className="flex-1 min-h-[460px] bg-white rounded-xl border border-brand-border shadow-micro overflow-hidden flex flex-col">
         {/* Table Selector Tabs */}
         <div className="flex items-center justify-between border-b border-brand-border px-4 py-2.5 bg-slate-50">
           <div className="flex items-center gap-2">
@@ -215,7 +215,7 @@ export const RelationalView: React.FC<RelationalViewProps> = ({
         <div className="flex items-center justify-between px-4 py-2.5 bg-slate-50 border-t border-brand-border text-xs text-brand-secondary">
           <span className="flex items-center gap-1.5 font-medium text-brand-hero">
             <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-            Theme Slide 6: Referential integrity maintained automatically across every generated table
+            Referential integrity maintained automatically across every generated table
           </span>
           <span className="font-mono text-[11px] text-brand-teal">
             Cardinality: 1:N Validated

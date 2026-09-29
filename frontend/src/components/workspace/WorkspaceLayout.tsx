@@ -8,6 +8,7 @@ import {
   InvoiceDocument,
   BankStatementDocument,
   EvaluationData,
+  SyntheticColumnSpec,
 } from '../../types';
 import { WorkspaceSidebar } from './WorkspaceSidebar';
 import { LivePreviewCanvas } from './LivePreviewCanvas';
@@ -15,6 +16,11 @@ import { ConfigurationPanel } from './ConfigurationPanel';
 import { ExportModal } from './ExportModal';
 import { ValidationDashboardModal } from './ValidationDashboardModal';
 import { DatasetUploadModal } from './DatasetUploadModal';
+import { ModelBenchmarkModal } from './ModelBenchmarkModal';
+import { TstrEvaluationModal } from './TstrEvaluationModal';
+import { RegenerationModal } from './RegenerationModal';
+import { SemanticUnderstandingModal } from './SemanticUnderstandingModal';
+import { SynthiaAssistant } from './SynthiaAssistant';
 import {
   fetchTabularPreview,
   fetchRelationalPreview,
@@ -85,6 +91,13 @@ export const WorkspaceLayout: React.FC = () => {
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isEvalOpen, setIsEvalOpen] = useState(false);
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isBenchmarkOpen, setIsBenchmarkOpen] = useState(false);
+  const [isTstrOpen, setIsTstrOpen] = useState(false);
+  const [isRegenOpen, setIsRegenOpen] = useState(false);
+  const [isSemanticOpen, setIsSemanticOpen] = useState(false);
+  const [activeDatasetId, setActiveDatasetId] = useState<string | undefined>(undefined);
+  const [activeDatasetName, setActiveDatasetName] = useState<string>('employee_salary.csv');
+  const [activeDatasetColumns, setActiveDatasetColumns] = useState<string[]>([]);
   const [isCustomDatasetActive, setIsCustomDatasetActive] = useState(false);
   const [evaluationData, setEvaluationData] = useState<EvaluationData | null>(null);
   const [isEvalLoading, setIsEvalLoading] = useState(false);
@@ -121,8 +134,13 @@ export const WorkspaceLayout: React.FC = () => {
       if (isCustomDatasetActive) return; // Don't overwrite uploaded data on config changes
       setIsLoading(true);
       if (activeModality === 'tabular') {
-        const res = await fetchTabularPreview(config);
-        if (!isCancelled) setTabularRows(res.data);
+        if (isCustomDatasetActive) {
+          const res = await fetchTabularPreview(config);
+          if (!isCancelled) setTabularRows(res.data);
+        } else {
+          // Intentional clean empty state before dataset upload
+          if (!isCancelled) setTabularRows([]);
+        }
       } else if (activeModality === 'relational') {
         const res = await fetchRelationalPreview(config);
         if (!isCancelled) setRelationalDataset(res.data);
@@ -153,11 +171,28 @@ export const WorkspaceLayout: React.FC = () => {
     handleConfigChange({ naturalLanguageQuery: query });
   };
 
-  const handleApplyUploadedData = (rows: TabularRow[], _datasetName: string) => {
+  const handleApplyUploadedData = (
+    rows: TabularRow[],
+    datasetName: string,
+    datasetId?: string,
+    columns?: string[]
+  ) => {
     setIsCustomDatasetActive(true);
     setActiveModality('tabular');
     setTabularRows(rows);
+    if (datasetId) setActiveDatasetId(datasetId);
+    if (datasetName) setActiveDatasetName(datasetName);
+    if (columns && columns.length > 0) {
+      setActiveDatasetColumns(columns);
+    } else if (rows.length > 0) {
+      setActiveDatasetColumns(Object.keys(rows[0]));
+    }
     setConfig((prev) => ({ ...prev, rowCount: rows.length }));
+  };
+
+  const handleApplySyntheticColumns = (cols: SyntheticColumnSpec[]) => {
+    // When Synthia or Semantic adds synthetic columns
+    console.log('Synthetic columns applied to dataset:', cols);
   };
 
   const runEvaluation = useCallback(async () => {
@@ -182,7 +217,7 @@ export const WorkspaceLayout: React.FC = () => {
   };
 
   return (
-    <div className="flex w-full h-[calc(100vh-3.5rem)] overflow-hidden bg-brand-canvas">
+    <div className="relative flex w-full h-[calc(100vh-3.5rem)] overflow-hidden bg-brand-canvas">
       {/* 1. Left Sidebar (Workspace Navigation, #0F172A) */}
       <WorkspaceSidebar
         activeModality={activeModality}
@@ -195,6 +230,10 @@ export const WorkspaceLayout: React.FC = () => {
         activeSeed={config.randomSeed}
         onOpenEvaluation={handleOpenEvaluation}
         onOpenUploadModal={() => setIsUploadOpen(true)}
+        onOpenBenchmark={() => setIsBenchmarkOpen(true)}
+        onOpenTstr={() => setIsTstrOpen(true)}
+        onOpenRegeneration={() => setIsRegenOpen(true)}
+        onOpenSemantic={() => setIsSemanticOpen(true)}
       />
 
       {/* 2. Center Stage (Live Preview Canvas, #F8F7F4 / #FFFFFF) */}
@@ -252,6 +291,47 @@ export const WorkspaceLayout: React.FC = () => {
         evaluation={evaluationData}
         isLoading={isEvalLoading}
         onReevaluate={runEvaluation}
+      />
+
+      {/* Differentiator 1: Empirical Model Benchmark Modal */}
+      <ModelBenchmarkModal
+        isOpen={isBenchmarkOpen}
+        onClose={() => setIsBenchmarkOpen(false)}
+        datasetId={activeDatasetId}
+        datasetName={activeDatasetName}
+      />
+
+      {/* Differentiator 2: TSTR Predictive Utility Evaluation Modal */}
+      <TstrEvaluationModal
+        isOpen={isTstrOpen}
+        onClose={() => setIsTstrOpen(false)}
+        datasetId={activeDatasetId}
+        datasetName={activeDatasetName}
+        columns={activeDatasetColumns}
+      />
+
+      {/* Differentiator 3: Controlled Diagnostic Regeneration Modal */}
+      <RegenerationModal
+        isOpen={isRegenOpen}
+        onClose={() => setIsRegenOpen(false)}
+        datasetId={activeDatasetId}
+        datasetName={activeDatasetName}
+      />
+
+      {/* Differentiator 4: Semantic Dataset Understanding Modal */}
+      <SemanticUnderstandingModal
+        isOpen={isSemanticOpen}
+        onClose={() => setIsSemanticOpen(false)}
+        datasetId={activeDatasetId}
+        datasetName={activeDatasetName}
+        onApplySyntheticColumn={(col) => handleApplySyntheticColumns([col])}
+      />
+
+      {/* Differentiator 5: Synthia Voice & Text Floating AI Guide */}
+      <SynthiaAssistant
+        datasetId={activeDatasetId}
+        datasetName={activeDatasetName}
+        onApplySyntheticColumns={handleApplySyntheticColumns}
       />
     </div>
   );

@@ -363,3 +363,56 @@ def profile_dataframe(
         ),
         default_locale="en_US",
     )
+
+
+def populate_synthetic_columns(df: pd.DataFrame, synthetic_columns: list, seed: int = 42) -> pd.DataFrame:
+    """
+    Deterministically populate synthetic columns based on SyntheticColumnSpec definitions.
+    Appends new columns to the generated DataFrame.
+    """
+    if not synthetic_columns or df.empty:
+        return df
+    rng = np.random.RandomState(seed)
+    num_rows = len(df)
+    for col in synthetic_columns:
+        c_name = col.get("name") if isinstance(col, dict) else getattr(col, "name", None)
+        if not c_name or c_name in df.columns:
+            continue
+        c_type = (col.get("data_type") if isinstance(col, dict) else getattr(col, "data_type", "string")).lower()
+        if c_type in ("integer", "int"):
+            mn = int(col.get("range_min", 0) if isinstance(col, dict) else getattr(col, "range_min", 0) or 0)
+            mx = int(col.get("range_max", 100) if isinstance(col, dict) else getattr(col, "range_max", 100) or 100)
+            if mn >= mx:
+                mx = mn + 1
+            df[c_name] = rng.randint(mn, mx, num_rows)
+        elif c_type in ("float", "numeric"):
+            mn = float(col.get("range_min", 0.0) if isinstance(col, dict) else getattr(col, "range_min", 0.0) or 0.0)
+            mx = float(col.get("range_max", 100.0) if isinstance(col, dict) else getattr(col, "range_max", 100.0) or 100.0)
+            if mn >= mx:
+                mx = mn + 1.0
+            df[c_name] = np.round(rng.uniform(mn, mx, num_rows), 2)
+        elif c_type == "categorical":
+            cats = col.get("categorical_values") if isinstance(col, dict) else getattr(col, "categorical_values", None)
+            if not cats:
+                cats = ["Low", "Medium", "High"]
+            probs = col.get("categorical_probabilities") if isinstance(col, dict) else getattr(col, "categorical_probabilities", None)
+            if probs and len(probs) == len(cats) and abs(sum(probs) - 1.0) < 0.05:
+                p = [pr / sum(probs) for pr in probs]
+                df[c_name] = rng.choice(cats, size=num_rows, p=p)
+            else:
+                df[c_name] = rng.choice(cats, size=num_rows)
+        elif c_type == "date":
+            start_str = str(col.get("date_start", "2024-01-01") if isinstance(col, dict) else getattr(col, "date_start", "2024-01-01"))
+            end_str = str(col.get("date_end", "2026-12-31") if isinstance(col, dict) else getattr(col, "date_end", "2026-12-31"))
+            try:
+                t_start = int(datetime.fromisoformat(start_str).timestamp())
+                t_end = int(datetime.fromisoformat(end_str).timestamp())
+            except Exception:
+                t_start, t_end = 1704067200, 1798761600
+            rand_ts = rng.randint(min(t_start, t_end), max(t_start, t_end) + 1, num_rows)
+            df[c_name] = [datetime.fromtimestamp(ts).strftime("%Y-%m-%d") for ts in rand_ts]
+        else:
+            role = str(col.get("semantic_type", "tag") if isinstance(col, dict) else getattr(col, "semantic_type", "tag"))
+            df[c_name] = [f"{role}_{rng.randint(100, 999)}" for _ in range(num_rows)]
+    return df
+

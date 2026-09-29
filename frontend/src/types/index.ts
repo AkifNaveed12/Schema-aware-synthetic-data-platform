@@ -224,6 +224,7 @@ export interface DatasetProfile {
   source_fingerprint?: SourceFingerprint;
   quality_findings: QualityFinding[];
   cleaning_actions: CleaningAction[];
+  synthetic_columns?: SyntheticColumnSpec[];
   generation_defaults?: {
     row_count: number;
     seed: number;
@@ -282,4 +283,171 @@ export interface GenerationJobStatus {
   };
 }
 
+// ── Synthetic Column Types ──────────────────────────────────────────────────
+export type SyntheticDataType = 'integer' | 'float' | 'categorical' | 'date' | 'string';
 
+export interface SyntheticColumnSpec {
+  name: string;
+  data_type: SyntheticDataType;
+  semantic_type?: string;
+  description?: string;
+  range_min?: number;
+  range_max?: number;
+  distribution?: {
+    type: 'uniform' | 'normal' | 'log_normal';
+    mean?: number;
+    std_dev?: number;
+  };
+  categorical_values?: string[];
+  categorical_probabilities?: number[];
+  date_start?: string;
+  date_end?: string;
+  date_format?: string;
+  string_role?: string;
+  string_pattern?: string;
+  string_locale?: string;
+  nullable?: boolean;
+  required?: boolean;
+}
+
+// ── Model Benchmark Types ───────────────────────────────────────────────────
+export interface ModelBenchmarkCandidate {
+  name: string;
+  status: 'trained' | 'available' | 'unavailable' | 'failed';
+  validity: number;
+  quality_score: number;
+  relationship_score: number;
+  novelty_rate: number;
+  privacy_score: number;
+  train_time_ms: number;
+  sample_time_ms: number;
+  failure_reason?: string;
+  selection_reason?: string;
+}
+
+export interface ModelBenchmarkResult {
+  dataset_id: string;
+  dataset_name: string;
+  row_count: number;
+  column_count: number;
+  candidates: ModelBenchmarkCandidate[];
+  selected_model: string;
+  selection_rationale: string;
+  executed_at: string;
+}
+
+// ── TSTR (Train on Synthetic, Test on Real) Types ────────────────────────────
+export interface TstrTaskConfig {
+  target_column: string;
+  task_type: 'classification' | 'regression';
+  model_type: 'random_forest' | 'ridge_logistic' | 'gradient_boosting';
+  train_sample_size?: number;
+  test_sample_size?: number;
+}
+
+export interface TstrMetricResult {
+  metric_name: string;
+  real_to_real_baseline: number;
+  synthetic_to_real: number;
+  retention_pct: number;
+}
+
+export interface TstrEvaluationResult {
+  dataset_id: string;
+  target_column: string;
+  task_type: 'classification' | 'regression';
+  model_type: string;
+  held_out_test_rows: number;
+  synthetic_train_rows: number;
+  status: 'completed' | 'failed';
+  metrics: TstrMetricResult[];
+  overall_utility_retention: number;
+  explanation: string;
+}
+
+// ── Controlled Regeneration Types ───────────────────────────────────────────
+export interface RegenerationDiagnostic {
+  issue_id: string;
+  issue_type: string;
+  title: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  description: string;
+  affected_columns?: string[];
+  recommended_strategy: {
+    id: string;
+    label: string;
+    description: string;
+    parameters: Record<string, any>;
+  };
+  alternative_strategies: Array<{
+    id: string;
+    label: string;
+    description: string;
+    parameters: Record<string, any>;
+  }>;
+}
+
+export interface RegenerationRunResult {
+  regeneration_id: string;
+  parent_job_id: string;
+  applied_strategy: string;
+  previous_quality: number;
+  new_quality: number;
+  quality_delta: number;
+  quality_improved: boolean;
+  status: 'completed' | 'worse_retained';
+  reason: string;
+  timestamp: string;
+}
+
+// ── Semantic Understanding Types ────────────────────────────────────────────
+export interface SemanticColumnMeaning {
+  column_name: string;
+  detected_type: string;
+  semantic_meaning: string;
+  suggested_transformations?: string[];
+  inferred_domain?: string;
+  confidence: number;
+}
+
+export interface SemanticUnderstandingReport {
+  dataset_id: string;
+  inferred_domain: string;
+  meanings: SemanticColumnMeaning[];
+  ai_suggestions: Array<{
+    id: string;
+    title: string;
+    description: string;
+    impact: string;
+    accepted?: boolean;
+    suggested_column?: SyntheticColumnSpec;
+  }>;
+}
+
+// ── Synthia Assistant Types ─────────────────────────────────────────────────
+export interface SynthiaProposal {
+  id: string;
+  type: 'add_synthetic_columns' | 'rebalance_distribution' | 'change_model';
+  title: string;
+  description: string;
+  requires_confirmation: boolean;
+  columns?: SyntheticColumnSpec[];
+  parameters?: Record<string, any>;
+}
+
+export interface SynthiaMessage {
+  id: string;
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+  timestamp: string;
+  proposal?: SynthiaProposal;
+  language?: 'en' | 'ur' | 'ur-Latn';
+}
+
+export interface SynthiaSession {
+  session_id: string;
+  dataset_id?: string;
+  language: 'en' | 'ur' | 'ur-Latn';
+  messages: SynthiaMessage[];
+  created_at: string;
+}

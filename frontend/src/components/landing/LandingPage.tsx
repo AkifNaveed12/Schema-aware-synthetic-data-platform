@@ -54,7 +54,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenWorkspace }) => 
             className="flex items-center gap-2 rounded-xl bg-brand-teal hover:bg-brand-teal-hover text-white px-6 py-3.5 text-sm font-semibold transition-all shadow-panel hover:shadow-lg active:scale-98"
           >
             <Terminal className="w-4 h-4" />
-            Launch 3-Pane Workspace
+            Launch Workspace
             <ArrowRight className="w-4 h-4" />
           </button>
 
@@ -95,7 +95,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenWorkspace }) => 
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="font-mono text-[10px] text-brand-secondary bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
-                    8 Synthetic Records
+                    Showcase Specimen · 8 Records
                   </span>
                   <span className="font-mono text-[10px] text-brand-teal bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
                     Log-Normal Skewed
@@ -121,43 +121,43 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenWorkspace }) => 
                     <tr className="hover:bg-slate-50">
                       <td className="py-2 px-3 font-bold text-brand-hero">10231</td>
                       <td className="py-2 px-3 font-sans font-medium text-brand-hero">Maria Chen</td>
-                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">m.•••••@example.com</td>
+                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">m.•••••@synthdata.io</td>
                       <td className="py-2 px-3 text-right font-semibold">$482.10</td>
                     </tr>
                     <tr className="hover:bg-slate-50">
                       <td className="py-2 px-3 font-bold text-brand-hero">10232</td>
                       <td className="py-2 px-3 font-sans font-medium text-brand-hero">Ahmed Raza</td>
-                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">a.•••••@example.com</td>
+                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">a.•••••@synthdata.io</td>
                       <td className="py-2 px-3 text-right font-semibold">$129.55</td>
                     </tr>
                     <tr className="hover:bg-slate-50">
                       <td className="py-2 px-3 font-bold text-brand-hero">10233</td>
                       <td className="py-2 px-3 font-sans font-medium text-brand-hero">Sofia Ivanova</td>
-                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">s.•••••@example.com</td>
+                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">s.•••••@synthdata.io</td>
                       <td className="py-2 px-3 text-right font-semibold">$918.42</td>
                     </tr>
                     <tr className="hover:bg-slate-50">
                       <td className="py-2 px-3 font-bold text-brand-hero">10234</td>
                       <td className="py-2 px-3 font-sans font-medium text-brand-hero">Marcus Vance</td>
-                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">m.•••••@example.com</td>
+                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">m.•••••@synthdata.io</td>
                       <td className="py-2 px-3 text-right font-semibold">$1,420.00</td>
                     </tr>
                     <tr className="hover:bg-slate-50">
                       <td className="py-2 px-3 font-bold text-brand-hero">10235</td>
                       <td className="py-2 px-3 font-sans font-medium text-brand-hero">Elena Reyes</td>
-                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">e.•••••@example.com</td>
+                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">e.•••••@synthdata.io</td>
                       <td className="py-2 px-3 text-right font-semibold">$310.20</td>
                     </tr>
                     <tr className="hover:bg-slate-50">
                       <td className="py-2 px-3 font-bold text-brand-hero">10236</td>
                       <td className="py-2 px-3 font-sans font-medium text-brand-hero">Lucas Schmidt</td>
-                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">l.•••••@example.com</td>
+                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">l.•••••@synthdata.io</td>
                       <td className="py-2 px-3 text-right font-semibold">$2,450.80</td>
                     </tr>
                     <tr className="hover:bg-slate-50">
                       <td className="py-2 px-3 font-bold text-brand-hero">10237</td>
                       <td className="py-2 px-3 font-sans font-medium text-brand-hero">Fatima Al-Mansoor</td>
-                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">f.•••••@example.com</td>
+                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">f.•••••@synthdata.io</td>
                       <td className="py-2 px-3 text-right font-semibold">$1,150.30</td>
                     </tr>
                   </tbody>
@@ -462,7 +462,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenWorkspace }) => 
               Start generating compliance-safe synthetic data
             </h3>
             <p className="text-xs text-slate-400 mt-1 max-w-xl">
-              Strict adherence to Theme Slide 10 3-pane layout, sub-200ms preview latency, and 100% referential integrity.
+              Enterprise 3-pane responsive layout, sub-second generation latency, and 100% referential integrity.
             </p>
           </div>
 
@@ -471,7 +471,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenWorkspace }) => 
             className="flex items-center gap-2 rounded-xl bg-brand-teal hover:bg-brand-teal-hover text-white px-6 py-3.5 text-xs font-semibold tracking-wide transition-all shadow-panel active:scale-98 cursor-pointer"
           >
             <Database className="w-4 h-4" />
-            Enter 3-Pane Workspace
+            Enter Workspace
             <ArrowRight className="w-4 h-4 ml-1" />
           </button>
         </div>

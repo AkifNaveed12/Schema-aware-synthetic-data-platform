@@ -186,6 +186,13 @@ def generate_dataset_sync(dataset_id: str, config: Dict[str, Any] = {}):
 
     adapter.fit(df, profile, config)
     synth_df = adapter.sample(row_count, seed=seed)
+
+    # Populate synthetic columns if requested
+    synth_cols = config.get("synthetic_columns") or (getattr(profile, "synthetic_columns", None) if profile else None)
+    if synth_cols:
+        from backend.app.pipeline.profiler import populate_synthetic_columns
+        synth_df = populate_synthetic_columns(synth_df, synth_cols, seed=seed)
+
     metrics = adapter.evaluate(df, synth_df, profile)
 
     result = {
@@ -210,6 +217,46 @@ def generate_dataset_sync(dataset_id: str, config: Dict[str, Any] = {}):
     job_store.store_session(dataset_id, session)
 
     return SuccessResponse(data=result)
+
+
+# ── POST /datasets/{dataset_id}/synthetic-columns ────────────────────────────
+@router.post("/datasets/{dataset_id}/synthetic-columns", response_model=SuccessResponse)
+def add_synthetic_column(dataset_id: str, payload: Dict[str, Any]):
+    """Add a synthetic column specification to the dataset profile."""
+    session = job_store.get_session(dataset_id)
+    if not session:
+        raise HTTPException(status_code=404, detail=f"Dataset '{dataset_id}' not found.")
+    profile = session.get("profile")
+    if not profile:
+        raise HTTPException(status_code=400, detail="No profile found for dataset.")
+
+    from backend.app.models.data_profile import SyntheticColumnSpec
+    col_name = payload.get("name")
+    if not col_name:
+        raise HTTPException(status_code=422, detail="Column name is required.")
+
+    # Check collision with existing source columns
+    source_cols = [c.name.lower() for t in profile.tables for c in t.columns]
+    if col_name.lower() in source_cols:
+        raise HTTPException(status_code=400, detail=f"Collision: column '{col_name}' already exists in source dataset.")
+
+    # Check duplicate in synthetic columns
+    existing_synth = [c.name.lower() for c in profile.synthetic_columns]
+    if col_name.lower() in existing_synth:
+        raise HTTPException(status_code=400, detail=f"Duplicate: synthetic column '{col_name}' already exists.")
+
+    spec = SyntheticColumnSpec(**payload)
+    profile.synthetic_columns.append(spec)
+    session["profile"] = profile
+    job_store.store_session(dataset_id, session)
+
+    return SuccessResponse(data={
+        "dataset_id": dataset_id,
+        "synthetic_columns": [c.model_dump() for c in profile.synthetic_columns],
+        "total_source_columns": len(source_cols),
+        "total_synthetic_columns": len(profile.synthetic_columns),
+        "total_schema_columns": len(source_cols) + len(profile.synthetic_columns),
+    })
 
 
 # ── GET /datasets/{dataset_id}/export ────────────────────────────────────────

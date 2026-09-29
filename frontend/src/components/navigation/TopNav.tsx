@@ -46,7 +46,7 @@ export const TopNav: React.FC<TopNavProps> = ({
             }`}
           >
             <LayoutGrid className="h-3.5 w-3.5" />
-            Showcase & Bento
+            Home
           </button>
           <button
             onClick={() => onViewChange('workspace')}
@@ -57,7 +57,7 @@ export const TopNav: React.FC<TopNavProps> = ({
             }`}
           >
             <Terminal className="h-3.5 w-3.5" />
-            3-Pane Workspace
+            Workspace
           </button>
         </nav>
       </div>

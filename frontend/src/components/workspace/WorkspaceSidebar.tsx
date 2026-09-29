@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Network, FileText, Receipt, Landmark, Shield, Sparkles, Upload } from 'lucide-react';
+import { Table, Network, FileText, Receipt, Landmark, Shield, Sparkles, Upload, Cpu, Target, RefreshCw, Brain } from 'lucide-react';
 import { ModalityType, DocumentSubtype } from '../../types';
 
 interface WorkspaceSidebarProps {
@@ -10,6 +10,10 @@ interface WorkspaceSidebarProps {
   activeSeed: number;
   onOpenEvaluation?: () => void;
   onOpenUploadModal?: () => void;
+  onOpenBenchmark?: () => void;
+  onOpenTstr?: () => void;
+  onOpenRegeneration?: () => void;
+  onOpenSemantic?: () => void;
 }
 
 export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
@@ -20,6 +24,10 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   activeSeed,
   onOpenEvaluation,
   onOpenUploadModal,
+  onOpenBenchmark,
+  onOpenTstr,
+  onOpenRegeneration,
+  onOpenSemantic,
 }) => {
   return (
     <aside className="hidden md:flex flex-col justify-between w-64 min-w-[256px] h-full bg-brand-sidebar text-slate-300 p-4 border-r border-slate-800 select-none">
@@ -125,6 +133,45 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
                 </button>
               </div>
             )}
+          </div>
+
+          {/* Differentiators & Empirical Tools */}
+          <div className="flex flex-col gap-1 pt-3 border-t border-slate-800/80 mt-1">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 px-2 pb-1">
+              Empirical Tools
+            </span>
+
+            <button
+              onClick={onOpenBenchmark}
+              className="flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors"
+            >
+              <Cpu className="w-3.5 h-3.5 text-indigo-400" />
+              <span>Model Benchmark</span>
+            </button>
+
+            <button
+              onClick={onOpenTstr}
+              className="flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors"
+            >
+              <Target className="w-3.5 h-3.5 text-purple-400" />
+              <span>TSTR Utility Test</span>
+            </button>
+
+            <button
+              onClick={onOpenRegeneration}
+              className="flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors"
+            >
+              <RefreshCw className="w-3.5 h-3.5 text-amber-400" />
+              <span>Diagnostic Repair</span>
+            </button>
+
+            <button
+              onClick={onOpenSemantic}
+              className="flex items-center gap-2.5 w-full px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors"
+            >
+              <Brain className="w-3.5 h-3.5 text-teal-400" />
+              <span>Semantic AI</span>
+            </button>
           </div>
         </nav>
       </div>

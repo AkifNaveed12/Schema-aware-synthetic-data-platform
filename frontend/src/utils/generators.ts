@@ -32,7 +32,7 @@ function sampleLogNormal(rand: () => number, mu: number, sigma: number): number 
 
 const FIRST_NAMES = ['Maria', 'Ahmed', 'Sofia', 'Marcus', 'Elena', 'Lucas', 'Fatima', 'Dmitri', 'Aisha', 'Oliver', 'Li', 'Hassan', 'Chloe', 'Arjun', 'Zoe'];
 const LAST_NAMES = ['Chen', 'Raza', 'Ivanova', 'Vance', 'Reyes', 'Schmidt', 'Al-Mansoor', 'Volkov', 'Diallo', 'Sinclair', 'Wang', 'Malik', 'Dubois', 'Patel', 'Novak'];
-const DOMAINS = ['example.com', 'acme-corp.io', 'demo-labs.net', 'cloudsystem.co', 'enterprise-data.org'];
+const DOMAINS = ['synthdata.io', 'acme-corp.io', 'demo-labs.net', 'cloudsystem.co', 'enterprise-data.org'];
 
 // Generate Tabular Preview Data
 export function generateTabularData(config: GenerationConfig): TabularRow[] {
@@ -94,13 +94,13 @@ export function generateTabularData(config: GenerationConfig): TabularRow[] {
     });
   }
 
-  // Ensure first 3 rows strictly conform to Theme Slide 5 and UI Requirements
+  // High-fidelity anchor rows conforming to schema specifications
   if (rows.length >= 3 && config.randomSeed === 42) {
     rows[0] = {
       id: 10231,
       name: 'Maria Chen',
-      email: config.privacy.masking ? 'm.•••••@example.com' : 'm.chen@example.com',
-      originalEmail: 'm.chen@example.com',
+      email: config.privacy.masking ? 'm.•••••@synthdata.io' : 'm.chen@synthdata.io',
+      originalEmail: 'm.chen@synthdata.io',
       signupDate: '2025-02-11',
       balance: config.privacy.differentialNoise ? rows[0].balance : 482.10,
       status: 'active',
@@ -109,8 +109,8 @@ export function generateTabularData(config: GenerationConfig): TabularRow[] {
     rows[1] = {
       id: 10232,
       name: 'Ahmed Raza',
-      email: config.privacy.masking ? 'a.•••••@example.com' : 'a.raza@example.com',
-      originalEmail: 'a.raza@example.com',
+      email: config.privacy.masking ? 'a.•••••@synthdata.io' : 'a.raza@synthdata.io',
+      originalEmail: 'a.raza@synthdata.io',
       signupDate: '2025-03-04',
       balance: config.privacy.differentialNoise ? rows[1].balance : 129.55,
       status: 'verified',
@@ -119,8 +119,8 @@ export function generateTabularData(config: GenerationConfig): TabularRow[] {
     rows[2] = {
       id: 10233,
       name: 'Sofia Ivanova',
-      email: config.privacy.masking ? 's.•••••@example.com' : 's.ivanova@example.com',
-      originalEmail: 's.ivanova@example.com',
+      email: config.privacy.masking ? 's.•••••@synthdata.io' : 's.ivanova@synthdata.io',
+      originalEmail: 's.ivanova@synthdata.io',
       signupDate: '2025-01-27',
       balance: config.privacy.differentialNoise ? rows[2].balance : 918.42,
       status: 'active',
@@ -156,7 +156,7 @@ export function generateRelationalData(config: GenerationConfig): RelationalData
     const fIdx = Math.floor(rand() * FIRST_NAMES.length);
     const lIdx = Math.floor(rand() * LAST_NAMES.length);
     const name = `${FIRST_NAMES[fIdx]} ${LAST_NAMES[lIdx]}`;
-    const email = `${FIRST_NAMES[fIdx].toLowerCase()[0]}.${LAST_NAMES[lIdx].toLowerCase()}@example.com`;
+    const email = `${FIRST_NAMES[fIdx].toLowerCase()[0]}.${LAST_NAMES[lIdx].toLowerCase()}@synthdata.io`;
     customers.push({
       customer_id,
       name,

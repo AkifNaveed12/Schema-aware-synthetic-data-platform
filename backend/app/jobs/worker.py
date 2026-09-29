@@ -150,6 +150,12 @@ def _run_job(job: Job) -> None:
             best_df = det_adapter.sample(num_rows, seed=seed)
             best_name = "deterministic_fallback"
 
+        # Populate synthetic columns if requested
+        synth_cols = config.get("synthetic_columns") or (getattr(profile, "synthetic_columns", None) if profile else None)
+        if synth_cols and best_df is not None:
+            from backend.app.pipeline.profiler import populate_synthetic_columns
+            best_df = populate_synthetic_columns(best_df, synth_cols, seed=seed)
+
         # ── VALIDATION ───────────────────────────────────────────────────
         job_store.update_job(jid, state="validating", progress=78, message="Running validation checks…")
         from backend.app.engine.validation import validation_engine

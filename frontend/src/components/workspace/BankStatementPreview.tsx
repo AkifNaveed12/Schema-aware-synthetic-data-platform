@@ -39,7 +39,7 @@ export const BankStatementPreview: React.FC<BankStatementPreviewProps> = ({
               Natural Language → Structured Configuration
             </span>
           </div>
-          <span className="text-xs text-brand-secondary">Theme Slide 8 Compliance</span>
+          <span className="text-xs text-brand-secondary">Deterministic Balance Verification</span>
         </div>
 
         <form onSubmit={handleQuerySubmit} className="flex items-center gap-2">
@@ -180,7 +180,7 @@ export const BankStatementPreview: React.FC<BankStatementPreviewProps> = ({
           <div className="flex items-center gap-2">
             <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             <span className="font-medium text-brand-hero">
-              Slide 8 Verified: Deterministic calculation (Current = Previous + Credit − Debit)
+              Audited: Deterministic calculation (Current = Previous + Credit − Debit)
             </span>
           </div>
           <span className="font-mono text-[11px] text-brand-teal font-semibold">
