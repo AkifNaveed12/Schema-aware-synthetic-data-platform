@@ -198,3 +198,43 @@ class ExportData(BaseModel):
     download_url: Optional[str] = None
     raw_content: Optional[str] = None
     size_bytes: int
+
+# 9. AI Intelligence
+class AIQueryInterpretRequest(BaseModel):
+    query: str
+    modality: Literal["tabular", "relational", "document"] = "tabular"
+
+class AIQueryInterpretData(BaseModel):
+    modality: str
+    document_type: Optional[str] = None
+    row_count: int
+    locale: str
+    currency: str
+    domain: str
+    filters: Dict[str, Any] = Field(default_factory=dict)
+    distributions: Dict[str, Any] = Field(default_factory=dict)
+    edge_cases: List[str] = Field(default_factory=list)
+    explanation: str
+    ai_used: bool = False
+    cache_hit: bool = False
+
+class AISemanticPoolRequest(BaseModel):
+    category: str
+    count: int = Field(default=10, ge=1, le=100)
+    domain: str = "ecommerce"
+
+class AISemanticPoolData(BaseModel):
+    category: str
+    count: int
+    items: List[str]
+
+class AIMetricsData(BaseModel):
+    provider: str
+    model: str
+    is_live: bool
+    total_api_calls: int
+    total_tokens_used: int
+    avg_latency_ms: float
+    cache: Dict[str, Any]
+    rate_limiter: Dict[str, Any]
+
