@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   ModalityType,
   DocumentSubtype,
@@ -7,7 +7,8 @@ import {
   InvoiceDocument,
   BankStatementDocument,
 } from '../../types';
-import { Download, Copy, Check, X, FileText, Database, Code, FileSpreadsheet } from 'lucide-react';
+import { Download, Copy, Check, X, FileText, Database, Code, FileSpreadsheet, Sparkles } from 'lucide-react';
+import { fetchBackendExport } from '../../api/client';
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -32,6 +33,30 @@ export const ExportModal: React.FC<ExportModalProps> = ({
 }) => {
   const [selectedFormat, setSelectedFormat] = useState<'csv' | 'json' | 'sql' | 'pdf'>('csv');
   const [isCopied, setIsCopied] = useState(false);
+  const [backendExportContent, setBackendExportContent] = useState<string | null>(null);
+  const [backendFilename, setBackendFilename] = useState<string | null>(null);
+  const [isExportLoading, setIsExportLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    let isMounted = true;
+    const loadBackendExport = async () => {
+      setIsExportLoading(true);
+      let ds: any;
+      if (modality === 'tabular') ds = { rows: tabularRows };
+      else if (modality === 'relational') ds = { tables: { customers: relationalDataset.customers, orders: relationalDataset.orders, order_items: relationalDataset.order_items } };
+      else if (modality === 'documents') ds = docSubtype === 'invoices' ? { invoices: [invoice] } : { statement: bankStatement };
+
+      const res = await fetchBackendExport(selectedFormat, modality, ds);
+      if (isMounted && res.data.raw_content) {
+        setBackendExportContent(res.data.raw_content);
+        setBackendFilename(res.data.filename);
+      }
+      if (isMounted) setIsExportLoading(false);
+    };
+    loadBackendExport();
+    return () => { isMounted = false; };
+  }, [isOpen, selectedFormat, modality, docSubtype, tabularRows, relationalDataset, invoice, bankStatement]);
 
   if (!isOpen) return null;
 
@@ -137,7 +162,10 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     };
   };
 
-  const { content, filename, mimeType } = generatePayload();
+  const clientPayload = generatePayload();
+  const content = backendExportContent || clientPayload.content;
+  const filename = backendFilename || clientPayload.filename;
+  const mimeType = clientPayload.mimeType;
 
   const handleDownload = () => {
     const blob = new Blob([content], { type: mimeType });
@@ -163,9 +191,17 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-brand-border bg-slate-50">
           <div>
-            <h3 className="text-base font-bold text-brand-hero">
-              Export Synthetic Dataset
-            </h3>
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-bold text-brand-hero">
+                Export Synthetic Dataset
+              </h3>
+              {backendExportContent && (
+                <span className="flex items-center gap-1 font-mono text-[10px] text-teal-700 bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+                  <Sparkles className="w-2.5 h-2.5 text-brand-teal" />
+                  Backend Verified
+                </span>
+              )}
+            </div>
             <p className="text-xs text-brand-secondary font-mono">
               Zero-Code High-Fidelity Export · Multi-Format Target
             </p>

@@ -7,16 +7,19 @@ import {
   RelationalDataset,
   InvoiceDocument,
   BankStatementDocument,
+  EvaluationData,
 } from '../../types';
 import { WorkspaceSidebar } from './WorkspaceSidebar';
 import { LivePreviewCanvas } from './LivePreviewCanvas';
 import { ConfigurationPanel } from './ConfigurationPanel';
 import { ExportModal } from './ExportModal';
+import { ValidationDashboardModal } from './ValidationDashboardModal';
 import {
   fetchTabularPreview,
   fetchRelationalPreview,
   fetchInvoicePreview,
   fetchBankStatementPreview,
+  fetchDatasetEvaluation,
 } from '../../api/client';
 
 export const WorkspaceLayout: React.FC = () => {
@@ -79,6 +82,9 @@ export const WorkspaceLayout: React.FC = () => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isEvalOpen, setIsEvalOpen] = useState(false);
+  const [evaluationData, setEvaluationData] = useState<EvaluationData | null>(null);
+  const [isEvalLoading, setIsEvalLoading] = useState(false);
 
   // Sub-second reactive preview recomputation
   useEffect(() => {
@@ -142,6 +148,27 @@ export const WorkspaceLayout: React.FC = () => {
     handleConfigChange({ naturalLanguageQuery: query });
   };
 
+  const runEvaluation = useCallback(async () => {
+    setIsEvalLoading(true);
+    let datasetPayload: any;
+    if (activeModality === 'tabular') {
+      datasetPayload = { rows: tabularRows };
+    } else if (activeModality === 'relational') {
+      datasetPayload = { tables: { customers: relationalDataset.customers, orders: relationalDataset.orders, order_items: relationalDataset.order_items } };
+    } else if (activeModality === 'documents') {
+      datasetPayload = activeDocSubtype === 'invoices' ? { invoices: [invoice] } : { statement: bankStatement };
+    }
+
+    const evalRes = await fetchDatasetEvaluation(activeModality, datasetPayload);
+    setEvaluationData(evalRes.data);
+    setIsEvalLoading(false);
+  }, [activeModality, activeDocSubtype, tabularRows, relationalDataset, invoice, bankStatement]);
+
+  const handleOpenEvaluation = () => {
+    setIsEvalOpen(true);
+    runEvaluation();
+  };
+
   return (
     <div className="flex w-full h-[calc(100vh-3.5rem)] overflow-hidden bg-brand-canvas">
       {/* 1. Left Sidebar (Workspace Navigation, #0F172A) */}
@@ -151,6 +178,7 @@ export const WorkspaceLayout: React.FC = () => {
         onSelectModality={setActiveModality}
         onSelectDocSubtype={setActiveDocSubtype}
         activeSeed={config.randomSeed}
+        onOpenEvaluation={handleOpenEvaluation}
       />
 
       {/* 2. Center Stage (Live Preview Canvas, #F8F7F4 / #FFFFFF) */}
@@ -165,6 +193,7 @@ export const WorkspaceLayout: React.FC = () => {
         isLoading={isLoading}
         onRefresh={recomputePreview}
         onApplyBankQuery={handleApplyBankQuery}
+        onOpenEvaluation={handleOpenEvaluation}
       />
 
       {/* 3. Right Drawer (Configuration Panel, #FFFFFF) */}
@@ -185,6 +214,16 @@ export const WorkspaceLayout: React.FC = () => {
         relationalDataset={relationalDataset}
         invoice={invoice}
         bankStatement={bankStatement}
+      />
+
+      {/* Validation & Evaluation Dashboard Modal */}
+      <ValidationDashboardModal
+        isOpen={isEvalOpen}
+        onClose={() => setIsEvalOpen(false)}
+        modality={activeModality}
+        evaluation={evaluationData}
+        isLoading={isEvalLoading}
+        onReevaluate={runEvaluation}
       />
     </div>
   );

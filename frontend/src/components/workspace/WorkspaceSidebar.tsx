@@ -8,6 +8,7 @@ interface WorkspaceSidebarProps {
   onSelectModality: (modality: ModalityType) => void;
   onSelectDocSubtype: (subtype: DocumentSubtype) => void;
   activeSeed: number;
+  onOpenEvaluation?: () => void;
 }
 
 export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
@@ -16,6 +17,7 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   onSelectModality,
   onSelectDocSubtype,
   activeSeed,
+  onOpenEvaluation,
 }) => {
   return (
     <aside className="hidden md:flex flex-col justify-between w-64 min-w-[256px] h-full bg-brand-sidebar text-slate-300 p-4 border-r border-slate-800 select-none">
@@ -124,12 +126,16 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           </span>
         </div>
 
-        <div className="flex items-center justify-between text-slate-400 px-1">
+        <button
+          onClick={onOpenEvaluation}
+          title="Open quality evaluation audit"
+          className="flex items-center justify-between text-slate-400 hover:text-white px-1 py-1 rounded hover:bg-slate-800/60 transition-all text-left w-full cursor-pointer"
+        >
           <span>Integrity Engine</span>
-          <span className="flex items-center gap-1 text-emerald-400">
+          <span className="flex items-center gap-1 text-emerald-400 font-semibold">
             <Shield className="w-3 h-3" /> 100% Valid
           </span>
-        </div>
+        </button>
 
         <div className="rounded-lg bg-slate-900/80 p-2.5 border border-slate-800 text-[10px] text-slate-400 leading-relaxed">
           <span className="text-teal-400 font-semibold">HackData V2 Engine</span>

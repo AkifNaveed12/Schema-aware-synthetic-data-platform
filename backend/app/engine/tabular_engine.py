@@ -84,6 +84,26 @@ class TabularEngine:
         col_names = [col.name for col in columns]
         for i in range(row_count):
             row_dict = {name: col_data[name][i] for name in col_names}
+            if "ID" in row_dict and "id" not in row_dict:
+                row_dict["id"] = row_dict["ID"]
+            if "Name" in row_dict and "name" not in row_dict:
+                row_dict["name"] = row_dict["Name"]
+            if "Email" in row_dict and "email" not in row_dict:
+                row_dict["email"] = row_dict["Email"]
+            if "Signup" in row_dict:
+                if "signup_date" not in row_dict:
+                    row_dict["signup_date"] = row_dict["Signup"]
+                if "signupDate" not in row_dict:
+                    row_dict["signupDate"] = row_dict["Signup"]
+            if "Balance" in row_dict and "balance" not in row_dict:
+                row_dict["balance"] = row_dict["Balance"]
+            if "status" not in row_dict and "Status" not in row_dict:
+                row_dict["status"] = "verified" if i % 3 != 0 else "pending"
+            if "syntheticHash" not in row_dict:
+                import hashlib
+                h = hashlib.sha256(f"{row_dict.get('id', i)}_{seed}".encode()).hexdigest()[:12]
+                row_dict["syntheticHash"] = h
+                row_dict["synthetic_hash"] = h
             rows.append(row_dict)
 
         exec_time = round((time.perf_counter() - start_time) * 1000, 2)

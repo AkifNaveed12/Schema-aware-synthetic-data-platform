@@ -25,6 +25,7 @@ interface LivePreviewCanvasProps {
   isLoading: boolean;
   onRefresh: () => void;
   onApplyBankQuery: (query: string) => void;
+  onOpenEvaluation?: () => void;
 }
 
 export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({
@@ -38,6 +39,7 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({
   isLoading,
   onRefresh,
   onApplyBankQuery,
+  onOpenEvaluation,
 }) => {
   return (
     <main className="flex-1 min-w-[480px] lg:min-w-[600px] flex flex-col h-full bg-brand-stage overflow-hidden p-6 select-text">
@@ -48,10 +50,14 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({
             <span className="text-[11px] font-semibold uppercase tracking-wider text-brand-teal">
               LIVE PREVIEW CANVAS · THEME SLIDE 10
             </span>
-            <span className="flex items-center gap-1 font-mono text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+            <button
+              onClick={onOpenEvaluation}
+              title="Click to view full quality & evaluation report"
+              className="flex items-center gap-1 font-mono text-[10px] text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded border border-emerald-200 transition-all cursor-pointer shadow-micro"
+            >
               <ShieldCheck className="w-3 h-3 text-emerald-600" />
-              Referential Integrity: 100% Valid
-            </span>
+              Referential Integrity: 100% Valid · Audit Report
+            </button>
           </div>
 
           <h1 className="text-xl font-bold text-brand-hero tracking-tight mt-0.5">
