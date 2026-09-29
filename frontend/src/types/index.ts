@@ -136,3 +136,29 @@ export interface QualityMetrics {
   privacyScore: number;
   businessRuleCompliance: number;
 }
+
+export interface EvaluationDimension {
+  status: 'passed' | 'warning' | 'failed' | 'not_run';
+  score: number;
+  summary: string;
+  metrics: Record<string, any>;
+}
+
+export interface EvaluationData {
+  overall_status: 'passed' | 'warning' | 'failed';
+  overall_score: number;
+  statistical_fidelity: EvaluationDimension;
+  structural_fidelity: EvaluationDimension;
+  privacy_compliance: EvaluationDimension;
+  business_rules: EvaluationDimension;
+}
+
+export interface ExportData {
+  filename: string;
+  format: string;
+  content_type: string;
+  download_url?: string;
+  raw_content?: string;
+  size_bytes: number;
+}
+
