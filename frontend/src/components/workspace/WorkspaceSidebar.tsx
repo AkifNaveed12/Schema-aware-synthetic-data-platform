@@ -55,6 +55,25 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         {/* Primary Modality Navigation */}
         <nav className="flex flex-col gap-1.5">
 
+          {/* Natural Language Generation Button */}
+          <button
+            onClick={() => onSelectModality('natural_language')}
+            className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-xs font-medium transition-all ${
+              activeModality === 'natural_language'
+                ? 'bg-gradient-to-r from-teal-700 to-emerald-700 text-white border border-teal-500/40 shadow-xs'
+                : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+            }`}
+          >
+            <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
+            <div className="flex flex-col text-left">
+              <span className="font-semibold flex items-center gap-1.5">
+                <span>NL Generator</span>
+                <span className="text-[9px] bg-teal-500/20 text-teal-300 px-1 py-0.2 rounded font-mono">NEW</span>
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono">Prompt & Voice → Full Spec</span>
+            </div>
+          </button>
+
           {/* Tabular Button */}
           <button
             onClick={() => onSelectModality('tabular')}

@@ -746,5 +746,77 @@ export async function fetchExecutionHistory(): Promise<ApiResponse<{ total_recor
   }
 }
 
+// 21. Natural-Language Synthetic Data Generation API
+export async function createNlGenerationRequest(
+  userPrompt: string,
+  localeHint?: string,
+  datasetId?: string
+): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/generation-requests`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      user_prompt: userPrompt,
+      locale_hint: localeHint,
+      dataset_id: datasetId,
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to create generation request');
+  }
+  return await res.json();
+}
 
+export async function sendNlGenerationMessage(
+  requestId: string,
+  message: string
+): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/generation-requests/${requestId}/message`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ message }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to send message');
+  }
+  return await res.json();
+}
 
+export async function validateNlGenerationPlan(requestId: string): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/generation-requests/${requestId}/plan/validate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to validate plan');
+  }
+  return await res.json();
+}
+
+export async function executeNlGeneration(
+  requestId: string,
+  datasetId?: string
+): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/generation-requests/${requestId}/generate`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ dataset_id: datasetId }),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to execute generation');
+  }
+  return await res.json();
+}
+
+export async function fetchNlGenerationResult(requestId: string): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/generation-requests/${requestId}/result`);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.detail || 'Failed to fetch result');
+  }
+  return await res.json();
+}

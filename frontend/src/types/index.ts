@@ -1,4 +1,4 @@
-export type ModalityType = 'tabular' | 'relational' | 'documents';
+export type ModalityType = 'tabular' | 'relational' | 'documents' | 'natural_language';
 export type DocumentSubtype = 'invoices' | 'bank_statements';
 
 export interface GenerationConfig {

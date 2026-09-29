@@ -75,8 +75,8 @@ export const DatasetUploadModal: React.FC<DatasetUploadModalProps> = ({
       setErrorMsg('Unsupported format. Please upload a .csv, .json, or .tsv file.');
       return;
     }
-    if (selected.size > 10 * 1024 * 1024) {
-      setErrorMsg('File too large (exceeds 10 MB limit).');
+    if (selected.size > 50 * 1024 * 1024) {
+      setErrorMsg('File too large (exceeds 50 MB limit).');
       return;
     }
     setFile(selected);
@@ -292,7 +292,7 @@ export const DatasetUploadModal: React.FC<DatasetUploadModalProps> = ({
                       Drag & drop your dataset here, or <span className="text-teal-600 underline">browse files</span>
                     </p>
                     <p className="text-xs text-slate-500">
-                      Supports CSV, TSV, or JSON (Array of objects) · Max 10 MB
+                      Supports CSV, TSV, or JSON (Array of objects) · Max 50 MB
                     </p>
                   </div>
                 )}

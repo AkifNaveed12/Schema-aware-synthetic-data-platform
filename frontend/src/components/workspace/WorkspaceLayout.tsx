@@ -21,6 +21,7 @@ import { TstrEvaluationModal } from './TstrEvaluationModal';
 import { RegenerationModal } from './RegenerationModal';
 import { SemanticUnderstandingModal } from './SemanticUnderstandingModal';
 import { SynthiaAssistant } from './SynthiaAssistant';
+import { NaturalLanguageGenerator } from './NaturalLanguageGenerator';
 import {
   fetchTabularPreview,
   fetchRelationalPreview,
@@ -236,33 +237,40 @@ export const WorkspaceLayout: React.FC = () => {
         onOpenSemantic={() => setIsSemanticOpen(true)}
       />
 
-      {/* 2. Center Stage (Live Preview Canvas, #F8F7F4 / #FFFFFF) */}
-      <LivePreviewCanvas
-        modality={activeModality}
-        docSubtype={activeDocSubtype}
-        config={config}
-        tabularRows={tabularRows}
-        relationalDataset={relationalDataset}
-        invoice={invoice}
-        bankStatement={bankStatement}
-        isLoading={isLoading}
-        onRefresh={() => {
-          setIsCustomDatasetActive(false);
-          recomputePreview(config);
-        }}
+      {/* 2. Center Stage (Natural Language Generator or Live Preview Canvas) */}
+      {activeModality === 'natural_language' ? (
+        <div className="flex-1 h-full overflow-hidden">
+          <NaturalLanguageGenerator />
+        </div>
+      ) : (
+        <>
+          <LivePreviewCanvas
+            modality={activeModality}
+            docSubtype={activeDocSubtype}
+            config={config}
+            tabularRows={tabularRows}
+            relationalDataset={relationalDataset}
+            invoice={invoice}
+            bankStatement={bankStatement}
+            isLoading={isLoading}
+            onRefresh={() => {
+              setIsCustomDatasetActive(false);
+              recomputePreview(config);
+            }}
+            onApplyBankQuery={handleApplyBankQuery}
+            onOpenEvaluation={handleOpenEvaluation}
+            onOpenUploadModal={() => setIsUploadOpen(true)}
+          />
 
-        onApplyBankQuery={handleApplyBankQuery}
-        onOpenEvaluation={handleOpenEvaluation}
-        onOpenUploadModal={() => setIsUploadOpen(true)}
-      />
-
-      {/* 3. Right Drawer (Configuration Panel, #FFFFFF) */}
-      <ConfigurationPanel
-        config={config}
-        onChange={handleConfigChange}
-        onExportClick={() => setIsExportOpen(true)}
-        isGenerating={isLoading}
-      />
+          {/* 3. Right Drawer (Configuration Panel, #FFFFFF) */}
+          <ConfigurationPanel
+            config={config}
+            onChange={handleConfigChange}
+            onExportClick={() => setIsExportOpen(true)}
+            isGenerating={isLoading}
+          />
+        </>
+      )}
 
       {/* Dataset Upload & Profiling Modal (Part II Workflow) */}
       <DatasetUploadModal

@@ -12,6 +12,7 @@ from backend.app.api.v1 import (
     datasets,
     jobs,
     differentiators,
+    nl_generation,
 )
 
 api_v1_router = APIRouter()
@@ -28,5 +29,6 @@ api_v1_router.include_router(evaluation.router, tags=["Quality Evaluation"])
 api_v1_router.include_router(export.router, tags=["Export Engine"])
 api_v1_router.include_router(ai.router, tags=["AI Intelligence & Semantic Layer"])
 api_v1_router.include_router(differentiators.router, tags=["Differentiators & AI Assistant"])
+api_v1_router.include_router(nl_generation.router, tags=["Natural-Language Synthetic Data Generation"])
 
 

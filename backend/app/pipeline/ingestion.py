@@ -12,7 +12,7 @@ from typing import Dict, Optional, Tuple
 import pandas as pd
 
 # ── Constants ─────────────────────────────────────────────────────────────────
-MAX_FILE_BYTES = 10 * 1024 * 1024      # 10 MB hard limit
+MAX_FILE_BYTES = 50 * 1024 * 1024      # 50 MB hard limit
 MAX_ROWS_PROFILING = 100_000           # rows cap for profiling
 SUPPORTED_MIME = {
     "text/csv", "text/plain", "application/json",
@@ -72,7 +72,7 @@ def _validate_size(data: bytes) -> None:
     if len(data) > MAX_FILE_BYTES:
         mb = len(data) / (1024 * 1024)
         raise IngestionError(
-            f"File too large ({mb:.1f} MB). Maximum allowed size is 10 MB."
+            f"File too large ({mb:.1f} MB). Maximum allowed size is 50 MB."
         )
 
 

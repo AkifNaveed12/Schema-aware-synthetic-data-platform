@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     SUPABASE_SERVICE_ROLE_KEY: str = ""
     MAX_ROW_COUNT: int = 10000
     DEFAULT_PREVIEW_ROWS: int = 50
-    MAX_UPLOAD_SIZE_MB: int = 10
+    MAX_UPLOAD_SIZE_MB: int = 50
 
     model_config = SettingsConfigDict(
         env_file=("backend/.env", ".env"),

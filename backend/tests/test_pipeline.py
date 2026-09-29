@@ -54,7 +54,7 @@ def test_ingestion_json():
 
 def test_ingestion_rejects_large_file():
     from backend.app.pipeline.ingestion import ingest, IngestionError
-    big = b"x" * (11 * 1024 * 1024)
+    big = b"x" * (51 * 1024 * 1024)
     try:
         ingest(big, "toobig.csv")
         assert False, "Should have raised IngestionError"
