@@ -19,6 +19,7 @@ from typing import Any, Dict, List, Optional, Set
 import numpy as np
 from faker import Faker
 
+from backend.app.core.email_utils import generate_realistic_email
 from backend.app.models.data_profile import (
     ColumnProfile,
     DataProfile,
@@ -101,7 +102,8 @@ def _generate_value(
     dist = col.distribution
 
     if semantic == "email":
-        return fake.email()
+        from backend.app.core.email_utils import generate_realistic_email
+        return generate_realistic_email(fake, rng)
     if semantic in ("full_name", "name", "first_name", "last_name"):
         return fake.name()
     if semantic == "company":
@@ -294,10 +296,11 @@ def _generate_ecommerce_preset(
     customers: List[Dict[str, Any]] = []
     for i in range(num_customers):
         c_id = 1000 + i + 1
+        c_name = fake.name()
         customers.append({
             "customer_id": c_id,
-            "name": fake.name(),
-            "email": fake.email(),
+            "name": c_name,
+            "email": generate_realistic_email(fake, rng, name=c_name),
         })
 
     orders: List[Dict[str, Any]] = []

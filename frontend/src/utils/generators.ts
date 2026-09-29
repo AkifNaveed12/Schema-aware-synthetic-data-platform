@@ -32,7 +32,7 @@ function sampleLogNormal(rand: () => number, mu: number, sigma: number): number 
 
 const FIRST_NAMES = ['Maria', 'Ahmed', 'Sofia', 'Marcus', 'Elena', 'Lucas', 'Fatima', 'Dmitri', 'Aisha', 'Oliver', 'Li', 'Hassan', 'Chloe', 'Arjun', 'Zoe'];
 const LAST_NAMES = ['Chen', 'Raza', 'Ivanova', 'Vance', 'Reyes', 'Schmidt', 'Al-Mansoor', 'Volkov', 'Diallo', 'Sinclair', 'Wang', 'Malik', 'Dubois', 'Patel', 'Novak'];
-const DOMAINS = ['synthdata.io', 'acme-corp.io', 'demo-labs.net', 'cloudsystem.co', 'enterprise-data.org'];
+const DOMAINS = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'icloud.com', 'proton.me'];
 
 // Generate Tabular Preview Data
 export function generateTabularData(config: GenerationConfig): TabularRow[] {
@@ -156,7 +156,8 @@ export function generateRelationalData(config: GenerationConfig): RelationalData
     const fIdx = Math.floor(rand() * FIRST_NAMES.length);
     const lIdx = Math.floor(rand() * LAST_NAMES.length);
     const name = `${FIRST_NAMES[fIdx]} ${LAST_NAMES[lIdx]}`;
-    const email = `${FIRST_NAMES[fIdx].toLowerCase()[0]}.${LAST_NAMES[lIdx].toLowerCase()}@synthdata.io`;
+    const domain = DOMAINS[Math.floor(rand() * DOMAINS.length)];
+    const email = `${FIRST_NAMES[fIdx].toLowerCase()[0]}.${LAST_NAMES[lIdx].toLowerCase().replace(/[^a-z]/g, '')}@${domain}`;
     customers.push({
       customer_id,
       name,

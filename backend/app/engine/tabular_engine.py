@@ -182,7 +182,8 @@ class TabularEngine:
             results = [datetime.fromtimestamp(ts).strftime("%Y-%m-%d") for ts in rand_ts]
 
         elif semantic == "email":
-            results = [fake.email() for _ in range(row_count)]
+            from backend.app.core.email_utils import generate_realistic_email
+            results = [generate_realistic_email(fake, rng) for _ in range(row_count)]
 
         elif semantic in ["full_name", "name"]:
             results = [fake.name() for _ in range(row_count)]

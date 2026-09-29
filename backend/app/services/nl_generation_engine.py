@@ -193,17 +193,29 @@ class NaturalLanguageGenerationEngine:
             )
             return spec, clarification
 
-        # Detect modality
+        # Detect modality:
+        # Default to tabular unless explicitly asking for multi-table relational or business documents
         modality = "tabular"
         doc_type = None
-        if any(k in prompt_lower for k in ["relational", "invoice items", "customers and orders", "multi-table", "foreign key"]):
+
+        is_relational_intent = any(k in prompt_lower for k in [
+            "relational", "invoice items", "customers and orders", "multi-table", "foreign key", "relational billing"
+        ])
+        is_document_intent = any(k in prompt_lower for k in [
+            "bank statement", "account statement", "financial statement", "invoices document", "invoice pdf", "billing invoice"
+        ]) or (
+            any(k in prompt_lower for k in ["invoice", "invoices", "bank statement"])
+            and not any(k in prompt_lower for k in ["dataset", "rows", "customer", "customers", "table", "csv", "sql"])
+        )
+
+        if is_relational_intent:
             modality = "relational"
-        elif any(k in prompt_lower for k in ["invoice", "invoices", "bill", "billing"]) and "relational" not in prompt_lower:
+        elif is_document_intent:
             modality = "document"
-            doc_type = "invoice"
-        elif any(k in prompt_lower for k in ["bank statement", "statement", "ledger", "balance"]):
-            modality = "document"
-            doc_type = "bank_statement"
+            if any(k in prompt_lower for k in ["bank statement", "statement", "ledger", "balance"]):
+                doc_type = "bank_statement"
+            else:
+                doc_type = "invoice"
 
         # Detect domain
         domain = "retail"
@@ -527,19 +539,22 @@ class NaturalLanguageGenerationEngine:
         elif spec.modality == "document":
             if spec.document_type == "bank_statement":
                 bs_req = BankStatementGenerateRequest(
-                    company_name="Atlas Financial Services",
-                    opening_balance=50000.0,
-                    transaction_count=min(100, total_rows_requested),
-                    random_seed=42
+                    company_name="Atlas Financial Services" if hasattr(BankStatementGenerateRequest, "company_name") else None,
+                    starting_balance=50000.0,
+                    transaction_count=max(5, min(100, total_rows_requested)),
+                    random_seed=42,
+                    locale=faker_locale,
+                    currency=spec.locale.get("currency", "PKR")
                 )
                 bs_res = document_engine.generate_bank_statement(bs_req)
                 document_data = bs_res.statement.model_dump()
                 generated_rows = [t.model_dump() for t in bs_res.statement.transactions[:50]]
             else:
                 inv_req = InvoiceGenerateRequest(
-                    invoice_count=min(100, total_rows_requested),
-                    company_name="Indus Retail Corp",
+                    count=max(1, min(100, total_rows_requested)),
+                    vendor_name="Indus Retail Corp",
                     currency=spec.locale.get("currency", "PKR"),
+                    locale=faker_locale,
                     random_seed=42
                 )
                 inv_res = document_engine.generate_invoices(inv_req)
@@ -658,17 +673,28 @@ class NaturalLanguageGenerationEngine:
         }
 
         df_preview = pd.DataFrame(generated_rows[:50])
-        # Convert any numpy types to native Python types for clean JSON serialization
+        # Convert any numpy types and nested structures to native Python types for clean JSON serialization
         sanitized_preview: List[Dict[str, Any]] = []
         for r in generated_rows[:50]:
             clean_r = {}
             for k, v in r.items():
                 if hasattr(v, "item"):
                     clean_r[k] = v.item()
-                elif pd.isna(v):
+                elif isinstance(v, (list, tuple)):
+                    # Represent nested document sub-structures (e.g. line_items) safely
+                    clean_r[k] = [item.model_dump() if hasattr(item, "model_dump") else item for item in v]
+                elif isinstance(v, dict):
+                    clean_r[k] = {dk: (dv.item() if hasattr(dv, "item") else dv) for dk, dv in v.items()}
+                elif v is None:
                     clean_r[k] = None
                 else:
-                    clean_r[k] = v
+                    try:
+                        if pd.isna(v):
+                            clean_r[k] = None
+                        else:
+                            clean_r[k] = v
+                    except Exception:
+                        clean_r[k] = str(v)
             sanitized_preview.append(clean_r)
 
         csv_preview = df_preview.to_csv(index=False)

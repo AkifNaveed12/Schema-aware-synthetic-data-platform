@@ -39,6 +39,7 @@ export const NaturalLanguageGenerator: React.FC = () => {
   const [generatedResult, setGeneratedResult] = useState<any | null>(null);
   const [conversation, setConversation] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'preview' | 'audit' | 'ledger' | 'exports'>('preview');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Speech Recognition hook
   const recognitionRef = useRef<any>(null);
@@ -107,7 +108,7 @@ export const NaturalLanguageGenerator: React.FC = () => {
         setGenerationStep('validated');
       }
     } catch (err: any) {
-      alert(`Error initializing request: ${err.message}`);
+      setErrorMessage(`Error initializing request: ${err.message}`);
       setGenerationStep('idle');
     } finally {
       setIsLoading(false);
@@ -118,6 +119,7 @@ export const NaturalLanguageGenerator: React.FC = () => {
     if (!requestId || !prompt.trim()) return;
 
     setIsLoading(true);
+    setErrorMessage(null);
     try {
       const res = await sendNlGenerationMessage(requestId, prompt);
       setSpec(res.specification);
@@ -134,7 +136,7 @@ export const NaturalLanguageGenerator: React.FC = () => {
         setGenerationStep('validated');
       }
     } catch (err: any) {
-      alert(`Error refining specification: ${err.message}`);
+      setErrorMessage(`Error refining specification: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -144,6 +146,7 @@ export const NaturalLanguageGenerator: React.FC = () => {
     if (!requestId) return;
 
     setIsLoading(true);
+    setErrorMessage(null);
     setGenerationStep('generating');
 
     try {
@@ -153,7 +156,7 @@ export const NaturalLanguageGenerator: React.FC = () => {
       setQualityReport(res.quality_report);
       setGenerationStep('completed');
     } catch (err: any) {
-      alert(`Generation failed: ${err.message}`);
+      setErrorMessage(`Generation failed: ${err.message}`);
       setGenerationStep('validated');
     } finally {
       setIsLoading(false);
@@ -216,6 +219,25 @@ export const NaturalLanguageGenerator: React.FC = () => {
           <span className="text-teal-400 font-semibold uppercase">{generationStep}</span>
         </div>
       </div>
+
+      {/* Error Message Banner */}
+      {errorMessage && (
+        <div className="bg-rose-950/60 border border-rose-800/80 rounded-2xl p-4 flex items-start justify-between gap-3 text-rose-200">
+          <div className="flex items-start gap-2.5">
+            <AlertTriangle className="w-5 h-5 text-rose-400 shrink-0 mt-0.5" />
+            <div className="text-xs">
+              <span className="font-bold uppercase tracking-wider block text-rose-300">Generation Notice</span>
+              <span>{errorMessage}</span>
+            </div>
+          </div>
+          <button
+            onClick={() => setErrorMessage(null)}
+            className="text-xs text-rose-400 hover:text-white px-2 py-1 rounded bg-rose-900/40 border border-rose-800"
+          >
+            Dismiss
+          </button>
+        </div>
+      )}
 
       {/* Main Input Control */}
       <div className="bg-slate-900/90 rounded-2xl p-5 border border-slate-800 shadow-md space-y-4">
@@ -491,9 +513,19 @@ export const NaturalLanguageGenerator: React.FC = () => {
                 <tbody className="divide-y divide-slate-800/60 font-mono text-slate-300">
                   {generatedResult.preview_rows.map((row: any, rIdx: number) => (
                     <tr key={rIdx} className="hover:bg-slate-800/40">
-                      {Object.values(row).map((val: any, cIdx: number) => (
-                        <td key={cIdx} className="p-2.5 whitespace-nowrap">
-                          {typeof val === 'object' ? JSON.stringify(val) : String(val)}
+                      {Object.entries(row).map(([k, val]: [string, any], cIdx: number) => (
+                        <td key={cIdx} className="p-2.5 whitespace-nowrap max-w-xs truncate" title={typeof val === 'object' ? JSON.stringify(val, null, 2) : String(val)}>
+                          {Array.isArray(val) ? (
+                            <span className="px-1.5 py-0.5 bg-teal-950 text-teal-300 rounded border border-teal-800/50 text-[10px]">
+                              {val.length} items
+                            </span>
+                          ) : typeof val === 'object' && val !== null ? (
+                            <span className="px-1.5 py-0.5 bg-slate-800 text-slate-300 rounded text-[10px]">
+                              {Object.keys(val).length} fields
+                            </span>
+                          ) : (
+                            String(val)
+                          )}
                         </td>
                       ))}
                     </tr>
