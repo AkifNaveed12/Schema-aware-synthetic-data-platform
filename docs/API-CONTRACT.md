@@ -1624,3 +1624,49 @@ DEPLOYMENT.md
 MASTER-PLAN.md
 
 Any future implementation decision that changes one of these boundaries must be reflected across the relevant documentation before development proceeds.
+
+---
+
+# 50. Part I Differentiator & Enhancement Endpoints (Part I — Akif Complete)
+
+The following endpoints have been added and verified in the backend for Part I to power the frontend differentiator UI components built by Hamza:
+
+### 50.1 Synthetic Columns
+- `POST /api/v1/datasets/{dataset_id}/synthetic-columns`
+  - **Body:** `SyntheticColumnSpec` (name, data_type, semantic_type, range_min, range_max, categories, weights, date_start, date_end, nullable, etc.)
+  - **Response:** `SuccessResponse` with `column_added`, `total_synthetic_columns`, `all_synthetic_columns`.
+- `GET /api/v1/datasets/{dataset_id}/synthetic-columns`
+  - **Response:** `SuccessResponse` with `count`, `synthetic_columns`.
+
+### 50.2 Real Model Benchmarking
+- `POST /api/v1/datasets/{dataset_id}/benchmark`
+  - **Body:** `{ "evaluation_sample_size": 50, "seed": 42 }`
+  - **Response:** `SuccessResponse` with `selected_model`, `selection_reason`, `best_overall_score`, `candidates`: list of `{ name, available, fit_status, sample_status, fit_time_ms, sample_time_ms, memory_mb, schema_validity, overall_score, distribution_fidelity, novelty_rate, privacy_score, hard_constraint_passed, failure_reason, selection_reason }`.
+
+### 50.3 TSTR (Train on Synthetic, Test on Real)
+- `GET /api/v1/datasets/{dataset_id}/tstr/targets`
+  - **Response:** `SuccessResponse` with `available_targets_count`, `targets`: list of `{ column, task_type, classes_count, data_type }`.
+- `POST /api/v1/datasets/{dataset_id}/tstr`
+  - **Body:** `{ "target_column": str, "task_type": "classification"|"regression", "test_size": 0.25, "seed": 42 }`
+  - **Response:** `SuccessResponse` with `task_type`, `utility_retention_pct`, `retention_formula`, `real_to_real` metrics, and `synthetic_to_real` metrics.
+
+### 50.4 Controlled Regeneration
+- `POST /api/v1/datasets/{dataset_id}/regenerate/diagnose`
+  - **Response:** `SuccessResponse` with `diagnostics_count`, `findings`: list of `{ issue_type, severity, message, recommended_strategy }`.
+- `POST /api/v1/datasets/{dataset_id}/regenerate`
+  - **Body:** `{ "strategy": "rebalance_categories"|"change_model"|"change_seed"|"strengthen_constraints"|"adjust_distribution_fitting", "reason": str, "current_model": str, "seed": int }`
+  - **Response:** `SuccessResponse` with `regeneration_id`, `strategy`, `previous_metrics`, `new_metrics`, `improvement_delta`, `improved`: bool, `preferred_run`: "new"|"previous".
+
+### 50.5 Synthia Assistant
+- `POST /api/v1/assistant/synthia/session`
+  - **Body:** `{ "dataset_id": str | null, "language": "en"|"ur"|"roman_ur" }`
+  - **Response:** `SuccessResponse` with `session_id`, `greeting`, `language`.
+- `GET /api/v1/assistant/synthia/session/{session_id}`
+  - **Response:** `SuccessResponse` with message history.
+- `POST /api/v1/assistant/synthia/message`
+  - **Body:** `{ "session_id": str, "message": str, "dataset_id": str | null, "language": str | null, "context": dict | null }`
+  - **Response:** `SuccessResponse` with `reply`, `language`, `proposal`: structured action proposal (or null).
+- `POST /api/v1/assistant/synthia/action`
+  - **Body:** `{ "session_id": str, "dataset_id": str, "action_type": str, "proposal": dict, "confirmed": true }`
+  - **Response:** `SuccessResponse` confirming applied action and updated dataset/profile state.
+

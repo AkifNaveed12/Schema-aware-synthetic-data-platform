@@ -24,6 +24,8 @@ from backend.app.models.adapters.statistical import StatisticalBaselineAdapter
 from backend.app.models.adapters.deterministic import DeterministicFallbackAdapter
 from backend.app.models.adapters.ctgan_adapter import CTGANAdapter
 from backend.app.models.adapters.tvae_adapter import TVAEAdapter
+from backend.app.engine.synthetic_column_generator import apply_synthetic_columns
+from backend.app.services.supabase_service import supabase_service
 
 
 def _run_job(job: Job) -> None:
@@ -150,6 +152,12 @@ def _run_job(job: Job) -> None:
             best_df = det_adapter.sample(num_rows, seed=seed)
             best_name = "deterministic_fallback"
 
+        # ── APPLY SYNTHETIC COLUMNS (if configured on DataProfile) ────────
+        synth_cols = getattr(profile, "synthetic_columns", []) or []
+        if synth_cols:
+            log(f"Generating {len(synth_cols)} synthetic column(s): {[c.name for c in synth_cols]}")
+            best_df = apply_synthetic_columns(best_df, synth_cols, seed=seed)
+
         # ── VALIDATION ───────────────────────────────────────────────────
         job_store.update_job(jid, state="validating", progress=78, message="Running validation checks…")
         from backend.app.engine.validation import validation_engine
@@ -194,13 +202,14 @@ def _run_job(job: Job) -> None:
         }
 
         # ── STORE RESULT ─────────────────────────────────────────────────
+        preview_rows = best_df.head(100).to_dict(orient="records")
         result = {
             "job_id": jid,
             "dataset_id": job.dataset_id,
             "selected_model": best_name,
             "rows_generated": len(best_df),
             "columns": list(best_df.columns),
-            "rows": best_df.head(100).to_dict(orient="records"),  # preview 100 rows
+            "rows": preview_rows,  # preview 100 rows
             "total_rows": len(best_df),
             "seed": seed,
             "validation": validation_result,
@@ -214,6 +223,33 @@ def _run_job(job: Job) -> None:
         session_data["last_job_id"] = jid
         session_data["last_result"] = result
         job_store.store_session(job.dataset_id, session_data)
+
+        # Durable persistence to Supabase (graceful fallback if offline)
+        try:
+            supabase_service.persist_generation_run(
+                run_id=jid,
+                dataset_id=job.dataset_id,
+                model=best_name or "statistical",
+                requested_rows=num_rows,
+                seed=seed,
+                status="completed",
+                metrics=eval_summary,
+            )
+            supabase_service.persist_generation_result(
+                result_id=f"res_{jid}",
+                generation_run_id=jid,
+                row_count=len(best_df),
+                schema_json={"columns": list(best_df.columns)},
+                preview_json=preview_rows[:25],
+            )
+            supabase_service.persist_evaluation_result(
+                eval_id=f"eval_{jid}",
+                generation_run_id=jid,
+                evaluation_type="tabular",
+                metrics_json=eval_summary,
+            )
+        except Exception as sup_exc:
+            log(f"Supabase persistence note: {sup_exc}")
 
         job_store.update_job(
             jid,

@@ -103,17 +103,27 @@ class CleaningAction(BaseModel):
 # ── New: Synthetic Column Specification ──────────────────────────────────────
 class SyntheticColumnSpec(BaseModel):
     name: str
-    data_type: str = "string"
+    data_type: str = "string"  # integer, float, string, date, boolean, categorical, currency, email
     semantic_type: Optional[str] = None
     description: Optional[str] = None
+    nullable: bool = False
+    required: bool = True
     range_min: Optional[float] = None
     range_max: Optional[float] = None
     distribution: Optional[DistributionConfig] = None
+    categories: Optional[List[str]] = None
+    weights: Optional[List[float]] = None
+    date_start: Optional[str] = None
+    date_end: Optional[str] = None
+    date_format: Optional[str] = "%Y-%m-%d"
+    format: Optional[str] = None
+    pattern: Optional[str] = None
+    locale: Optional[str] = "en_US"
+    seed: Optional[int] = None
+    relationship_config: Optional[Dict[str, Any]] = None
     source_dependencies: Optional[List[str]] = None
     generation_method: Literal["statistical", "deterministic", "ai_assisted"] = "statistical"
     privacy: Optional[PrivacyRule] = Field(default_factory=PrivacyRule)
-    nullable: bool = False
-    required: bool = True
 
 # ── New: Generation Defaults ─────────────────────────────────────────────────
 class GenerationDefaults(BaseModel):

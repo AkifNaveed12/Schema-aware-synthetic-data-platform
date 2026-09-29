@@ -116,9 +116,9 @@ class JobStore:
                 return False
             job.state = "cancelled"
             job.completed_at = time.time()
+            job.updated_at = time.time()
             job.message = "Job cancelled by user"
             return True
-            job.updated_at = time.time()
 
     def list_jobs(self, dataset_id: Optional[str] = None) -> List[Dict[str, Any]]:
         with self._lock:
