@@ -7,6 +7,7 @@ import {
   Cpu,
   Play,
   Download,
+  Mail,
   RefreshCw,
   X,
   Sliders,
@@ -30,6 +31,7 @@ import {
   SyntheticColumnSpec,
 } from '../../types';
 import { AddSyntheticColumnModal } from './AddSyntheticColumnModal';
+import { EmailDatasetModal } from './EmailDatasetModal';
 
 interface DatasetUploadModalProps {
   isOpen: boolean;
@@ -63,6 +65,7 @@ export const DatasetUploadModal: React.FC<DatasetUploadModalProps> = ({
   // Synthetic Columns state
   const [syntheticColumns, setSyntheticColumns] = useState<SyntheticColumnSpec[]>([]);
   const [isAddColModalOpen, setIsAddColModalOpen] = useState(false);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -705,6 +708,16 @@ export const DatasetUploadModal: React.FC<DatasetUploadModalProps> = ({
                       Download JSON Artifact
                     </a>
                   )}
+                  {ingestedData && (
+                    <button
+                      type="button"
+                      onClick={() => setIsEmailModalOpen(true)}
+                      className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold text-teal-700 bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors border border-teal-200 cursor-pointer"
+                    >
+                      <Mail className="h-3.5 w-3.5" />
+                      Email Dataset
+                    </button>
+                  )}
                 </div>
 
                 <div className="flex gap-3">
@@ -737,6 +750,15 @@ export const DatasetUploadModal: React.FC<DatasetUploadModalProps> = ({
         existingColumnNames={ingestedData?.columns || []}
         existingSyntheticColumns={syntheticColumns}
         onAddColumn={(newCol) => setSyntheticColumns((prev) => [...prev, newCol])}
+      />
+
+      {/* Email Dataset Modal */}
+      <EmailDatasetModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        datasetId={ingestedData?.dataset_id}
+        datasetName={file?.name || ingestedData?.dataset_id}
+        rowCount={generatedRows.length}
       />
     </div>
   );

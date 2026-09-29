@@ -820,3 +820,25 @@ export async function fetchNlGenerationResult(requestId: string): Promise<any> {
   }
   return await res.json();
 }
+
+// 22. Email Dataset via SMTP
+export async function emailGeneratedDataset(payload: {
+  recipient_email: string;
+  dataset_name?: string;
+  export_format?: string;
+  content?: string;
+  row_count?: number;
+  dataset_id?: string;
+  request_id?: string;
+}): Promise<any> {
+  const res = await fetch(`${API_BASE_URL}/export/email`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(json.detail || 'Failed to send dataset email');
+  }
+  return json.data;
+}

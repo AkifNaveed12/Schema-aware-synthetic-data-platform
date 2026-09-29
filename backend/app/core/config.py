@@ -15,6 +15,14 @@ class Settings(BaseSettings):
     DEFAULT_PREVIEW_ROWS: int = 50
     MAX_UPLOAD_SIZE_MB: int = 50
 
+    # SMTP Email Configuration
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USERNAME: str = ""
+    SMTP_PASSWORD: str = ""
+    SMTP_FROM_EMAIL: str = ""
+    SMTP_FROM_NAME: str = "Synthetic Data Generator"
+
     model_config = SettingsConfigDict(
         env_file=("backend/.env", ".env"),
         env_file_encoding="utf-8",

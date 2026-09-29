@@ -17,6 +17,7 @@ import {
   Table as TableIcon,
   ChevronRight,
   Info,
+  Mail,
 } from 'lucide-react';
 import {
   createNlGenerationRequest,
@@ -24,6 +25,7 @@ import {
   validateNlGenerationPlan,
   executeNlGeneration,
 } from '../../api/client';
+import { EmailDatasetModal } from './EmailDatasetModal';
 
 export const NaturalLanguageGenerator: React.FC = () => {
   const [prompt, setPrompt] = useState('');
@@ -40,6 +42,8 @@ export const NaturalLanguageGenerator: React.FC = () => {
   const [conversation, setConversation] = useState<any[]>([]);
   const [activeTab, setActiveTab] = useState<'preview' | 'audit' | 'ledger' | 'exports'>('preview');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
+  const [emailExportFormat, setEmailExportFormat] = useState<'csv' | 'json' | 'sql'>('csv');
 
   // Speech Recognition hook
   const recognitionRef = useRef<any>(null);
@@ -603,19 +607,32 @@ export const NaturalLanguageGenerator: React.FC = () => {
                   </div>
                   <p className="text-[11px] text-slate-400">Comma-separated values with RFC 4180 escaping.</p>
                 </div>
-                <button
-                  onClick={() =>
-                    downloadFile(
-                      generatedResult.exports?.csv || '',
-                      `synthetic_${spec.domain || 'data'}.csv`,
-                      'text/csv'
-                    )
-                  }
-                  className="flex items-center justify-center gap-1.5 py-1.5 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-xs font-semibold"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Download CSV</span>
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() =>
+                      downloadFile(
+                        generatedResult.exports?.csv || '',
+                        `synthetic_${spec.domain || 'data'}.csv`,
+                        'text/csv'
+                      )
+                    }
+                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-xs font-semibold transition-all"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download CSV</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEmailExportFormat('csv');
+                      setIsEmailModalOpen(true);
+                    }}
+                    title="Send dataset via email"
+                    className="flex items-center justify-center gap-1 px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-teal-400 border border-teal-500/40 rounded-lg text-xs font-semibold transition-all"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Email</span>
+                  </button>
+                </div>
               </div>
 
               <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between space-y-3">
@@ -626,19 +643,32 @@ export const NaturalLanguageGenerator: React.FC = () => {
                   </div>
                   <p className="text-[11px] text-slate-400">Structured JSON array format for APIs and document stores.</p>
                 </div>
-                <button
-                  onClick={() =>
-                    downloadFile(
-                      generatedResult.exports?.json || '',
-                      `synthetic_${spec.domain || 'data'}.json`,
-                      'application/json'
-                    )
-                  }
-                  className="flex items-center justify-center gap-1.5 py-1.5 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-xs font-semibold"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Download JSON</span>
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() =>
+                      downloadFile(
+                        generatedResult.exports?.json || '',
+                        `synthetic_${spec.domain || 'data'}.json`,
+                        'application/json'
+                      )
+                    }
+                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-xs font-semibold transition-all"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download JSON</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEmailExportFormat('json');
+                      setIsEmailModalOpen(true);
+                    }}
+                    title="Send dataset via email"
+                    className="flex items-center justify-center gap-1 px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-teal-400 border border-teal-500/40 rounded-lg text-xs font-semibold transition-all"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Email</span>
+                  </button>
+                </div>
               </div>
 
               <div className="bg-slate-950 p-4 rounded-xl border border-slate-800 flex flex-col justify-between space-y-3">
@@ -649,24 +679,54 @@ export const NaturalLanguageGenerator: React.FC = () => {
                   </div>
                   <p className="text-[11px] text-slate-400">Standard DDL and DML INSERT statements ready for database import.</p>
                 </div>
-                <button
-                  onClick={() =>
-                    downloadFile(
-                      generatedResult.exports?.sql || '',
-                      `synthetic_${spec.domain || 'data'}.sql`,
-                      'application/sql'
-                    )
-                  }
-                  className="flex items-center justify-center gap-1.5 py-1.5 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-xs font-semibold"
-                >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>Download SQL</span>
-                </button>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() =>
+                      downloadFile(
+                        generatedResult.exports?.sql || '',
+                        `synthetic_${spec.domain || 'data'}.sql`,
+                        'application/sql'
+                      )
+                    }
+                    className="flex-1 flex items-center justify-center gap-1.5 py-1.5 bg-teal-600 hover:bg-teal-500 text-white rounded-lg text-xs font-semibold transition-all"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span>Download SQL</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      setEmailExportFormat('sql');
+                      setIsEmailModalOpen(true);
+                    }}
+                    title="Send dataset via email"
+                    className="flex items-center justify-center gap-1 px-2.5 py-1.5 bg-slate-900 hover:bg-slate-800 text-teal-400 border border-teal-500/40 rounded-lg text-xs font-semibold transition-all"
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Email</span>
+                  </button>
+                </div>
               </div>
             </div>
           )}
         </div>
       )}
+
+      {/* Email Dataset Modal */}
+      <EmailDatasetModal
+        isOpen={isEmailModalOpen}
+        onClose={() => setIsEmailModalOpen(false)}
+        datasetName={spec?.domain || 'synthetic_dataset'}
+        defaultFormat={emailExportFormat}
+        requestId={requestId || undefined}
+        content={
+          emailExportFormat === 'csv'
+            ? generatedResult?.exports?.csv
+            : emailExportFormat === 'json'
+            ? generatedResult?.exports?.json
+            : generatedResult?.exports?.sql
+        }
+        rowCount={generatedResult?.total_rows || spec?.row_requirements?.total || 100}
+      />
     </div>
   );
 };
