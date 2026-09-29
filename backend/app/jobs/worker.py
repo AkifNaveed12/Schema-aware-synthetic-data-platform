@@ -243,6 +243,48 @@ def _run_job(job: Job) -> None:
 
 
 def submit_job(job: Job) -> None:
-    """Submit a job to run in a background thread."""
+    """Submit a job.
+
+    Production mode (REDIS_URL configured):
+        Enqueues the job reference to the distributed Redis queue.
+        The standalone ML worker process consumes and executes it.
+        Also uploads the source dataset to Supabase Storage for the worker
+        to download by reference.
+
+    Local/development mode (no REDIS_URL):
+        Falls back to the original in-process daemon thread approach so
+        local development and all existing tests continue to work unchanged.
+    """
+    from backend.app.services.queue_service import enqueue_job, is_queue_configured
+    from backend.app.services.supabase_service import supabase_service, upload_raw_dataset
+
+    # Persist durable job record (best-effort, non-blocking)
+    try:
+        supabase_service.upsert_job_record(job.to_dict() | {"config": job.config})
+    except Exception:
+        pass  # Non-fatal: in-memory job_store is the source of truth locally
+
+    if is_queue_configured():
+        # Upload source dataset to Supabase Storage so the worker can fetch it
+        session = job_store.get_session(job.dataset_id)
+        if session and "df" in session:
+            try:
+                upload_raw_dataset(job.dataset_id, session["df"])
+            except Exception as exc:
+                import logging
+                logging.getLogger("hackdata.worker").warning(
+                    "Failed to upload dataset %s to Supabase before enqueue: %s",
+                    job.dataset_id, exc
+                )
+        enqueued = enqueue_job(job.job_id, job.dataset_id, job.config)
+        if enqueued:
+            return  # Worker will pick it up from Redis
+        # If Redis enqueue fails, fall through to thread-based execution
+        import logging
+        logging.getLogger("hackdata.worker").warning(
+            "Redis enqueue failed for job %s — falling back to in-process thread", job.job_id
+        )
+
+    # Local / fallback: run in a daemon thread within the API process
     t = threading.Thread(target=_run_job, args=(job,), daemon=True)
     t.start()

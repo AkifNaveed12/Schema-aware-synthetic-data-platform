@@ -18,11 +18,12 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# CORS Middleware — allow localhost on any port (3000, 5173, etc.) and all configured origins
+# CORS Middleware — in development allow localhost on any port; in production use explicit origins only
+_is_production = settings.ENVIRONMENT.lower() in ("production", "prod")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins if "*" not in settings.cors_origins else ["*"],
-    allow_origin_regex=r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
+    allow_origin_regex=None if _is_production else r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

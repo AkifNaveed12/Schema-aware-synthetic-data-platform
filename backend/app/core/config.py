@@ -11,6 +11,7 @@ class Settings(BaseSettings):
     GROQ_ASSISTANT_API_KEY: str = ""
     SUPABASE_URL: str = ""
     SUPABASE_SERVICE_ROLE_KEY: str = ""
+    REDIS_URL: str = ""  # Redis/Valkey URL for distributed job queue (production only)
     MAX_ROW_COUNT: int = 10000
     DEFAULT_PREVIEW_ROWS: int = 50
     MAX_UPLOAD_SIZE_MB: int = 50

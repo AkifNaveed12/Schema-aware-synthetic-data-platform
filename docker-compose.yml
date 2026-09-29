@@ -1,0 +1,66 @@
+# docker-compose.yml
+# HackData V2 — Local Distributed Development & Testing Stack
+#
+# Services:
+#   redis  - Local Valkey/Redis-compatible queue (mimics Render Key Value)
+#   api    - FastAPI backend (same Docker image as production)
+#   worker - ML background worker (same Docker image as production)
+#
+# Usage:
+#   docker-compose up --build
+#   # or to test without Docker for API/worker:
+#   # Terminal 1: cd frontend && npm run dev
+#   # Terminal 2: cd backend && uvicorn backend.app.main:app --reload
+#   # Terminal 3: python worker/main.py
+#   # Terminal 4: docker run -p 6379:6379 valkey/valkey:latest
+
+services:
+  redis:
+    image: valkey/valkey:8-alpine
+    container_name: hackdata-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "valkey-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: hackdata-api
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - REDIS_URL=redis://redis:6379/0
+      - ALLOWED_ORIGINS=http://localhost:5173,http://localhost:3000
+    env_file:
+      - backend/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      start_period: 60s
+      retries: 3
+
+  worker:
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
+    container_name: hackdata-worker
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+    env_file:
+      - backend/.env
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped

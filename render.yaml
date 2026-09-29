@@ -1,0 +1,66 @@
+# render.yaml
+# HackData V2 — Render Infrastructure Blueprint
+#
+# Services:
+#   hackdata-api    - FastAPI Web Service (Docker)
+#   hackdata-worker - ML Background Worker (Docker)
+#   hackdata-queue  - Valkey Key Value (Free tier, in-memory)
+#
+# Deploy: render deploy --yes
+# Or: push to GitHub and connect Render to the repo.
+#
+# IMPORTANT: All secret env vars (GROQ_API_KEY, SUPABASE_SERVICE_ROLE_KEY, etc.)
+# must be set manually in the Render dashboard — do NOT hardcode them here.
+
+services:
+  # ── FastAPI API Web Service ───────────────────────────────────────────────
+  - type: web
+    name: hackdata-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: PORT
+        value: 8000
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: hackdata-queue
+          property: connectionString
+      # Secrets to be set manually in Render dashboard:
+      # GROQ_API_KEY
+      # GROQ_ASSISTANT_API_KEY
+      # SUPABASE_URL
+      # SUPABASE_SERVICE_ROLE_KEY
+      # SMTP_USERNAME
+      # SMTP_PASSWORD
+      # SMTP_FROM_EMAIL
+      # ALLOWED_ORIGINS  (set to your Vercel URL after deployment)
+
+  # ── ML Background Worker ──────────────────────────────────────────────────
+  - type: worker
+    name: hackdata-worker
+    runtime: docker
+    dockerfilePath: ./worker/Dockerfile
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: hackdata-queue
+          property: connectionString
+      # Secrets to be set manually in Render dashboard:
+      # SUPABASE_URL
+      # SUPABASE_SERVICE_ROLE_KEY
+      # GROQ_API_KEY
+
+  # ── Redis/Valkey Queue (Free Key Value) ───────────────────────────────────
+  - type: redis
+    name: hackdata-queue
+    plan: free
+    maxmemoryPolicy: noeviction
