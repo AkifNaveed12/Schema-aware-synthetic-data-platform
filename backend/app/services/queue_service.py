@@ -23,7 +23,7 @@ def _get_redis():
         return None
     try:
         import redis
-        _client = redis.from_url(settings.REDIS_URL, decode_responses=True, socket_connect_timeout=5)
+        _client = redis.from_url(settings.REDIS_URL, decode_responses=True, socket_connect_timeout=5, socket_timeout=15)
         _client.ping()
         logger.info("Redis queue connected: %s", settings.REDIS_URL.split("@")[-1])
         return _client
@@ -45,7 +45,7 @@ def enqueue_job(job_id: str, dataset_id: str, config: Dict[str, Any]) -> bool:
         logger.error("Failed to enqueue job %s: %s", job_id, exc)
         return False
 
-def dequeue_job(timeout: int = 30) -> Optional[Dict[str, Any]]:
+def dequeue_job(timeout: int = 5) -> Optional[Dict[str, Any]]:
     r = _get_redis()
     if r is None:
         return None
@@ -56,6 +56,8 @@ def dequeue_job(timeout: int = 30) -> Optional[Dict[str, Any]]:
         _, message = result
         return json.loads(message)
     except Exception as exc:
+        if "timeout" in str(exc).lower():
+            return None
         logger.error("Failed to dequeue job: %s", exc)
         return None
 
