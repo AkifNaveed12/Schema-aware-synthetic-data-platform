@@ -226,3 +226,78 @@ def test_export_service_relational_and_documents():
     })
     assert stmt_export.status_code == 200
     assert "date,description,debit,credit,balance" in stmt_export.json()["data"]["raw_content"]
+
+
+def test_relational_generic_profile_driven():
+    """
+    Relational engine with a non-ecommerce DataProfile schema:
+    employees → projects (1:N). No hardcoded customers/orders/order_items.
+    """
+    from backend.app.models.data_profile import (
+        DataProfile, TableProfile, ColumnProfile, RelationshipProfile, DistributionConfig
+    )
+    from backend.app.engine.relational_engine import relational_engine
+    from backend.app.models.schemas import RelationalGenerateRequest
+
+    employees_profile = TableProfile(
+        name="employees",
+        row_count=5,
+        primary_key="employee_id",
+        columns=[
+            ColumnProfile(name="employee_id", data_type="integer", is_primary_key=True),
+            ColumnProfile(name="full_name", data_type="string", semantic_type="full_name"),
+            ColumnProfile(name="department", data_type="string", distribution=DistributionConfig(
+                type="categorical", categories=["Engineering", "Marketing", "Sales", "HR"]
+            )),
+            ColumnProfile(name="salary", data_type="currency", distribution=DistributionConfig(
+                type="normal", mean=75000.0, std_dev=15000.0, min_value=30000.0, max_value=200000.0
+            )),
+        ]
+    )
+    projects_profile = TableProfile(
+        name="projects",
+        row_count=10,
+        primary_key="project_id",
+        columns=[
+            ColumnProfile(name="project_id", data_type="integer", is_primary_key=True),
+            ColumnProfile(name="employee_id", data_type="integer", is_foreign_key=True,
+                         references_table="employees", references_column="employee_id"),
+            ColumnProfile(name="project_name", data_type="string"),
+            ColumnProfile(name="budget", data_type="currency", distribution=DistributionConfig(
+                type="log_normal", mean=50000.0, std_dev=20000.0, min_value=5000.0
+            )),
+            ColumnProfile(name="start_date", data_type="date", semantic_type="date"),
+        ]
+    )
+    profile = DataProfile(
+        name="Enterprise HR",
+        modality="relational",
+        tables=[employees_profile, projects_profile],
+        relationships=[
+            RelationshipProfile(
+                parent_table="employees", parent_key="employee_id",
+                child_table="projects", child_key="employee_id",
+                cardinality="1:N", min_children=1, max_children=3
+            )
+        ]
+    )
+    req = RelationalGenerateRequest(
+        random_seed=42,
+        schema_preset=None,  # force generic path
+        profile=profile,
+        table_row_counts={"employees": 5},
+    )
+    result = relational_engine.generate(req)
+
+    assert "employees" in result.tables
+    assert "projects" in result.tables
+    assert result.table_counts["employees"] == 5
+    # Each employee generates 1–3 projects; 5 employees → at least 5 projects
+    assert result.table_counts["projects"] >= 5
+    # Verify no hardcoded ecommerce columns
+    emp_row = result.tables["employees"][0]
+    assert "customer_id" not in emp_row
+    assert "employee_id" in emp_row or "full_name" in emp_row
+    # FK integrity should pass
+    assert result.referential_integrity["status"] == "passed"
+
