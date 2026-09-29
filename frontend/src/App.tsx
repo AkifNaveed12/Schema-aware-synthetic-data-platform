@@ -3,6 +3,7 @@ import { TopNav } from './components/navigation/TopNav';
 import { LandingPage } from './components/landing/LandingPage';
 import { WorkspaceLayout } from './components/workspace/WorkspaceLayout';
 import { checkBackendHealth } from './api/client';
+import { Agentation } from 'agentation';
 
 export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<'workspace' | 'landing'>('workspace');
@@ -45,6 +46,9 @@ export const App: React.FC = () => {
           <LandingPage onOpenWorkspace={() => setCurrentView('workspace')} />
         )}
       </div>
+
+      {/* Agentation UI toolbar — dev only, tree-shaken from prod bundle */}
+      {import.meta.env.DEV && <Agentation />}
     </div>
   );
 };
