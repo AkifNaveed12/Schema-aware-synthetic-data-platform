@@ -48,6 +48,7 @@ class TableProfile(BaseModel):
     name: str
     row_count: int = 50
     primary_key: str = "id"
+    foreign_keys: Dict[str, str] = Field(default_factory=dict)  # column_name -> "parent_table.parent_key"
     columns: List[ColumnProfile] = Field(default_factory=list)
 
 class RelationshipProfile(BaseModel):

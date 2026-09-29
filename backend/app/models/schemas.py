@@ -152,6 +152,10 @@ class InvoiceGenerateRequest(BaseModel):
     min_items: int = 1
     max_items: int = 4
     tax_rate: float = 0.0
+    profile: Optional[DataProfile] = None
+    custom_items: Optional[List[Dict[str, Any]]] = None
+    vendor_name: Optional[str] = None
+    vendor_address: Optional[str] = None
 
 class InvoiceGenerateData(BaseModel):
     invoices: List[InvoiceDocument]
@@ -178,13 +182,16 @@ class BankStatementDocument(BaseModel):
     reconciliation_verified: bool = True
 
 class BankStatementGenerateRequest(BaseModel):
-    account_holder: Optional[str] = "Sofia Ivanova"
+    account_holder: Optional[str] = None
     starting_balance: float = 1204.30
     transaction_count: int = Field(default=15, ge=1, le=500)
     random_seed: Optional[int] = 777
     query_filter: Optional[str] = None  # e.g., "last 90 days, balance over $500"
     locale: str = "en_US"
     currency: str = "USD"
+    profile: Optional[DataProfile] = None
+    custom_merchants: Optional[List[Dict[str, Any]]] = None
+
 
     @model_validator(mode="before")
     @classmethod

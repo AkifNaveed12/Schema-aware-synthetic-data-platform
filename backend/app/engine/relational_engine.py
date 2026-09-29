@@ -31,6 +31,28 @@ from backend.app.models.schemas import RelationalGenerateRequest, RelationalGene
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
+def _extract_all_relationships(
+    tables: List[TableProfile],
+    relationships: Optional[List[RelationshipProfile]],
+) -> List[RelationshipProfile]:
+    rels = list(relationships or [])
+    for tp in tables:
+        if tp.foreign_keys:
+            for child_key, target in tp.foreign_keys.items():
+                if "." in target:
+                    parent_tbl, parent_key = target.split(".", 1)
+                    if not any(r.child_table == tp.name and r.child_key == child_key for r in rels):
+                        rels.append(RelationshipProfile(
+                            parent_table=parent_tbl,
+                            parent_key=parent_key,
+                            child_table=tp.name,
+                            child_key=child_key,
+                            min_children=1,
+                            max_children=2,
+                        ))
+    return rels
+
+
 def _topological_order(
     tables: List[TableProfile],
     relationships: List[RelationshipProfile],
@@ -39,12 +61,13 @@ def _topological_order(
     Kahn's algorithm: returns table names ordered so parents come before children.
     Falls back to original order if no relationships are supplied.
     """
-    if not relationships:
+    effective_rels = _extract_all_relationships(tables, relationships)
+    if not effective_rels:
         return [t.name for t in tables]
 
     children: Dict[str, Set[str]] = {t.name: set() for t in tables}
     parents: Dict[str, Set[str]] = {t.name: set() for t in tables}
-    for rel in relationships:
+    for rel in effective_rels:
         if rel.parent_table in children and rel.child_table in parents:
             children[rel.parent_table].add(rel.child_table)
             parents[rel.child_table].add(rel.parent_table)
@@ -159,7 +182,7 @@ def _generate_from_profile(
     (parents first, then children with valid FK references).
     """
     tables_by_name: Dict[str, TableProfile] = {t.name: t for t in profile.tables}
-    relationships = profile.relationships
+    relationships = _extract_all_relationships(profile.tables, profile.relationships)
 
     order = _topological_order(profile.tables, relationships)
 
@@ -195,10 +218,14 @@ def _generate_from_profile(
                 for _ in range(num_children):
                     row: Dict[str, Any] = {}
                     for col in tp.columns:
-                        if col.is_primary_key:
+                        if col.is_primary_key or col.name == tp.primary_key:
                             row[col.name] = len(rows) + 1
                         elif col.name == first_rel.child_key:
                             row[col.name] = parent_pk
+                        elif any(r.child_key == col.name for r in parent_rels):
+                            r_match = next(r for r in parent_rels if r.child_key == col.name)
+                            other_pks = pk_pools.get(r_match.parent_table, [])
+                            row[col.name] = rng.choice(other_pks) if other_pks else 1
                         else:
                             row[col.name] = _generate_value(col, rng, fake)
                     rows.append(row)
@@ -246,6 +273,7 @@ def _validate_fk_integrity(
     )
     return {
         "status": "passed" if orphaned == 0 else "failed",
+        "valid": orphaned == 0,
         "orphaned_foreign_keys": orphaned,
         "total_fk_rows_checked": total_fk_rows,
         "integrity_percentage": round(100.0 * (1 - orphaned / max(total_fk_rows, 1)), 2),
@@ -328,6 +356,7 @@ def _generate_ecommerce_preset(
 
     integrity = {
         "status": "passed" if not orphaned_orders and not orphaned_items else "failed",
+        "valid": not orphaned_orders and not orphaned_items,
         "orphaned_foreign_keys": len(orphaned_orders) + len(orphaned_items),
         "parent_tables_verified": ["customers", "orders"],
         "integrity_percentage": 100.0 if not orphaned_orders and not orphaned_items else 0.0,
