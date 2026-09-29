@@ -1,0 +1,201 @@
+Age,Education Level,Job Title,Experience (Years),Industry,Hours/Week,Work Mode,Skills,Salary (USD)
+32,Bachelor's,Machine Learning Engineer,3,Manufacturing,49,Onsite,"Deep Learning, Python, ML",96189
+36,Master's,Research Scientist,13,Utilities,49,Remote,"R, Python, Data Analysis",110513
+28,Bachelor's,Financial Analyst,7,Healthcare,36,Remote,"Valuation, Python",80428
+47,Bachelor's,Technician,9,Manufacturing,43,Onsite,"Safety, CNC, Maintenance",52344
+57,Master's,Accountant,12,IT,41,Onsite,"Tally, Compliance",72856
+24,Diploma,Research Scientist,3,Utilities,40,Hybrid,"R, Python, Data Analysis",92028
+46,Master's,Project Manager,12,Healthcare,42,Onsite,"PM, Excel, MS Project",109064
+37,Bachelor's,Marketing Manager,3,Healthcare,38,Remote,"SEM, Analytics",76791
+40,Master's,Marketing Manager,10,Tech,42,Hybrid,"SEM, SEO",86965
+47,Bachelor's,UI/UX Designer,17,Utilities,40,Remote,"XD, Figma",84992
+50,Diploma,DevOps Engineer,26,Healthcare,37,Onsite,"Docker, CI/CD",140170
+25,Master's,Content Writer,3,Construction,50,Hybrid,"WordPress, Writing",54760
+39,Bachelor's,Business Analyst,4,Construction,40,Hybrid,"Excel, SQL, Tableau",75598
+41,Master's,Data Scientist,1,Healthcare,48,Onsite,"SQL, ML",64936
+60,Bachelor's,Financial Analyst,32,Finance,48,Onsite,"Excel, Python",120442
+39,High School,Machine Learning Engineer,14,IT,36,Onsite,"Python, ML, Deep Learning",122800
+54,Bachelor's,Product Manager,13,Retail,47,Onsite,"Agile, JIRA",111376
+30,Master's,Software Engineer,4,Manufacturing,41,Remote,"Git, Java, Python",66784
+25,Bachelor's,HR Manager,1,Finance,49,Remote,"HRM, Payroll, Communication",70547
+36,Bachelor's,Product Manager,10,Finance,46,Remote,"PM, JIRA",110781
+27,Master's,Software Engineer,4,Media,38,Onsite,"Git, Python",70172
+55,PhD,Software Engineer,31,Healthcare,43,Onsite,"Java, Python, Git",122595
+31,PhD,QA Engineer,2,IT,40,Remote,"Testing, Python",58607
+50,Master's,Financial Analyst,23,Construction,43,Remote,"Excel, Python, Valuation",104074
+29,Bachelor's,Data Scientist,2,Tech,50,Hybrid,"Python, ML",77039
+34,PhD,Project Manager,1,Utilities,42,Hybrid,"MS Project, Excel, PM",80249
+29,Bachelor's,DevOps Engineer,6,Finance,35,Onsite,"Docker, CI/CD, AWS",89861
+44,Master's,Research Scientist,12,Tech,50,Onsite,"R, Python",100265
+60,PhD,Project Manager,8,Utilities,36,Hybrid,"Excel, PM",95331
+55,Diploma,Marketing Manager,21,Media,48,Onsite,"SEO, Analytics",95522
+53,Master's,Content Writer,23,Insurance,36,Remote,"SEO, WordPress, Writing",88002
+58,High School,Software Engineer,10,Construction,38,Onsite,"Java, Python, Git",72152
+24,Diploma,DevOps Engineer,3,Construction,47,Hybrid,"CI/CD, AWS",92707
+55,Master's,Cloud Engineer,29,Media,38,Onsite,"Azure, Python",163693
+36,Bachelor's,Machine Learning Engineer,12,Manufacturing,46,Onsite,"Python, ML",105616
+43,Master's,Data Scientist,5,Finance,39,Remote,"ML, Python, SQL",70908
+36,Diploma,Research Scientist,8,IT,43,Onsite,"Data Analysis, R, Python",98058
+49,Bachelor's,HR Manager,27,Consulting,43,Onsite,"Communication, Payroll, HRM",109984
+25,Bachelor's,Machine Learning Engineer,1,Insurance,37,Hybrid,"ML, Python, Deep Learning",102699
+33,Bachelor's,Software Engineer,4,Construction,45,Onsite,"Java, Python",69015
+38,Master's,Electrician,11,Consulting,49,Onsite,"Wiring, Troubleshooting, Safety",70356
+32,High School,Graphic Designer,9,Utilities,36,Onsite,"Photoshop, InDesign",66190
+35,Bachelor's,Content Writer,10,Insurance,46,Remote,"Writing, SEO",67538
+30,Master's,Graphic Designer,9,Tech,42,Onsite,"Illustrator, InDesign, Photoshop",71589
+42,Bachelor's,Marketing Manager,1,Retail,47,Onsite,"SEO, SEM, Analytics",55403
+34,Bachelor's,Marketing Manager,6,Utilities,41,Remote,"SEO, Analytics",65429
+49,Bachelor's,Project Manager,20,Retail,36,Onsite,"PM, MS Project, Excel",114340
+35,High School,Marketing Manager,4,Utilities,41,Onsite,"Analytics, SEO",68479
+41,Master's,Marketing Manager,4,Retail,45,Onsite,"Analytics, SEO, SEM",71410
+51,Bachelor's,UI/UX Designer,21,Retail,46,Onsite,"HTML/CSS, XD, Figma",113162
+28,Master's,Technician,7,Finance,47,Onsite,"Safety, CNC",57329
+29,Master's,QA Engineer,1,Construction,36,Remote,"Testing, Selenium",59913
+55,Master's,Financial Analyst,7,Utilities,43,Onsite,"Python, Valuation",68617
+56,Master's,DevOps Engineer,15,Manufacturing,49,Remote,"Docker, AWS, CI/CD",103615
+24,Master's,Technician,2,Healthcare,49,Hybrid,"Maintenance, Safety, CNC",41939
+53,Diploma,Project Manager,20,Healthcare,45,Onsite,"MS Project, Excel",133468
+28,Bachelor's,Data Scientist,5,Consulting,39,Onsite,"ML, Python, SQL",76419
+42,Diploma,Project Manager,9,IT,39,Remote,"Excel, PM",92984
+26,PhD,Financial Analyst,5,Utilities,47,Onsite,"Valuation, Excel",78097
+50,Bachelor's,Graphic Designer,10,Insurance,37,Onsite,"InDesign, Photoshop, Illustrator",56790
+37,Bachelor's,Research Scientist,8,Consulting,44,Onsite,"Python, Data Analysis, R",103780
+50,Bachelor's,DevOps Engineer,11,Utilities,37,Onsite,"CI/CD, Docker, AWS",99988
+31,Master's,Product Manager,7,Tech,40,Remote,"Agile, PM",106804
+53,Master's,Cloud Engineer,8,Media,39,Remote,"Networking, Azure, Python",109157
+27,PhD,HR Manager,6,Retail,42,Onsite,"Communication, HRM",75522
+22,Master's,Graphic Designer,0,Manufacturing,40,Remote,"InDesign, Photoshop, Illustrator",46914
+30,Master's,QA Engineer,3,Construction,37,Onsite,"Selenium, Python, Testing",55891
+36,Master's,Financial Analyst,4,Tech,36,Remote,"Valuation, Python, Excel",71108
+51,Master's,Cloud Engineer,0,IT,42,Onsite,"Python, Networking",79625
+28,Master's,Business Analyst,2,Media,44,Remote,"Tableau, Excel",63661
+23,Bachelor's,Electrician,0,Tech,35,Remote,"Safety, Troubleshooting",44838
+48,Master's,Accountant,11,Media,48,Onsite,"Excel, Tally",79583
+33,Diploma,Cloud Engineer,9,Retail,42,Onsite,"Python, Azure",110379
+48,Bachelor's,Content Writer,16,IT,46,Remote,"SEO, WordPress, Writing",59170
+49,PhD,Technician,20,Manufacturing,38,Onsite,"CNC, Maintenance",88140
+54,Diploma,Project Manager,6,Construction,40,Remote,"Excel, PM, MS Project",93743
+44,Diploma,Technician,14,Insurance,39,Onsite,"Safety, Maintenance, CNC",82261
+51,Diploma,Software Engineer,20,Utilities,40,Onsite,"Python, Java, Git",88478
+32,Bachelor's,Cloud Engineer,8,Construction,37,Remote,"Python, Azure, Networking",100927
+41,Bachelor's,Research Scientist,16,Healthcare,47,Remote,"R, Data Analysis",115392
+29,Diploma,Financial Analyst,6,Media,46,Onsite,"Valuation, Excel, Python",80235
+56,Bachelor's,Software Engineer,14,Construction,38,Onsite,"Python, Git",97041
+54,PhD,Content Writer,22,Finance,42,Onsite,"SEO, Writing",100851
+30,Diploma,UI/UX Designer,4,Media,44,Onsite,"HTML/CSS, XD, Figma",69185
+42,Master's,Content Writer,2,Construction,42,Remote,"WordPress, Writing, SEO",39833
+49,Master's,Sales Executive,1,Healthcare,44,Onsite,"CRM, Communication",56504
+38,Bachelor's,Sales Executive,11,Retail,38,Remote,"CRM, Communication",73016
+56,Master's,Marketing Manager,31,Consulting,37,Remote,"SEO, Analytics, SEM",127982
+41,Diploma,Research Scientist,3,Retail,42,Remote,"Python, R",89987
+50,Bachelor's,Data Scientist,28,Healthcare,49,Remote,"ML, Python, SQL",122168
+31,Master's,Project Manager,7,Consulting,39,Remote,"PM, Excel",74118
+39,Master's,Business Analyst,10,Insurance,49,Hybrid,"Excel, SQL",77686
+59,Diploma,Financial Analyst,10,Consulting,50,Remote,"Excel, Valuation",84258
+56,Bachelor's,Sales Executive,3,IT,35,Onsite,"CRM, Communication",54727
+28,Bachelor's,Research Scientist,7,Utilities,42,Onsite,"R, Python, Data Analysis",94690
+59,Master's,Software Engineer,29,Finance,43,Hybrid,"Git, Python",109881
+57,High School,Project Manager,24,Insurance,39,Onsite,"PM, Excel, MS Project",120045
+33,Bachelor's,UI/UX Designer,5,Finance,44,Onsite,"XD, Figma",67636
+45,Bachelor's,Graphic Designer,23,Construction,46,Remote,"Illustrator, InDesign",89603
+46,Master's,Software Engineer,1,Healthcare,47,Onsite,"Python, Git",65580
+48,Bachelor's,Financial Analyst,3,Utilities,40,Onsite,"Valuation, Excel, Python",73189
+44,Master's,Marketing Manager,20,Consulting,40,Onsite,"Analytics, SEO, SEM",89706
+47,Diploma,Graphic Designer,21,Retail,41,Onsite,"Photoshop, Illustrator, InDesign",81599
+52,Bachelor's,Electrician,16,IT,36,Onsite,"Troubleshooting, Safety",64098
+27,Master's,Software Engineer,1,Insurance,46,Onsite,"Git, Python",60424
+58,High School,Product Manager,6,Utilities,40,Remote,"PM, Agile, JIRA",101469
+24,Master's,DevOps Engineer,0,Retail,47,Remote,"AWS, Docker",74652
+37,Bachelor's,Electrician,2,Manufacturing,36,Onsite,"Troubleshooting, Safety",42665
+36,Master's,Technician,0,Retail,48,Onsite,"Maintenance, CNC, Safety",39233
+54,High School,HR Manager,6,Consulting,46,Onsite,"Communication, HRM",76848
+22,Bachelor's,Machine Learning Engineer,0,Media,41,Remote,"Deep Learning, Python, ML",87704
+45,Diploma,DevOps Engineer,16,Construction,47,Onsite,"AWS, CI/CD, Docker",109659
+26,Diploma,Software Engineer,0,Manufacturing,36,Remote,"Python, Git",61725
+51,Bachelor's,Graphic Designer,14,Insurance,46,Remote,"Illustrator, InDesign",76628
+54,Bachelor's,Cloud Engineer,14,Construction,40,Onsite,"Azure, Networking",123874
+25,Master's,Business Analyst,1,Construction,44,Hybrid,"SQL, Tableau",65967
+28,Master's,UI/UX Designer,7,Media,41,Onsite,"XD, HTML/CSS",82886
+60,Master's,Cloud Engineer,14,Insurance,41,Onsite,"Azure, Networking",116383
+24,High School,Marketing Manager,0,Retail,50,Onsite,"SEM, Analytics, SEO",63872
+52,Bachelor's,Project Manager,21,Healthcare,40,Remote,"MS Project, PM",120412
+53,Master's,HR Manager,5,Insurance,47,Hybrid,"Communication, HRM",79911
+25,Master's,Graphic Designer,4,IT,36,Onsite,"Illustrator, Photoshop, InDesign",57049
+28,Bachelor's,QA Engineer,4,Tech,46,Onsite,"Python, Testing",47380
+23,Bachelor's,Project Manager,2,Media,40,Remote,"Excel, MS Project",79412
+55,Master's,Research Scientist,1,Retail,41,Onsite,"R, Python, Data Analysis",88225
+48,Master's,Data Scientist,2,Construction,49,Onsite,"SQL, Python",75529
+31,Bachelor's,HR Manager,8,IT,41,Remote,"HRM, Payroll",86549
+48,High School,Sales Executive,18,Insurance,37,Onsite,"CRM, Communication",83022
+43,Bachelor's,Sales Executive,8,Insurance,35,Onsite,"CRM, Communication",61816
+42,Diploma,Graphic Designer,2,Tech,40,Onsite,"Illustrator, InDesign",55340
+55,Master's,Financial Analyst,2,Manufacturing,44,Onsite,"Valuation, Excel, Python",77771
+24,Bachelor's,QA Engineer,0,Utilities,38,Remote,"Selenium, Testing, Python",47607
+33,Master's,Graphic Designer,11,Utilities,41,Onsite,"Photoshop, Illustrator, InDesign",73078
+26,High School,QA Engineer,5,Utilities,35,Onsite,"Testing, Selenium, Python",67810
+42,Master's,Product Manager,3,Manufacturing,36,Remote,"Agile, PM, JIRA",92135
+42,Bachelor's,Software Engineer,12,Manufacturing,38,Onsite,"Java, Python, Git",90316
+35,Bachelor's,Sales Executive,7,Manufacturing,35,Onsite,"CRM, Communication",61174
+47,Bachelor's,Data Scientist,23,Retail,49,Onsite,"Python, SQL",121273
+44,Bachelor's,Graphic Designer,21,Tech,49,Hybrid,"Illustrator, Photoshop, InDesign",113570
+51,Master's,Technician,8,Media,42,Remote,"Maintenance, CNC, Safety",61248
+26,PhD,Machine Learning Engineer,1,Media,40,Onsite,"ML, Python",93357
+24,Bachelor's,Sales Executive,0,Manufacturing,48,Onsite,"Communication, CRM",45721
+46,Diploma,Project Manager,23,Insurance,46,Hybrid,"MS Project, PM",119004
+60,Bachelor's,Technician,36,Manufacturing,36,Hybrid,"Safety, CNC, Maintenance",78981
+48,Bachelor's,Financial Analyst,23,Manufacturing,41,Remote,"Excel, Valuation, Python",106257
+48,Diploma,Cloud Engineer,23,IT,48,Hybrid,"Azure, Python",155300
+22,Bachelor's,Data Scientist,1,Consulting,37,Onsite,"SQL, ML",70287
+33,Bachelor's,Electrician,8,Tech,40,Remote,"Safety, Wiring, Troubleshooting",63404
+60,PhD,DevOps Engineer,30,Insurance,46,Onsite,"CI/CD, AWS, Docker",158720
+23,PhD,Technician,1,Insurance,46,Hybrid,"Safety, CNC",40732
+39,Bachelor's,Financial Analyst,11,Media,45,Hybrid,"Valuation, Excel",90789
+34,PhD,Business Analyst,5,Insurance,44,Onsite,"Tableau, SQL",70222
+29,PhD,Marketing Manager,7,Healthcare,38,Onsite,"SEO, SEM, Analytics",73950
+47,High School,Research Scientist,9,IT,45,Remote,"R, Python, Data Analysis",109569
+58,PhD,Marketing Manager,20,Utilities,35,Remote,"SEO, Analytics, SEM",119419
+38,Master's,Graphic Designer,17,Retail,46,Hybrid,"Photoshop, Illustrator, InDesign",93741
+40,Bachelor's,Machine Learning Engineer,6,Media,37,Remote,"Deep Learning, ML",98422
+29,Master's,UI/UX Designer,0,Consulting,42,Hybrid,"XD, HTML/CSS",58650
+60,Master's,Technician,28,IT,48,Hybrid,"Maintenance, CNC",72590
+40,Bachelor's,QA Engineer,6,Utilities,41,Onsite,"Python, Testing, Selenium",58369
+51,PhD,QA Engineer,14,Insurance,42,Onsite,"Python, Testing",97370
+38,Master's,Data Scientist,6,Tech,36,Onsite,"Python, ML",79139
+39,High School,Graphic Designer,4,Finance,49,Onsite,"InDesign, Illustrator, Photoshop",55313
+49,Bachelor's,Graphic Designer,3,Insurance,48,Remote,"InDesign, Illustrator",56994
+29,Bachelor's,Project Manager,8,Insurance,39,Onsite,"PM, Excel, MS Project",99920
+57,Master's,Marketing Manager,30,Retail,44,Onsite,"Analytics, SEM, SEO",109455
+46,Bachelor's,UI/UX Designer,8,Insurance,37,Onsite,"HTML/CSS, XD",82597
+51,Bachelor's,Machine Learning Engineer,11,Tech,45,Onsite,"ML, Deep Learning",110868
+48,Master's,Product Manager,4,Healthcare,50,Remote,"Agile, PM, JIRA",91508
+36,PhD,Project Manager,5,IT,36,Onsite,"Excel, PM",82270
+59,PhD,Marketing Manager,0,Healthcare,36,Hybrid,"SEO, Analytics, SEM",64835
+53,PhD,Content Writer,17,Consulting,41,Onsite,"Writing, WordPress",76606
+50,PhD,Research Scientist,16,Construction,35,Onsite,"Python, R, Data Analysis",136333
+42,Master's,Marketing Manager,15,IT,38,Onsite,"Analytics, SEO, SEM",80314
+24,Master's,Technician,2,Finance,45,Onsite,"CNC, Safety, Maintenance",49608
+32,PhD,Content Writer,9,Consulting,36,Hybrid,"Writing, SEO, WordPress",69455
+23,High School,Research Scientist,0,Retail,37,Onsite,"Python, Data Analysis",87941
+34,Master's,UI/UX Designer,2,Tech,43,Onsite,"XD, HTML/CSS",60115
+56,Diploma,Marketing Manager,33,Tech,35,Remote,"SEO, Analytics",123682
+36,Bachelor's,Marketing Manager,12,Construction,44,Onsite,"SEO, Analytics",90911
+57,Diploma,Sales Executive,32,Media,48,Remote,"CRM, Communication",76580
+58,Master's,Technician,25,Tech,36,Remote,"Maintenance, Safety",84068
+25,PhD,Data Scientist,1,Retail,47,Onsite,"Python, SQL",70087
+25,Bachelor's,Marketing Manager,4,Healthcare,35,Remote,"SEM, SEO",70757
+49,High School,Cloud Engineer,19,Manufacturing,43,Hybrid,"Networking, Python",116862
+30,Bachelor's,Product Manager,4,Manufacturing,48,Remote,"PM, JIRA",97480
+28,Master's,HR Manager,7,Healthcare,38,Onsite,"Payroll, HRM, Communication",77143
+26,Bachelor's,HR Manager,3,Insurance,40,Hybrid,"Communication, HRM",76517
+55,Diploma,Technician,3,IT,42,Remote,"Maintenance, Safety, CNC",44407
+39,Bachelor's,DevOps Engineer,14,IT,46,Remote,"CI/CD, AWS",98265
+44,Master's,Cloud Engineer,15,Media,49,Hybrid,"Networking, Python, Azure",124556
+44,Master's,Sales Executive,5,Construction,41,Onsite,"Communication, CRM",63749
+47,Master's,Research Scientist,8,Insurance,45,Remote,"R, Python, Data Analysis",98341
+33,Master's,Financial Analyst,2,Insurance,44,Hybrid,"Valuation, Excel",72802
+57,Master's,Cloud Engineer,13,Media,49,Remote,"Python, Networking",126360
+38,Master's,Research Scientist,12,IT,48,Onsite,"Python, Data Analysis",105091
+39,Master's,Sales Executive,1,Manufacturing,48,Onsite,"CRM, Communication",54014
+40,Bachelor's,Machine Learning Engineer,16,Construction,38,Onsite,"ML, Python",128703
+26,High School,HR Manager,1,Utilities,49,Remote,"HRM, Payroll, Communication",68099
+48,High School,Electrician,19,Media,50,Remote,"Troubleshooting, Safety, Wiring",62146
