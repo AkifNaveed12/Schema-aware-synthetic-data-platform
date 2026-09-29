@@ -263,10 +263,21 @@ def add_synthetic_column(dataset_id: str, payload: Dict[str, Any]):
 @router.get("/datasets/{dataset_id}/export")
 def export_dataset(dataset_id: str, format: str = "csv"):
     """Export the validated generated artifact for a dataset."""
-    session = job_store.get_session(dataset_id)
-    if not session:
-        raise HTTPException(status_code=404, detail=f"Dataset '{dataset_id}' not found.")
+    session = job_store.get_session(dataset_id) or {}
     generated_df = session.get("generated_df")
+    if generated_df is None:
+        try:
+            import pandas as pd
+            from backend.app.services.supabase_service import _get_client, _get_bucket_name
+            client = _get_client()
+            bucket = _get_bucket_name()
+            if client:
+                data = client.storage.from_(bucket).download(f"datasets/generated/{dataset_id}.csv")
+                generated_df = pd.read_csv(io.BytesIO(data))
+                session["generated_df"] = generated_df
+                job_store.store_session(dataset_id, session)
+        except Exception:
+            pass
     if generated_df is None:
         raise HTTPException(status_code=400, detail="No generated data found for this dataset. Run generation first.")
 
