@@ -48,12 +48,73 @@ class DocumentEngine:
     def __init__(self):
         pass
 
+    def _build_invoice_catalog(self, request: InvoiceGenerateRequest) -> List[tuple[str, float]]:
+        if request.custom_items:
+            catalog = []
+            for it in request.custom_items:
+                name = str(it.get("item") or it.get("name") or "Service Item")
+                price = float(it.get("price") or 50.0)
+                catalog.append((name, price))
+            if catalog:
+                return catalog
+
+        if request.profile and request.profile.tables:
+            extracted = []
+            for tbl in request.profile.tables:
+                desc_col = next((c for c in tbl.columns if any(k in c.name.lower() for k in ["desc", "item", "product", "service", "name"])), None)
+                price_col = next((c for c in tbl.columns if any(k in c.name.lower() for k in ["price", "unitprice", "amount", "cost", "salary", "balance"])), None)
+                if desc_col and desc_col.sample_values:
+                    base_price = 45.0
+                    if price_col and price_col.mean_value:
+                        base_price = float(price_col.mean_value)
+                    elif price_col and price_col.distribution and price_col.distribution.mean:
+                        base_price = float(price_col.distribution.mean)
+
+                    for sample in desc_col.sample_values[:20]:
+                        if sample:
+                            extracted.append((str(sample), round(max(base_price, 5.0), 2)))
+            if extracted:
+                return extracted
+
+        return INVOICE_CATALOG
+
+    def _build_merchant_list(self, request: BankStatementGenerateRequest) -> List[tuple[str, float, str]]:
+        if request.custom_merchants:
+            merchants = []
+            for m in request.custom_merchants:
+                name = str(m.get("name") or "Merchant")
+                amt = float(m.get("amount") or 50.0)
+                m_type = str(m.get("type") or "debit")
+                merchants.append((name, amt, m_type))
+            if merchants:
+                return merchants
+
+        if request.profile and request.profile.tables:
+            extracted = []
+            for tbl in request.profile.tables:
+                desc_col = next((c for c in tbl.columns if any(k in c.name.lower() for k in ["merchant", "desc", "store", "vendor", "company", "payee"])), None)
+                amt_col = next((c for c in tbl.columns if any(k in c.name.lower() for k in ["amount", "balance", "total", "price", "payment"])), None)
+                if desc_col and desc_col.sample_values:
+                    base_amt = 65.0
+                    if amt_col and amt_col.mean_value:
+                        base_amt = float(amt_col.mean_value)
+                    for sample in desc_col.sample_values[:20]:
+                        if sample:
+                            extracted.append((str(sample), round(max(base_amt, 10.0), 2), "debit"))
+            if extracted:
+                # Add standard deposit
+                extracted.append(("Direct deposit", round(float(request.starting_balance * 0.8), 2), "credit"))
+                return extracted
+
+        return MERCHANTS
+
     def generate_invoices(self, request: InvoiceGenerateRequest) -> InvoiceGenerateData:
         seed = request.random_seed if request.random_seed is not None else 10432
         rng = np.random.RandomState(seed)
         fake = Faker(request.locale)
         fake.seed_instance(seed)
 
+        catalog = self._build_invoice_catalog(request)
         invoices: List[InvoiceDocument] = []
         inv_base = seed
 
@@ -62,15 +123,16 @@ class DocumentEngine:
             base_date = datetime(2025, 9, 15) + timedelta(days=int(rng.randint(0, 60)))
             due_date = base_date + timedelta(days=30)
 
-            # Choose line items
+            # Choose line items from dynamic or fallback catalog
             num_items = rng.randint(request.min_items, max(request.min_items + 1, request.max_items + 1))
-            chosen_indices = rng.choice(len(INVOICE_CATALOG), size=num_items, replace=False)
+            num_items = min(num_items, len(catalog))
+            chosen_indices = rng.choice(len(catalog), size=num_items, replace=False)
             
             line_items: List[LineItem] = []
             subtotal = 0.0
 
             for idx in chosen_indices:
-                item_name, item_price = INVOICE_CATALOG[idx]
+                item_name, item_price = catalog[idx]
                 qty = int(rng.randint(1, 3))
                 amount = round(qty * item_price, 2)
                 line_items.append(LineItem(
@@ -91,8 +153,8 @@ class DocumentEngine:
                 due_date=due_date.strftime("%Y-%m-%d"),
                 billed_to=fake.company(),
                 billed_to_address=fake.address().replace("\n", ", "),
-                billed_from="Synth Data Co.",
-                billed_from_address="100 Synthetic Way, Suite 400",
+                billed_from=request.vendor_name or "Synth Data Co.",
+                billed_from_address=request.vendor_address or "100 Synthetic Way, Suite 400",
                 line_items=line_items,
                 subtotal=subtotal,
                 tax_rate=request.tax_rate,
@@ -129,6 +191,7 @@ class DocumentEngine:
         start_bal = request.starting_balance
         curr_bal = start_bal
         num_txns = request.transaction_count
+        merchants_pool = self._build_merchant_list(request)
 
         base_date = datetime(2025, 8, 1)
         transactions: List[StatementTransaction] = []
@@ -145,7 +208,7 @@ class DocumentEngine:
         current_date = base_date
         for i in range(num_txns):
             current_date += timedelta(days=int(rng.randint(1, 3)))
-            merchant, typical_amount, txn_type = MERCHANTS[rng.randint(0, len(MERCHANTS))]
+            merchant, typical_amount, txn_type = merchants_pool[rng.randint(0, len(merchants_pool))]
 
             # Add variance to amount
             jitter = float(rng.uniform(0.9, 1.25))
@@ -186,7 +249,7 @@ class DocumentEngine:
                 discrepancies += 1
 
         doc = BankStatementDocument(
-            account_holder=request.account_holder or "Sofia Ivanova",
+            account_holder=request.account_holder or fake.name(),
             account_number=f"****-****-{rng.randint(1000, 9999)}",
             starting_balance=start_bal,
             ending_balance=curr_bal,

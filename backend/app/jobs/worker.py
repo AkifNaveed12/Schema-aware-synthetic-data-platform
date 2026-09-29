@@ -41,9 +41,23 @@ def _run_job(job: Job) -> None:
         df: pd.DataFrame = session["df"]
         profile = session["profile"]
         config: Dict[str, Any] = job.config or {}
-        num_rows: int = config.get("row_count", len(df))
+        raw_requested_rows: int = int(config.get("row_count", len(df)))
+        # Resource control: cap excessive row counts to protect host memory
+        MAX_ALLOWED_ROWS = 50_000
+        if raw_requested_rows > MAX_ALLOWED_ROWS:
+            num_rows = MAX_ALLOWED_ROWS
+            log(f"Requested {raw_requested_rows} rows exceeds maximum limit of {MAX_ALLOWED_ROWS}. Capped to {MAX_ALLOWED_ROWS}.")
+        else:
+            num_rows = max(1, raw_requested_rows)
+
         seed: Optional[int] = config.get("seed", 42)
-        model_strategy: str = config.get("model_strategy", "auto")
+        model_strategy: str = (config.get("model_strategy") or "auto").lower()
+
+        # Check early cancellation
+        current_job = job_store.get_job(jid)
+        if current_job and current_job.state == "cancelled":
+            log("Job was cancelled before execution started.")
+            return
 
         # ── PREPROCESSING ─────────────────────────────────────────────────
         job_store.update_job(jid, state="preprocessing", progress=5, message="Preprocessing data…")
@@ -52,6 +66,11 @@ def _run_job(job: Job) -> None:
         from backend.app.pipeline.cleaner import clean_dataframe
         clean_df, cleaning_actions = clean_dataframe(df, profile=profile)
         log(f"Cleaning complete: {len(cleaning_actions)} actions applied. Rows after clean: {len(clean_df)}")
+
+        current_job = job_store.get_job(jid)
+        if current_job and current_job.state == "cancelled":
+            log("Job was cancelled after preprocessing.")
+            return
 
         # ── BUILD CANDIDATE LIST ──────────────────────────────────────────
         candidates = []

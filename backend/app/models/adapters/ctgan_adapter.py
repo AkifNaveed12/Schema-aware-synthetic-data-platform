@@ -41,11 +41,10 @@ except ImportError:
 
 class CTGANAdapter(ModelAdapter):
     """
-    CTGAN-backed tabular synthesizer.
-    Status: architecturally present; runtime availability depends on sdv+torch installation.
+    CTGAN-backed tabular synthesizer using SDV.
     """
 
-    def __init__(self, epochs: int = 300, batch_size: int = 500) -> None:
+    def __init__(self, epochs: int = 10, batch_size: int = 50) -> None:
         self._epochs = epochs
         self._batch_size = batch_size
         self._model: Any = None
@@ -61,7 +60,7 @@ class CTGANAdapter(ModelAdapter):
             supports_relational=False,
             supports_document=False,
             requires_training=True,
-            min_rows_for_training=100,
+            min_rows_for_training=10,
             max_rows_for_training=500_000,
             available=_AVAILABLE,
             unavailable_reason=_UNAVAILABLE_REASON if not _AVAILABLE else None,
@@ -75,14 +74,18 @@ class CTGANAdapter(ModelAdapter):
     ) -> None:
         if not _AVAILABLE:
             raise RuntimeError(_UNAVAILABLE_REASON)
-        if len(df) < 100:
-            raise ValueError(f"CTGAN requires at least 100 training rows; got {len(df)}")
+        if len(df) < 10:
+            raise ValueError(f"CTGAN requires at least 10 training rows; got {len(df)}")
 
         metadata = SingleTableMetadata()
         metadata.detect_from_dataframe(df)
 
-        epochs = (config or {}).get("epochs", self._epochs)
-        batch_size = (config or {}).get("batch_size", self._batch_size)
+        epochs = int((config or {}).get("epochs", self._epochs))
+        batch_size = int((config or {}).get("batch_size", self._batch_size))
+        # Ensure batch_size is an even integer <= len(df)
+        batch_size = min(batch_size, len(df))
+        if batch_size % 2 != 0 and batch_size > 2:
+            batch_size -= 1
 
         self._model = CTGANSynthesizer(
             metadata,
@@ -93,6 +96,7 @@ class CTGANAdapter(ModelAdapter):
         self._metadata = metadata
         self._columns = list(df.columns)
         self._fitted = True
+
 
     def sample(
         self,

@@ -108,6 +108,16 @@ class JobStore:
                 job.error = error
             if log_line is not None:
                 job.logs.append(log_line)
+
+    def cancel_job(self, job_id: str) -> bool:
+        with self._lock:
+            job = self._jobs.get(job_id)
+            if job is None or job.state in ("completed", "failed", "cancelled"):
+                return False
+            job.state = "cancelled"
+            job.completed_at = time.time()
+            job.message = "Job cancelled by user"
+            return True
             job.updated_at = time.time()
 
     def list_jobs(self, dataset_id: Optional[str] = None) -> List[Dict[str, Any]]:

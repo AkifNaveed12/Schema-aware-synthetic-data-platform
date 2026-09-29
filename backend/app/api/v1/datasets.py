@@ -59,18 +59,18 @@ async def ingest_dataset(
     if use_ai:
         try:
             from backend.app.ai.groq_service import ai_service
-            for table in profile.tables:
-                for col in table.columns:
-                    if col.semantic_type is None and col.sample_values:
-                        sample_csv = f"{col.name}\n" + "\n".join(str(v) for v in col.sample_values[:10])
-                        ai_res = ai_service.infer_schema(sample_csv, "csv", col.name)
-                        if ai_res and ai_res.columns:
-                            for ai_col in ai_res.columns:
-                                if ai_col.name == col.name and ai_col.semantic_type:
-                                    col.semantic_type = ai_col.semantic_type
-                                    col.ai_confidence = 0.85
+            sample_csv = df.head(10).to_csv(index=False)
+            ai_res = ai_service.infer_schema(sample_csv, "csv", t_name)
+            if ai_res and ai_res.columns:
+                ai_col_map = {c.name.lower(): c for c in ai_res.columns}
+                for table in profile.tables:
+                    for col in table.columns:
+                        match = ai_col_map.get(col.name.lower())
+                        if match and match.semantic_type:
+                            col.semantic_type = match.semantic_type
+                            col.ai_confidence = 0.92
         except Exception:
-            pass  # AI enrichment is best-effort
+            pass  # AI enrichment is best-effort and graceful fallback
 
     # ── Session store ─────────────────────────────────────────────────────
     dataset_id = f"ds_{uuid.uuid4().hex[:10]}"
@@ -155,17 +155,42 @@ def generate_dataset_sync(dataset_id: str, config: Dict[str, Any] = {}):
     profile = session["profile"]
     row_count = config.get("row_count", min(len(df), 100))
     seed = config.get("seed", 42)
-    model_strategy = config.get("model_strategy", "statistical")
+    model_strategy = (config.get("model_strategy") or "statistical").lower()
 
     from backend.app.models.adapters.statistical import StatisticalBaselineAdapter
-    adapter = StatisticalBaselineAdapter()
+    from backend.app.models.adapters.deterministic import DeterministicFallbackAdapter
+    from backend.app.models.adapters.ctgan_adapter import CTGANAdapter
+    from backend.app.models.adapters.tvae_adapter import TVAEAdapter
+
+    selected_model_name = "StatisticalBaseline"
+    if model_strategy == "ctgan":
+        ca = CTGANAdapter()
+        if ca.capabilities().available:
+            adapter = ca
+            selected_model_name = "CTGAN"
+        else:
+            adapter = StatisticalBaselineAdapter()
+    elif model_strategy == "tvae":
+        ta = TVAEAdapter()
+        if ta.capabilities().available:
+            adapter = ta
+            selected_model_name = "TVAE"
+        else:
+            adapter = StatisticalBaselineAdapter()
+    elif model_strategy == "deterministic":
+        adapter = DeterministicFallbackAdapter()
+        selected_model_name = "DeterministicFallback"
+    else:
+        adapter = StatisticalBaselineAdapter()
+        selected_model_name = "StatisticalBaseline"
+
     adapter.fit(df, profile, config)
     synth_df = adapter.sample(row_count, seed=seed)
     metrics = adapter.evaluate(df, synth_df, profile)
 
     result = {
         "dataset_id": dataset_id,
-        "selected_model": "StatisticalBaseline",
+        "selected_model": selected_model_name,
         "rows_generated": len(synth_df),
         "columns": list(synth_df.columns),
         "rows": synth_df.head(row_count).to_dict(orient="records"),

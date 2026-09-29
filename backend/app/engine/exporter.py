@@ -86,25 +86,31 @@ class Exporter:
             "-- ====================================================\\n"
         ]
 
+        def _safe_ident(name: str) -> str:
+            return f'"{name}"' if not str(name).isidentifier() else str(name)
+
         if "tables" in dataset and isinstance(dataset["tables"], dict):
             for tbl_name, rows in dataset["tables"].items():
                 if not rows:
                     continue
                 cols = list(rows[0].keys())
+                safe_tbl = _safe_ident(tbl_name)
                 col_defs = []
                 for c in cols:
+                    safe_col = _safe_ident(c)
                     sample = rows[0][c]
                     if isinstance(sample, int):
-                        col_defs.append(f"  {c} INTEGER")
+                        col_defs.append(f"  {safe_col} INTEGER")
                     elif isinstance(sample, float):
-                        col_defs.append(f"  {c} NUMERIC(12,2)")
+                        col_defs.append(f"  {safe_col} NUMERIC(12,2)")
                     else:
-                        col_defs.append(f"  {c} VARCHAR(255)")
+                        col_defs.append(f"  {safe_col} VARCHAR(255)")
 
-                lines.append(f"CREATE TABLE IF NOT EXISTS {tbl_name} (")
+                lines.append(f"CREATE TABLE IF NOT EXISTS {safe_tbl} (")
                 lines.append(",\n".join(col_defs))
                 lines.append(");\n")
 
+                safe_cols_str = ", ".join(_safe_ident(c) for c in cols)
                 for r in rows:
                     vals = []
                     for c in cols:
@@ -116,25 +122,27 @@ class Exporter:
                         else:
                             clean_str = str(v).replace("'", "''")
                             vals.append(f"'{clean_str}'")
-                    lines.append(f"INSERT INTO {tbl_name} ({', '.join(cols)}) VALUES ({', '.join(vals)});")
+                    lines.append(f"INSERT INTO {safe_tbl} ({safe_cols_str}) VALUES ({', '.join(vals)});")
                 lines.append("\n")
 
         elif "rows" in dataset and isinstance(dataset["rows"], list) and dataset["rows"]:
-            tbl_name = "synthetic_tabular"
+            safe_tbl = "synthetic_tabular"
             rows = dataset["rows"]
             cols = list(rows[0].keys())
             col_defs = []
             for c in cols:
+                safe_col = _safe_ident(c)
                 sample = rows[0][c]
                 if isinstance(sample, int):
-                    col_defs.append(f"  {c} INTEGER")
+                    col_defs.append(f"  {safe_col} INTEGER")
                 elif isinstance(sample, float):
-                    col_defs.append(f"  {c} NUMERIC(12,2)")
+                    col_defs.append(f"  {safe_col} NUMERIC(12,2)")
                 else:
-                    col_defs.append(f"  {c} VARCHAR(255)")
-            lines.append(f"CREATE TABLE IF NOT EXISTS {tbl_name} (")
+                    col_defs.append(f"  {safe_col} VARCHAR(255)")
+            lines.append(f"CREATE TABLE IF NOT EXISTS {safe_tbl} (")
             lines.append(",\n".join(col_defs))
             lines.append(");\n")
+            safe_cols_str = ", ".join(_safe_ident(c) for c in cols)
             for r in rows:
                 vals = []
                 for c in cols:
@@ -146,7 +154,7 @@ class Exporter:
                     else:
                         clean_str = str(v).replace("'", "''")
                         vals.append(f"'{clean_str}'")
-                lines.append(f"INSERT INTO {tbl_name} ({', '.join(cols)}) VALUES ({', '.join(vals)});")
+                lines.append(f"INSERT INTO {safe_tbl} ({safe_cols_str}) VALUES ({', '.join(vals)});")
         else:
             lines.append("-- No relational tables to export as SQL.")
 

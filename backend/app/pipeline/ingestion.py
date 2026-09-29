@@ -65,6 +65,10 @@ def _validate_filename(filename: str) -> None:
 
 
 def _validate_size(data: bytes) -> None:
+    if len(data) == 0:
+        raise IngestionError("Uploaded file is empty (0 bytes).")
+    if b"\x00" in data:
+        raise IngestionError("File contains invalid null byte characters.")
     if len(data) > MAX_FILE_BYTES:
         mb = len(data) / (1024 * 1024)
         raise IngestionError(
@@ -155,5 +159,19 @@ def ingest(
         raise IngestionError("File parsed to zero rows. Ensure the file has a header and data rows.")
     if len(df.columns) == 0:
         raise IngestionError("File parsed to zero columns.")
+
+    # Sanitize and deduplicate column names if needed
+    cols = [str(c).strip() for c in df.columns]
+    cols = [f"col_{i+1}" if c == "" else c for i, c in enumerate(cols)]
+    seen = {}
+    deduped = []
+    for c in cols:
+        if c in seen:
+            seen[c] += 1
+            deduped.append(f"{c}_{seen[c]}")
+        else:
+            seen[c] = 0
+            deduped.append(c)
+    df.columns = deduped
 
     return df, modality, fingerprint
