@@ -10,7 +10,9 @@ Differentiator APIs for HackData V2:
 6. Durable Execution & Session History
 """
 from datetime import datetime, timezone
+import logging
 import os
+import re
 import time
 import uuid
 from typing import Any, Dict, List, Optional
@@ -19,6 +21,7 @@ import pandas as pd
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+from backend.app.core.config import settings
 from backend.app.jobs.job_store import job_store
 from backend.app.models.envelope import SuccessResponse
 from backend.app.models.data_profile import SyntheticColumnSpec
@@ -29,6 +32,7 @@ from backend.app.models.adapters.tvae_adapter import TVAEAdapter
 from backend.app.pipeline.profiler import populate_synthetic_columns
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 # In-memory durable history store (synchronized with Supabase if credentials provided)
 _DURABLE_HISTORY: List[Dict[str, Any]] = []
@@ -522,16 +526,34 @@ def send_synthia_message(req: SynthiaMessageRequest):
     })
 
     user_lower = user_text.lower()
-    lang = req.language.lower()
+    # Auto-detect language if not explicitly provided or default
+    detected_lang = req.language
+    # Urdu script detection (Arabic/Urdu unicode range)
+    has_urdu_script = any('\u0600' <= char <= '\u06FF' for char in user_text)
+    # Roman Urdu heuristics
+    roman_urdu_words = {
+        "kya", "kaise", "chahiye", "data", "btao", "batao", "karo", "karna", "mere", "meri", "mera", 
+        "hai", "hain", "mujhe", "madad", "bhai", "shukriya", "acha", "theek", "bana", "do", "dijiye",
+        "yeh", "woh", "ke", "ki", "ko", "se", "pe", "mein", "par", "hoga", "hogi", "sakta", "sakti"
+    }
+    words_in_text = set(re.findall(r'\b[a-zA-Z]+\b', user_lower))
+    has_roman_urdu = len(words_in_text.intersection(roman_urdu_words)) >= 2 or any(w in words_in_text for w in ["batao", "btao", "karo", "chahiye", "madad"])
+
+    if has_urdu_script:
+        detected_lang = "ur"
+    elif has_roman_urdu:
+        detected_lang = "ur-Latn"
+    elif req.language in ("ur", "ur-Latn"):
+        detected_lang = req.language
+    else:
+        detected_lang = "en"
 
     # Intelligence & Intent detection
     proposal = None
     response_text = ""
 
-    # Check for Roman Urdu / Urdu keywords
-    is_urdu = any(w in user_lower for w in ["kya", "kaise", "chahiye", "data", "btao", "karo", "mere", "hai", "mujhe", "madad"]) or lang in ("ur", "ur-latn")
-
-    if any(k in user_lower for k in ["column", "salary_band", "add", "add column", "band", "seniority"]):
+    # Check for column proposals
+    if any(k in user_lower for k in ["column", "salary_band", "add", "band", "seniority", "naya column", "add karo"]):
         proposal = {
             "id": f"prop_{uuid.uuid4().hex[:6]}",
             "type": "add_synthetic_columns",
@@ -548,33 +570,75 @@ def send_synthia_message(req: SynthiaMessageRequest):
                 }
             ]
         }
-        if is_urdu:
+        if detected_lang == "ur":
+            response_text = "میں نے آپ کے ڈیٹا سیٹ کے لیے 'salary_band' کا مصنوعی کالم تجویز کیا ہے۔ یہ پے رول اور انکم ٹیسٹنگ کے لیے موزوں ہے۔ کیا آپ اسے لاگو کرنا چاہتے ہیں؟"
+        elif detected_lang == "ur-Latn":
             response_text = "Main ne aap ke dataset ke liye 'salary_band' synthetic column tajweez ki hai. Yeh payroll testing ke liye bohot mufeed rahegi. Kya main isse add kar doon?"
         else:
             response_text = "I recommend adding a 'salary_band' synthetic column to classify records into salary brackets. I have prepared a proposal below for your confirmation."
 
-    elif any(k in user_lower for k in ["model", "ctgan", "tvae", "statistical", "best"]):
-        if is_urdu:
-            response_text = "Statistical Baseline adapter sub-second generation ke liye best hai. Agar aap ko complex correlations aur multimodal distributions capture karni hain to CTGAN ya TVAE select karein."
+    elif any(k in user_lower for k in ["model", "ctgan", "tvae", "statistical", "best", "konsa", "behtar"]):
+        if detected_lang == "ur":
+            response_text = "سٹیٹسٹیکل بیس لائن فوری پری ویو کے لیے بہترین ہے۔ پیچیدہ رشتوں اور نان لینیئر پیٹرنز کے لیے CTGAN یا TVAE ماڈلز کا انتخاب کریں۔"
+        elif detected_lang == "ur-Latn":
+            response_text = "Statistical Baseline adapter sub-second generation ke liye best hai. Agar complex correlations capture karni hain to CTGAN ya TVAE model select karein."
         else:
             response_text = "For instant previews, the Statistical Baseline provides sub-second generation. For non-linear relationships and high-dimensional categorical features, CTGAN or TVAE are recommended."
 
-    elif any(k in user_lower for k in ["privacy", "mask", "safe", "pii"]):
-        if is_urdu:
-            response_text = "HackData V2 mein differential privacy (ε=0.8), SHA-256 hashing, aur column-level email masking enabled hain. Koi bhi real PII record leak nahi hota."
+    elif any(k in user_lower for k in ["privacy", "mask", "safe", "pii", "hifazat", "mehfooz"]):
+        if detected_lang == "ur":
+            response_text = "ہیک ڈیٹا V2 میں ڈفرینشل پرائیویسی (ε=0.8)، SHA-256 ہیشنگ اور زیرو نالج جنریشن فعال ہیں، تاکہ کوئی بھی اصلی PII ریکارڈ ظاہر نہ ہو۔"
+        elif detected_lang == "ur-Latn":
+            response_text = "HackData V2 mein differential privacy (ε=0.8), deterministic SHA-256 masking, aur zero-knowledge generation enabled hain. Koi bhi real PII record leak nahi hota."
         else:
             response_text = "HackData V2 applies differential privacy (ε=0.8), deterministic SHA-256 masking, and zero-knowledge generation. Zero source PII records are ever exposed."
 
     else:
-        if is_urdu:
-            response_text = "Main aap ke dataset ki schema analysis, synthetic columns addition, aur model benchmark mein madad kar sakti hoon. Aap mujhe batayein aap ka kya maqsad hai?"
+        # Check if Groq assistant API key is configured
+        api_key = settings.GROQ_ASSISTANT_API_KEY or settings.GROQ_API_KEY
+        if api_key:
+            try:
+                from groq import Groq
+                client = Groq(api_key=api_key)
+                system_prompt = (
+                    "You are Synthia, the voice and text intelligent assistant for HackData V2 synthetic data platform. "
+                    "Adapt automatically to the user's language: "
+                    "- If user speaks/writes Urdu in Arabic script, respond fluently in natural Urdu script. "
+                    "- If user speaks/writes Roman Urdu (Urdu in English alphabet), respond fluently in natural Roman Urdu. "
+                    "- If user speaks/writes English, respond fluently in clear professional English. "
+                    "Keep responses concise (1-3 sentences) suitable for voice TTS. Focus on dataset profiling, synthetic column additions, CTGAN/TVAE models, and privacy."
+                )
+                completion = client.chat.completions.create(
+                    model=settings.GROQ_MODEL or "llama-3.3-70b-versatile",
+                    messages=[
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": user_text}
+                    ],
+                    max_tokens=150,
+                    temperature=0.3,
+                )
+                response_text = completion.choices[0].message.content.strip()
+            except Exception as e:
+                logger.warning(f"Synthia Groq call fallback: {e}")
+                if detected_lang == "ur":
+                    response_text = "میں آپ کے ڈیٹا سیٹ کی جانچ، سنتھیٹک کالمز اور ماڈل بینچ مارک میں مدد کر سکتی ہوں۔ آپ کیا تشکیل دینا چاہتے ہیں؟"
+                elif detected_lang == "ur-Latn":
+                    response_text = "Main aap ke dataset ki schema analysis, synthetic columns addition, aur model benchmark mein madad kar sakti hoon. Aap kya configure karna chahte hain?"
+                else:
+                    response_text = f"I've analyzed your query: '{user_text}'. I can assist with synthetic column generation, model benchmarking, or TSTR utility evaluation. What would you like to configure?"
         else:
-            response_text = f"I've analyzed your request: '{user_text}'. I can assist with synthetic column generation, model benchmarking, or TSTR utility evaluation. What would you like to configure?"
+            if detected_lang == "ur":
+                response_text = "میں آپ کے ڈیٹا سیٹ کی جانچ، سنتھیٹک کالمز اور ماڈل بینچ مارک میں مدد کر سکتی ہوں۔ آپ کیا تشکیل دینا چاہتے ہیں؟"
+            elif detected_lang == "ur-Latn":
+                response_text = "Main aap ke dataset ki schema analysis, synthetic columns addition, aur model benchmark mein madad kar sakti hoon. Aap kya configure karna chahte hain?"
+            else:
+                response_text = f"I've analyzed your query: '{user_text}'. I can assist with synthetic column generation, model benchmarking, or TSTR utility evaluation. What would you like to configure?"
 
     assistant_msg = {
         "id": f"msg_{len(session['messages'])}",
         "role": "assistant",
         "content": response_text,
+        "language": detected_lang,
         "proposal": proposal,
         "timestamp": datetime.now(timezone.utc).isoformat(),
     }

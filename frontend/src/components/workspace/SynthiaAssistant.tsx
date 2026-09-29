@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Bot, Mic, MicOff, Volume2, VolumeX, X, Send, Sparkles, Check, ChevronDown, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Bot, Mic, MicOff, Volume2, VolumeX, X, Send, Sparkles, Check, CheckCircle2, Move, Globe } from 'lucide-react';
 import { SynthiaMessage, SynthiaProposal, SyntheticColumnSpec } from '../../types';
 import { synthiaCreateSession, synthiaSendMessage, synthiaExecuteAction } from '../../api/client';
 
@@ -16,7 +16,7 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [sessionId, setSessionId] = useState<string>('');
-  const [language, setLanguage] = useState<'en' | 'ur' | 'ur-Latn'>('en');
+  const [detectedLang, setDetectedLang] = useState<'en' | 'ur' | 'ur-Latn'>('en');
   const [messages, setMessages] = useState<SynthiaMessage[]>([]);
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
@@ -25,21 +25,31 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
   const [applyingProposalId, setApplyingProposalId] = useState<string | null>(null);
   const [appliedProposalIds, setAppliedProposalIds] = useState<Set<string>>(new Set());
 
+  // Draggable position state
+  const [position, setPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const isDraggingRef = useRef(false);
+  const dragStartRef = useRef<{ startX: number; startY: number; posX: number; posY: number }>({
+    startX: 0,
+    startY: 0,
+    posX: 0,
+    posY: 0,
+  });
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
 
-  // Initialize Session
+  // Initialize Session once
   useEffect(() => {
-    initSession(language);
-  }, [language]);
+    initSession();
+  }, [datasetId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isOpen]);
 
-  const initSession = async (lang: 'en' | 'ur' | 'ur-Latn') => {
+  const initSession = async () => {
     try {
-      const res = await synthiaCreateSession(datasetId, lang);
+      const res = await synthiaCreateSession(datasetId, 'en');
       if (res.success && res.data) {
         setSessionId(res.data.session_id);
         if (res.data.messages && res.data.messages.length > 0) {
@@ -49,6 +59,38 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
     } catch (err) {
       console.error('Failed to init Synthia session', err);
     }
+  };
+
+  // Dragging handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    // Only drag from header handle
+    if ((e.target as HTMLElement).closest('button, input, select')) return;
+    isDraggingRef.current = true;
+    dragStartRef.current = {
+      startX: e.clientX,
+      startY: e.clientY,
+      posX: position.x,
+      posY: position.y,
+    };
+
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      if (!isDraggingRef.current) return;
+      const dx = moveEvent.clientX - dragStartRef.current.startX;
+      const dy = moveEvent.clientY - dragStartRef.current.startY;
+      setPosition({
+        x: dragStartRef.current.posX + dx,
+        y: dragStartRef.current.posY + dy,
+      });
+    };
+
+    const handleMouseUp = () => {
+      isDraggingRef.current = false;
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
   };
 
   // Text to Speech
@@ -65,6 +107,30 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
       console.warn('Speech synthesis error', e);
     }
   };
+
+  // Helper to detect language locally
+  const detectLanguageLocally = (text: string): 'en' | 'ur' | 'ur-Latn' => {
+    const hasUrduChar = anyInRange(text, 0x0600, 0x06FF);
+    if (hasUrduChar) return 'ur';
+
+    const romanUrduKeywords = [
+      'kya', 'kaise', 'chahiye', 'batao', 'btao', 'karo', 'mujhe', 'madad', 'mera', 'meri',
+      'hain', 'hai', 'theek', 'acha', 'shukriya', 'yeh', 'woh', 'bana', 'dijiye'
+    ];
+    const lower = text.toLowerCase();
+    const count = romanUrduKeywords.filter((w) => new RegExp(`\\b${w}\\b`).test(lower)).length;
+    if (count >= 1) return 'ur-Latn';
+
+    return 'en';
+  };
+
+  function anyInRange(str: string, min: number, max: number) {
+    for (let i = 0; i < str.length; i++) {
+      const code = str.charCodeAt(i);
+      if (code >= min && code <= max) return true;
+    }
+    return false;
+  }
 
   // Web Speech Recognition
   const toggleSpeechRecognition = () => {
@@ -89,7 +155,8 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
       recognitionRef.current = recognition;
       recognition.continuous = false;
       recognition.interimResults = false;
-      recognition.lang = language === 'ur' ? 'ur-PK' : 'en-US';
+      // Dual-friendly language setting
+      recognition.lang = detectedLang === 'ur' ? 'ur-PK' : 'en-US';
 
       recognition.onstart = () => {
         setIsListening(true);
@@ -122,6 +189,9 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
     const textToSend = customText || inputText;
     if (!textToSend.trim() || loading) return;
 
+    const lang = detectLanguageLocally(textToSend);
+    setDetectedLang(lang);
+
     const userMsg: SynthiaMessage = {
       id: `user_${Date.now()}`,
       role: 'user',
@@ -134,14 +204,16 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
     setLoading(true);
 
     try {
-      const res = await synthiaSendMessage(sessionId || 'temp_session', textToSend, language, {
+      const res = await synthiaSendMessage(sessionId || 'temp_session', textToSend, lang, {
         dataset_id: datasetId,
         dataset_name: datasetName,
       });
 
       if (res.success && res.data) {
         setMessages((prev) => [...prev, res.data]);
-        speakText(res.data.content, language);
+        const responseLang = (res.data as any).language || lang;
+        setDetectedLang(responseLang);
+        speakText(res.data.content, responseLang);
       }
     } catch (err: any) {
       setMessages((prev) => [
@@ -177,15 +249,15 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
           id: `ack_${Date.now()}`,
           role: 'assistant',
           content:
-            language === 'ur'
+            detectedLang === 'ur'
               ? 'تجاویز لاگو کر دی گئی ہیں اور ڈیٹاسیٹ پروفائل کو اپ ڈیٹ کر دیا گیا ہے۔'
-              : language === 'ur-Latn'
+              : detectedLang === 'ur-Latn'
               ? 'Proposal successfully apply ho gaya hai aur dataset profile update ho chuki hai.'
               : 'Proposal applied successfully. Dataset profile has been updated.',
           timestamp: new Date().toISOString(),
         };
         setMessages((prev) => [...prev, confirmMsg]);
-        speakText(confirmMsg.content, language);
+        speakText(confirmMsg.content, detectedLang);
       }
     } catch (err: any) {
       alert(err.message || 'Failed to apply proposal');
@@ -199,25 +271,40 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
       {/* Floating Trigger Button */}
       {!isOpen && (
         <button
-          onClick={() => setIsOpen(true)}
-          className="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 text-white shadow-xl hover:shadow-indigo-500/25 hover:scale-105 active:scale-95 transition-all duration-200 border border-white/20"
+          onClick={() => {
+            setIsOpen(true);
+            // Auto start speech listening when opened
+            setTimeout(() => toggleSpeechRecognition(), 400);
+          }}
+          className="fixed bottom-6 right-6 z-40 flex items-center gap-2.5 px-4 py-3 rounded-full bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 text-white shadow-2xl hover:shadow-indigo-500/30 hover:scale-105 active:scale-95 transition-all duration-200 border border-white/20"
         >
           <div className="relative">
             <Bot className="w-5 h-5" />
             <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-indigo-900 animate-pulse" />
           </div>
           <div className="text-left font-sans">
-            <span className="block text-xs font-bold leading-tight">Synthia Voice AI</span>
-            <span className="block text-[10px] text-indigo-200 leading-tight">EN · اردو · Roman</span>
+            <span className="block text-xs font-bold leading-tight flex items-center gap-1">
+              Synthia Voice AI
+              <span className="text-[9px] px-1 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">Live</span>
+            </span>
+            <span className="block text-[10px] text-indigo-200 leading-tight">Auto-detect: EN · اردو · Roman</span>
           </div>
         </button>
       )}
 
-      {/* Floating Dialog Panel */}
+      {/* Floating Draggable Popup */}
       {isOpen && (
-        <div className="fixed bottom-6 right-6 z-40 w-96 md:w-[420px] max-h-[600px] h-[580px] bg-[#0F172A] border border-[#1E293B] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fadeIn font-sans">
-          {/* Header */}
-          <div className="px-4 py-3 border-b border-[#1E293B] bg-[#111C35]/70 flex items-center justify-between">
+        <div
+          style={{
+            transform: `translate(${position.x}px, ${position.y}px)`,
+          }}
+          className="fixed bottom-6 right-6 z-50 w-96 md:w-[400px] max-h-[580px] h-[540px] bg-[#0F172A] border border-[#1E293B] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fadeIn font-sans"
+        >
+          {/* Header - Drag Handle */}
+          <div
+            onMouseDown={handleMouseDown}
+            className="px-4 py-3 border-b border-[#1E293B] bg-[#111C35]/80 flex items-center justify-between cursor-move select-none"
+          >
             <div className="flex items-center gap-2.5">
               <div className="relative p-2 rounded-xl bg-indigo-500/20 text-indigo-400 border border-indigo-500/30">
                 <Bot className="w-4 h-4" />
@@ -226,27 +313,21 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
               <div>
                 <h4 className="text-xs font-bold text-white flex items-center gap-1.5">
                   Synthia
-                  <span className="text-[10px] font-normal px-1.5 py-0.2 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                    Voice & Text Guide
+                  <span className="text-[9px] font-normal px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 flex items-center gap-1">
+                    <Globe className="w-2.5 h-2.5" />
+                    Auto-Adapt
                   </span>
                 </h4>
                 <p className="text-[10px] text-slate-400">
-                  {datasetName ? `Context: ${datasetName}` : 'Synthetic Platform Assistant'}
+                  {datasetName ? `Context: ${datasetName}` : 'Voice & Text Assistant'}
                 </p>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5">
-              {/* Language Selector */}
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value as any)}
-                className="px-2 py-1 rounded bg-slate-900 border border-[#1E293B] text-[11px] text-slate-200 focus:outline-none focus:border-indigo-500"
-              >
-                <option value="en">English</option>
-                <option value="ur">اردو (Urdu)</option>
-                <option value="ur-Latn">Roman Urdu</option>
-              </select>
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] text-slate-400 px-1.5 py-0.5 bg-slate-900 border border-slate-800 rounded font-mono">
+                {detectedLang === 'ur' ? 'اردو' : detectedLang === 'ur-Latn' ? 'Roman' : 'English'}
+              </span>
 
               {/* TTS Toggle */}
               <button
@@ -268,6 +349,8 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
               <button
                 onClick={() => {
                   window.speechSynthesis?.cancel();
+                  if (recognitionRef.current) recognitionRef.current.stop();
+                  setIsListening(false);
                   setIsOpen(false);
                 }}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors"
@@ -348,18 +431,12 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Quick Voice Indicator */}
+          {/* Quick Voice Listening Pulse Banner */}
           {isListening && (
             <div className="px-4 py-2 bg-red-950/40 border-t border-red-900/50 flex items-center justify-between text-xs text-red-300 animate-pulse">
               <div className="flex items-center gap-2">
-                <span className="w-2.5 h-2.5 bg-red-500 rounded-full" />
-                <span>
-                  {language === 'ur'
-                    ? 'سن رہی ہوں... بولیئے'
-                    : language === 'ur-Latn'
-                    ? 'Sun rahi hoon... boliye'
-                    : 'Listening... speak now'}
-                </span>
+                <span className="w-2.5 h-2.5 bg-red-500 rounded-full animate-ping" />
+                <span>Actively listening... speak in English, Urdu, or Roman Urdu</span>
               </div>
               <button
                 onClick={toggleSpeechRecognition}
@@ -395,13 +472,7 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
               type="text"
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
-              placeholder={
-                language === 'ur'
-                  ? 'سنتھیا سے سوال پوچھیں یا بولیں...'
-                  : language === 'ur-Latn'
-                  ? 'Synthia se sawal poochein ya bolein...'
-                  : 'Ask Synthia or speak in English / Urdu...'
-              }
+              placeholder="Speak or type in English, Urdu, or Roman Urdu..."
               className="flex-1 px-3 py-2 rounded-xl bg-slate-950 border border-[#1E293B] text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
             />
 
@@ -418,3 +489,4 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
     </>
   );
 };
+
