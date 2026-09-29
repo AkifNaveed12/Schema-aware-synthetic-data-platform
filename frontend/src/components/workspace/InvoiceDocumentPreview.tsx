@@ -1,6 +1,6 @@
 import React from 'react';
 import { InvoiceDocument } from '../../types';
-import { CheckCircle2, Printer, Download, Receipt, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, Printer, Receipt, ShieldCheck } from 'lucide-react';
 
 interface InvoiceDocumentPreviewProps {
   invoice: InvoiceDocument;
@@ -85,13 +85,13 @@ export const InvoiceDocumentPreview: React.FC<InvoiceDocumentPreviewProps> = ({
               Billed to:
             </span>
             <h3 className="text-sm font-bold text-brand-hero mt-1.5">
-              {invoice.billedTo?.name || 'Northwind Supplies Ltd.'}
+              {invoice.billedTo.name}
             </h3>
             <p className="text-slate-600 whitespace-pre-line mt-1 leading-relaxed">
-              {invoice.billedTo?.address || ''}
+              {invoice.billedTo.address}
             </p>
             <p className="font-mono text-[11px] text-slate-500 mt-1">
-              Tax ID: {invoice.billedTo?.taxId || 'US-TAX-8921'}
+              Tax ID: {invoice.billedTo.taxId}
             </p>
           </div>
 
@@ -100,42 +100,42 @@ export const InvoiceDocumentPreview: React.FC<InvoiceDocumentPreviewProps> = ({
               From:
             </span>
             <h3 className="text-sm font-bold text-brand-hero mt-1.5">
-              {invoice.from?.name || 'Synth Data Co.'}
+              {invoice.from.name}
             </h3>
             <p className="text-slate-600 whitespace-pre-line mt-1 leading-relaxed">
-              {invoice.from?.address || ''}
+              {invoice.from.address}
             </p>
             <p className="font-mono text-[11px] text-slate-500 mt-1">
-              Tax ID: {invoice.from?.taxId || 'SYNTH-GLOBAL-01'}
+              Tax ID: {invoice.from.taxId}
             </p>
           </div>
         </div>
 
         {/* Itemized Table */}
-        <div className="py-6">
-          <table className="w-full text-left border-collapse">
+        <div className="py-6 overflow-x-auto">
+          <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead>
-              <tr className="border-b border-brand-border text-[11px] font-semibold text-brand-secondary uppercase tracking-wider pb-2">
+              <tr className="border-b border-brand-border text-[11px] font-semibold text-brand-secondary uppercase tracking-wider pb-2 h-11">
                 <th className="py-2.5">Item</th>
                 <th className="py-2.5 text-center font-mono w-16">Qty</th>
                 <th className="py-2.5 text-right font-mono w-28">Price</th>
                 <th className="py-2.5 text-right font-mono w-32">Amount</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-brand-border text-xs">
-              {(invoice.lineItems || []).map((item, idx) => (
-                <tr key={item.id || idx} className="hover:bg-slate-50/50">
-                  <td className="py-3.5 font-medium text-brand-hero">
+            <tbody className="divide-y divide-brand-border text-xs tabular-nums">
+              {invoice.lineItems.map((item) => (
+                <tr key={item.id} className="hover:bg-slate-50/50 h-11">
+                  <td className="py-2.5 font-medium text-brand-hero">
                     {item.description}
                   </td>
-                  <td className="py-3.5 text-center font-mono text-slate-600">
+                  <td className="py-2.5 text-center font-mono text-slate-600">
                     {item.quantity}
                   </td>
-                  <td className="py-3.5 text-right font-mono text-slate-600">
-                    ${(item.unitPrice || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  <td className="py-2.5 text-right font-mono text-slate-600">
+                    ${item.unitPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
-                  <td className="py-3.5 text-right font-mono font-semibold text-brand-hero">
-                    ${(item.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  <td className="py-2.5 text-right font-mono font-semibold text-brand-hero">
+                    ${item.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                 </tr>
               ))}

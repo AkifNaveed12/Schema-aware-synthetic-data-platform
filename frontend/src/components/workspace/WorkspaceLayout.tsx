@@ -115,8 +115,35 @@ export const WorkspaceLayout: React.FC = () => {
 
   // Initial and reactive trigger on settings change
   useEffect(() => {
-    recomputePreview(config);
-  }, [config, activeModality, activeDocSubtype, recomputePreview]);
+    let isCancelled = false;
+
+    const run = async () => {
+      if (isCustomDatasetActive) return; // Don't overwrite uploaded data on config changes
+      setIsLoading(true);
+      if (activeModality === 'tabular') {
+        const res = await fetchTabularPreview(config);
+        if (!isCancelled) setTabularRows(res.data);
+      } else if (activeModality === 'relational') {
+        const res = await fetchRelationalPreview(config);
+        if (!isCancelled) setRelationalDataset(res.data);
+      } else if (activeModality === 'documents') {
+        if (activeDocSubtype === 'invoices') {
+          const res = await fetchInvoicePreview(config);
+          if (!isCancelled) setInvoice(res.data);
+        } else {
+          const res = await fetchBankStatementPreview(config);
+          if (!isCancelled) setBankStatement(res.data);
+        }
+      }
+      if (!isCancelled) setIsLoading(false);
+    };
+
+    run();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [config, activeModality, activeDocSubtype, isCustomDatasetActive]);
 
   const handleConfigChange = (updated: Partial<GenerationConfig>) => {
     setConfig((prev) => ({ ...prev, ...updated }));
@@ -184,6 +211,7 @@ export const WorkspaceLayout: React.FC = () => {
           setIsCustomDatasetActive(false);
           recomputePreview(config);
         }}
+
         onApplyBankQuery={handleApplyBankQuery}
         onOpenEvaluation={handleOpenEvaluation}
         onOpenUploadModal={() => setIsUploadOpen(true)}

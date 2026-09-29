@@ -1,0 +1,21 @@
+{
+  "name": "schema-aware-synthetic-data-platform",
+  "version": "1.0.0",
+  "private": true,
+  "description": "HackDataV2 Schema-Aware Synthetic Data Platform",
+  "scripts": {
+    "dev": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "preview": "npm --prefix frontend run preview",
+    "lint": "npm --prefix frontend run lint",
+    "typecheck": "npm --prefix frontend run typecheck",
+    "test": "npm --prefix frontend run test"
+  },
+  "keywords": [
+    "synthetic-data",
+    "hackdatav2",
+    "schema-aware"
+  ],
+  "author": "",
+  "license": "ISC"
+}
