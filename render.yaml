@@ -64,3 +64,4 @@ services:
     name: hackdata-queue
     plan: free
     maxmemoryPolicy: noeviction
+    ipAllowList: []

@@ -5,19 +5,22 @@ import pandas as pd
 from backend.app.core.config import settings
 
 logger = logging.getLogger("hackdata.supabase")
-_BUCKET = "hackdata-v2"
 _client = None
+
+def _get_bucket_name() -> str:
+    return settings.SUPABASE_BUCKET or "hackdata-v2"
 
 def _get_client():
     global _client
     if _client is not None:
         return _client
-    if not settings.SUPABASE_URL or not settings.SUPABASE_SERVICE_ROLE_KEY:
+    key = settings.supabase_key
+    if not settings.SUPABASE_URL or not key:
         logger.warning("Supabase not configured. Running in local-only mode.")
         return None
     try:
         from supabase import create_client
-        _client = create_client(settings.SUPABASE_URL, settings.SUPABASE_SERVICE_ROLE_KEY)
+        _client = create_client(settings.SUPABASE_URL, key)
         logger.info("Supabase client initialised.")
         return _client
     except Exception as exc:
@@ -25,10 +28,11 @@ def _get_client():
         return None
 
 def _ensure_bucket(client) -> bool:
+    bucket_name = _get_bucket_name()
     try:
         buckets = [b.name for b in client.storage.list_buckets()]
-        if _BUCKET not in buckets:
-            client.storage.create_bucket(_BUCKET, options={"public": False})
+        if bucket_name not in buckets:
+            client.storage.create_bucket(bucket_name, options={"public": False})
         return True
     except Exception as exc:
         logger.error("Failed to ensure bucket: %s", exc)
@@ -39,10 +43,11 @@ def upload_raw_dataset(dataset_id: str, df: pd.DataFrame) -> Optional[str]:
     if client is None:
         return None
     _ensure_bucket(client)
+    bucket_name = _get_bucket_name()
     path = f"datasets/raw/{dataset_id}.csv"
     try:
         csv_bytes = df.to_csv(index=False).encode("utf-8")
-        client.storage.from_(_BUCKET).upload(path=path, file=csv_bytes, file_options={"content-type": "text/csv", "upsert": "true"})
+        client.storage.from_(bucket_name).upload(path=path, file=csv_bytes, file_options={"content-type": "text/csv", "upsert": "true"})
         logger.info("Uploaded raw dataset: %s", path)
         return path
     except Exception as exc:
@@ -53,9 +58,10 @@ def download_raw_dataset(dataset_id: str) -> Optional[pd.DataFrame]:
     client = _get_client()
     if client is None:
         return None
+    bucket_name = _get_bucket_name()
     path = f"datasets/raw/{dataset_id}.csv"
     try:
-        data = client.storage.from_(_BUCKET).download(path)
+        data = client.storage.from_(bucket_name).download(path)
         return pd.read_csv(io.BytesIO(data))
     except Exception as exc:
         logger.error("Failed to download raw dataset: %s", exc)
@@ -66,10 +72,11 @@ def upload_generated_dataset(dataset_id: str, df: pd.DataFrame) -> Optional[str]
     if client is None:
         return None
     _ensure_bucket(client)
+    bucket_name = _get_bucket_name()
     path = f"datasets/generated/{dataset_id}.csv"
     try:
         csv_bytes = df.to_csv(index=False).encode("utf-8")
-        client.storage.from_(_BUCKET).upload(path=path, file=csv_bytes, file_options={"content-type": "text/csv", "upsert": "true"})
+        client.storage.from_(bucket_name).upload(path=path, file=csv_bytes, file_options={"content-type": "text/csv", "upsert": "true"})
         logger.info("Uploaded generated dataset: %s", path)
         return path
     except Exception as exc:
@@ -80,9 +87,10 @@ def get_generated_dataset_url(dataset_id: str, fmt: str = "csv") -> Optional[str
     client = _get_client()
     if client is None:
         return None
+    bucket_name = _get_bucket_name()
     path = f"datasets/generated/{dataset_id}.{fmt}"
     try:
-        result = client.storage.from_(_BUCKET).create_signed_url(path, expires_in=3600)
+        result = client.storage.from_(bucket_name).create_signed_url(path, expires_in=3600)
         return result.get("signedURL") or result.get("signed_url")
     except Exception as exc:
         logger.error("Failed to get signed URL: %s", exc)
@@ -132,6 +140,6 @@ class SupabaseService:
     get_job_record = staticmethod(get_job_record)
 
     def is_configured(self) -> bool:
-        return bool(settings.SUPABASE_URL and settings.SUPABASE_SERVICE_ROLE_KEY)
+        return bool(settings.SUPABASE_URL and settings.supabase_key)
 
 supabase_service = SupabaseService()

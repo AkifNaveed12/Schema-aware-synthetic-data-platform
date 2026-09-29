@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     GROQ_ASSISTANT_API_KEY: str = ""
     SUPABASE_URL: str = ""
     SUPABASE_SERVICE_ROLE_KEY: str = ""
+    SUPABASE_SECRET_KEY: str = ""
+    SUPABASE_BUCKET: str = "hackdata-v2"
     REDIS_URL: str = ""  # Redis/Valkey URL for distributed job queue (production only)
     MAX_ROW_COUNT: int = 10000
     DEFAULT_PREVIEW_ROWS: int = 50
@@ -35,5 +37,9 @@ class Settings(BaseSettings):
         if not self.ALLOWED_ORIGINS:
             return ["http://localhost:3000"]
         return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",") if origin.strip()]
+
+    @property
+    def supabase_key(self) -> str:
+        return self.SUPABASE_SERVICE_ROLE_KEY or self.SUPABASE_SECRET_KEY
 
 settings = Settings()
