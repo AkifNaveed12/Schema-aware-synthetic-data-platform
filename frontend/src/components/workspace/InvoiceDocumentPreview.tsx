@@ -85,13 +85,13 @@ export const InvoiceDocumentPreview: React.FC<InvoiceDocumentPreviewProps> = ({
               Billed to:
             </span>
             <h3 className="text-sm font-bold text-brand-hero mt-1.5">
-              {invoice.billedTo.name}
+              {invoice.billedTo?.name || 'Northwind Supplies Ltd.'}
             </h3>
             <p className="text-slate-600 whitespace-pre-line mt-1 leading-relaxed">
-              {invoice.billedTo.address}
+              {invoice.billedTo?.address || ''}
             </p>
             <p className="font-mono text-[11px] text-slate-500 mt-1">
-              Tax ID: {invoice.billedTo.taxId}
+              Tax ID: {invoice.billedTo?.taxId || 'US-TAX-8921'}
             </p>
           </div>
 
@@ -100,13 +100,13 @@ export const InvoiceDocumentPreview: React.FC<InvoiceDocumentPreviewProps> = ({
               From:
             </span>
             <h3 className="text-sm font-bold text-brand-hero mt-1.5">
-              {invoice.from.name}
+              {invoice.from?.name || 'Synth Data Co.'}
             </h3>
             <p className="text-slate-600 whitespace-pre-line mt-1 leading-relaxed">
-              {invoice.from.address}
+              {invoice.from?.address || ''}
             </p>
             <p className="font-mono text-[11px] text-slate-500 mt-1">
-              Tax ID: {invoice.from.taxId}
+              Tax ID: {invoice.from?.taxId || 'SYNTH-GLOBAL-01'}
             </p>
           </div>
         </div>
@@ -123,8 +123,8 @@ export const InvoiceDocumentPreview: React.FC<InvoiceDocumentPreviewProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-brand-border text-xs">
-              {invoice.lineItems.map((item) => (
-                <tr key={item.id} className="hover:bg-slate-50/50">
+              {(invoice.lineItems || []).map((item, idx) => (
+                <tr key={item.id || idx} className="hover:bg-slate-50/50">
                   <td className="py-3.5 font-medium text-brand-hero">
                     {item.description}
                   </td>
@@ -132,10 +132,10 @@ export const InvoiceDocumentPreview: React.FC<InvoiceDocumentPreviewProps> = ({
                     {item.quantity}
                   </td>
                   <td className="py-3.5 text-right font-mono text-slate-600">
-                    ${item.unitPrice.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    ${(item.unitPrice || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                   <td className="py-3.5 text-right font-mono font-semibold text-brand-hero">
-                    ${item.amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    ${(item.amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
                 </tr>
               ))}

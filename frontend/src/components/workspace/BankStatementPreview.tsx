@@ -23,7 +23,8 @@ export const BankStatementPreview: React.FC<BankStatementPreviewProps> = ({
     }
   };
 
-  const balanceHistory = [statement.startingBalance, ...statement.transactions.map((t) => t.balance)];
+  const transactions = statement?.transactions || [];
+  const balanceHistory = [statement?.startingBalance ?? 0, ...transactions.map((t) => t.balance ?? 0)];
 
   return (
     <div className="flex flex-col gap-4 w-full h-full overflow-y-auto">
@@ -122,28 +123,28 @@ export const BankStatementPreview: React.FC<BankStatementPreviewProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y divide-brand-border text-xs">
-              {statement.transactions.map((t) => (
-                <tr key={t.id} className="hover:bg-slate-50/60 transition-colors">
+              {transactions.map((t, idx) => (
+                <tr key={t.id || idx} className="hover:bg-slate-50/60 transition-colors">
                   {/* Date */}
                   <td className="py-3 px-4 font-mono font-medium text-brand-hero">
-                    {t.date.slice(5)}
+                    {t.date ? t.date.slice(5) : '—'}
                   </td>
 
                   {/* Description */}
                   <td className="py-3 px-4 font-medium text-brand-hero">
-                    {t.description}
+                    {t.description || 'Transaction'}
                   </td>
 
                   {/* Category */}
                   <td className="py-3 px-4">
                     <span className="text-[10px] font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600">
-                      {t.category}
+                      {t.category || 'General'}
                     </span>
                   </td>
 
                   {/* Debit (Neutral / subtle red) */}
                   <td className="py-3 px-4 text-right font-mono text-rose-600">
-                    {t.debit !== null ? (
+                    {typeof t.debit === 'number' && !isNaN(t.debit) ? (
                       <span className="inline-flex items-center gap-0.5">
                         <ArrowDownRight className="w-3 h-3 text-rose-500" />
                         ${t.debit.toFixed(2)}
@@ -155,7 +156,7 @@ export const BankStatementPreview: React.FC<BankStatementPreviewProps> = ({
 
                   {/* Credit (Neutral / subtle green) */}
                   <td className="py-3 px-4 text-right font-mono text-emerald-600 font-semibold">
-                    {t.credit !== null ? (
+                    {typeof t.credit === 'number' && !isNaN(t.credit) ? (
                       <span className="inline-flex items-center gap-0.5">
                         <ArrowUpRight className="w-3 h-3 text-emerald-500" />
                         ${t.credit.toFixed(2)}
@@ -167,7 +168,7 @@ export const BankStatementPreview: React.FC<BankStatementPreviewProps> = ({
 
                   {/* Balance (Bold Mono) */}
                   <td className="py-3 px-4 text-right font-mono font-bold text-brand-hero">
-                    ${t.balance.toFixed(2)}
+                    {typeof t.balance === 'number' && !isNaN(t.balance) ? `$${t.balance.toFixed(2)}` : '—'}
                   </td>
                 </tr>
               ))}

@@ -13,6 +13,9 @@ export const RelationalView: React.FC<RelationalViewProps> = ({
   isLoading = false,
 }) => {
   const [activeTable, setActiveTable] = useState<'customers' | 'orders' | 'order_items'>('customers');
+  const customers = dataset?.customers || [];
+  const orders = dataset?.orders || [];
+  const orderItems = dataset?.order_items || [];
 
   return (
     <div className="flex flex-col gap-4 w-full h-full">
@@ -37,7 +40,7 @@ export const RelationalView: React.FC<RelationalViewProps> = ({
             >
               <Table className="w-3.5 h-3.5" />
               Customers
-              <span className="font-mono text-[10px] opacity-80">({dataset.customers.length})</span>
+              <span className="font-mono text-[10px] opacity-80">({customers.length})</span>
             </button>
 
             <button
@@ -50,7 +53,7 @@ export const RelationalView: React.FC<RelationalViewProps> = ({
             >
               <Table className="w-3.5 h-3.5" />
               Orders
-              <span className="font-mono text-[10px] opacity-80">({dataset.orders.length})</span>
+              <span className="font-mono text-[10px] opacity-80">({orders.length})</span>
             </button>
 
             <button
@@ -63,7 +66,7 @@ export const RelationalView: React.FC<RelationalViewProps> = ({
             >
               <Table className="w-3.5 h-3.5" />
               Order Items
-              <span className="font-mono text-[10px] opacity-80">({dataset.order_items.length})</span>
+              <span className="font-mono text-[10px] opacity-80">({orderItems.length})</span>
             </button>
           </div>
 
@@ -103,7 +106,7 @@ export const RelationalView: React.FC<RelationalViewProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-brand-border text-xs">
-                {dataset.customers.map((c) => (
+                {customers.map((c) => (
                   <tr key={c.customer_id} className="hover:bg-slate-50">
                     <td className="py-2.5 px-4 font-mono font-medium text-brand-hero">
                       {c.customer_id}
@@ -142,7 +145,7 @@ export const RelationalView: React.FC<RelationalViewProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-brand-border text-xs">
-                {dataset.orders.map((o) => (
+                {orders.map((o) => (
                   <tr key={o.order_id} className="hover:bg-slate-50">
                     <td className="py-2.5 px-4 font-mono font-medium text-brand-hero">
                       {o.order_id}
@@ -187,7 +190,7 @@ export const RelationalView: React.FC<RelationalViewProps> = ({
                 </tr>
               </thead>
               <tbody className="divide-y divide-brand-border text-xs">
-                {dataset.order_items.map((it) => (
+                {orderItems.map((it) => (
                   <tr key={it.item_id} className="hover:bg-slate-50">
                     <td className="py-2.5 px-4 font-mono font-medium text-brand-hero">
                       {it.item_id}
