@@ -410,3 +410,112 @@ export async function fetchBackendExport(
   };
 }
 
+// 7. Upload & Ingest Dataset File (CSV / JSON)
+export async function uploadDatasetFile(
+  file: File,
+  tableName?: string,
+  useAi: boolean = false
+): Promise<ApiResponse<any>> {
+  const start = performance.now();
+  const formData = new FormData();
+  formData.append('file', file);
+  if (tableName) formData.append('table_name', tableName);
+  formData.append('use_ai', useAi ? 'true' : 'false');
+
+  try {
+    const res = await fetch(`${API_BASE_URL}/datasets/ingest`, {
+      method: 'POST',
+      body: formData,
+    });
+    const json = await res.json();
+    if (!res.ok) {
+      throw new Error(json.error?.message || 'Failed to ingest dataset');
+    }
+    return {
+      success: true,
+      data: json.data,
+      source: 'live_backend',
+      executionTimeMs: Math.round(performance.now() - start),
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      data: null,
+      source: 'live_backend',
+      executionTimeMs: Math.round(performance.now() - start),
+      metadata: { error: err.message || 'Network error during dataset upload' },
+    };
+  }
+}
+
+// 8. Generate Synthetic Dataset (Async with Job ID)
+export async function triggerDatasetGenerationAsync(
+  datasetId: string,
+  config: { row_count?: number; seed?: number; model_strategy?: string }
+): Promise<ApiResponse<{ job_id: string; state: string; message: string }>> {
+  const start = performance.now();
+  try {
+    const res = await fetch(`${API_BASE_URL}/datasets/${datasetId}/generate`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(config),
+    });
+    const json = await res.json();
+    return {
+      success: res.ok,
+      data: json.data,
+      source: 'live_backend',
+      executionTimeMs: Math.round(performance.now() - start),
+    };
+  } catch (err: any) {
+    throw new Error(err.message || 'Failed to submit generation job');
+  }
+}
+
+// 9. Generate Synthetic Dataset (Sync - for Fast Preview)
+export async function triggerDatasetGenerationSync(
+  datasetId: string,
+  config: { row_count?: number; seed?: number; model_strategy?: string }
+): Promise<ApiResponse<any>> {
+  const start = performance.now();
+  try {
+    const res = await fetch(`${API_BASE_URL}/datasets/${datasetId}/generate/sync`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(config),
+    });
+    const json = await res.json();
+    return {
+      success: res.ok,
+      data: json.data,
+      source: 'live_backend',
+      executionTimeMs: Math.round(performance.now() - start),
+    };
+  } catch (err: any) {
+    throw new Error(err.message || 'Failed to generate dataset preview');
+  }
+}
+
+// 10. Poll Job Status
+export async function pollJobStatus(jobId: string): Promise<ApiResponse<any>> {
+  const start = performance.now();
+  try {
+    const res = await fetch(`${API_BASE_URL}/jobs/${jobId}`);
+    const json = await res.json();
+    return {
+      success: res.ok,
+      data: json.data,
+      source: 'live_backend',
+      executionTimeMs: Math.round(performance.now() - start),
+    };
+  } catch (err: any) {
+    throw new Error(err.message || 'Failed to poll job status');
+  }
+}
+
+// 11. Direct Dataset Export URL
+export function getDatasetExportUrl(datasetId: string, format: 'csv' | 'json'): string {
+  return `${API_BASE_URL}/datasets/${datasetId}/export?format=${format}`;
+}
+
+

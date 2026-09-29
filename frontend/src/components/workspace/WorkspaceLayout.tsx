@@ -14,6 +14,7 @@ import { LivePreviewCanvas } from './LivePreviewCanvas';
 import { ConfigurationPanel } from './ConfigurationPanel';
 import { ExportModal } from './ExportModal';
 import { ValidationDashboardModal } from './ValidationDashboardModal';
+import { DatasetUploadModal } from './DatasetUploadModal';
 import {
   fetchTabularPreview,
   fetchRelationalPreview,
@@ -83,11 +84,14 @@ export const WorkspaceLayout: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isEvalOpen, setIsEvalOpen] = useState(false);
+  const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [isCustomDatasetActive, setIsCustomDatasetActive] = useState(false);
   const [evaluationData, setEvaluationData] = useState<EvaluationData | null>(null);
   const [isEvalLoading, setIsEvalLoading] = useState(false);
 
   // Sub-second reactive preview recomputation
   const recomputePreview = useCallback(async (currentConfig: GenerationConfig) => {
+    if (isCustomDatasetActive) return; // Retain custom synthesized rows until cleared
     setIsLoading(true);
 
     if (activeModality === 'tabular') {
@@ -107,7 +111,7 @@ export const WorkspaceLayout: React.FC = () => {
     }
 
     setIsLoading(false);
-  }, [activeModality, activeDocSubtype]);
+  }, [activeModality, activeDocSubtype, isCustomDatasetActive]);
 
   // Initial and reactive trigger on settings change
   useEffect(() => {
@@ -120,6 +124,13 @@ export const WorkspaceLayout: React.FC = () => {
 
   const handleApplyBankQuery = (query: string) => {
     handleConfigChange({ naturalLanguageQuery: query });
+  };
+
+  const handleApplyUploadedData = (rows: TabularRow[], _datasetName: string) => {
+    setIsCustomDatasetActive(true);
+    setActiveModality('tabular');
+    setTabularRows(rows);
+    setConfig((prev) => ({ ...prev, rowCount: rows.length }));
   };
 
   const runEvaluation = useCallback(async () => {
@@ -149,10 +160,14 @@ export const WorkspaceLayout: React.FC = () => {
       <WorkspaceSidebar
         activeModality={activeModality}
         activeDocSubtype={activeDocSubtype}
-        onSelectModality={setActiveModality}
+        onSelectModality={(mod) => {
+          setIsCustomDatasetActive(false);
+          setActiveModality(mod);
+        }}
         onSelectDocSubtype={setActiveDocSubtype}
         activeSeed={config.randomSeed}
         onOpenEvaluation={handleOpenEvaluation}
+        onOpenUploadModal={() => setIsUploadOpen(true)}
       />
 
       {/* 2. Center Stage (Live Preview Canvas, #F8F7F4 / #FFFFFF) */}
@@ -165,9 +180,13 @@ export const WorkspaceLayout: React.FC = () => {
         invoice={invoice}
         bankStatement={bankStatement}
         isLoading={isLoading}
-        onRefresh={() => recomputePreview(config)}
+        onRefresh={() => {
+          setIsCustomDatasetActive(false);
+          recomputePreview(config);
+        }}
         onApplyBankQuery={handleApplyBankQuery}
         onOpenEvaluation={handleOpenEvaluation}
+        onOpenUploadModal={() => setIsUploadOpen(true)}
       />
 
       {/* 3. Right Drawer (Configuration Panel, #FFFFFF) */}
@@ -176,6 +195,13 @@ export const WorkspaceLayout: React.FC = () => {
         onChange={handleConfigChange}
         onExportClick={() => setIsExportOpen(true)}
         isGenerating={isLoading}
+      />
+
+      {/* Dataset Upload & Profiling Modal (Part II Workflow) */}
+      <DatasetUploadModal
+        isOpen={isUploadOpen}
+        onClose={() => setIsUploadOpen(false)}
+        onApplyGeneratedData={handleApplyUploadedData}
       />
 
       {/* Export Modal */}
@@ -202,3 +228,4 @@ export const WorkspaceLayout: React.FC = () => {
     </div>
   );
 };
+
