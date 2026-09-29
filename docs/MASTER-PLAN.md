@@ -502,12 +502,13 @@ No implementation agent should treat the documentation as final until this gate 
 
 - [x] **Backend Foundation:** FastAPI application shell, configuration management, standard envelope, DataProfile model, health/readiness endpoints.
 - [x] **Generation Pipeline (P0):** Tabular engine (distributions, seed determinism, privacy masking/hashing/noise), Relational engine (topological DAG sort, 0 orphaned FKs), Document engine (invoices with $0.00 discrepancy, bank statements with running balance verification).
-- [x] **Validation & Evaluation Layer:** Structural integrity, arithmetic reconciler, privacy compliance auditor, and multi-dimensional quality evaluation engine.
-- [x] **Export Capabilities:** Multi-format serialization (RFC 4180 CSV, JSON, ANSI SQL DDL+DML, PDF representation).
+- [x] **Validation & Evaluation Layer (P0/P1):** Multi-dimensional quality evaluation engine covering Tabular, Relational, and Document modalities (Statistical Fidelity, Structural Integrity, Privacy Compliance, and Business-Rule Reconciliation).
+- [x] **Export Capabilities:** Multi-format serialization (RFC 4180 CSV, JSON, ANSI SQL DDL+DML, PDF/HTML representation) with live backend endpoint integration (`POST /api/v1/export`).
 - [x] **AI Intelligence & Semantic Layer (P1):** Groq service layer with semantic schema understanding, natural-language query interpretation, semantic content pools, LRU caching, rate limiting, and offline heuristic fallback.
 - [x] **Frontend Workspace Integration:** Bento showcase, Theme Slide 10 3-pane workspace, live SVG schema graph, and seamless API client communication.
-- [x] **Automated Test Coverage:** 29 automated test cases across health, engines, AI, and frontend integration passing with 100% success rate.
-- [x] **Localhost Deployment:** Backend running on `localhost:8000`, frontend built with `tsc -b && vite build` in 974ms with zero compilation errors.
+- [x] **Quality Evaluation Dashboard (P1):** Interactive audit modal displaying 4 objective assessment dimensions with detailed diagnostic chips.
+- [x] **Automated Test Coverage:** 31 automated test cases across health, engines, AI, document evaluation, and export pipelines passing with 100% success rate.
+- [x] **Localhost Deployment:** Backend verified on `localhost:8000`, frontend built with `tsc -b && vite build` in 885ms with zero compilation errors.
 
 ## 13. Master Execution Rules
 
