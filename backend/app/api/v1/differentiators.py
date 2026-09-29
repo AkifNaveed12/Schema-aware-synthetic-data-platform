@@ -552,8 +552,20 @@ def send_synthia_message(req: SynthiaMessageRequest):
     proposal = None
     response_text = ""
 
-    # Check for column proposals
-    if any(k in user_lower for k in ["column", "salary_band", "add", "band", "seniority", "naya column", "add karo"]):
+    # Context extraction
+    active_dataset_id = (req.context.get("dataset_id") if req.context else None) or session.get("dataset_id")
+    dataset_context_str = ""
+    if active_dataset_id:
+        ds_session = job_store.get_session(active_dataset_id)
+        if ds_session:
+            filename = ds_session.get("filename", "active dataset")
+            df = ds_session.get("df")
+            row_count = len(df) if df is not None else 0
+            cols = list(df.columns) if df is not None else []
+            dataset_context_str = f"Active dataset: '{filename}' ({row_count} rows, columns: {', '.join(cols[:15])})."
+
+    # 1. Intent: Specific Column Proposal Check
+    if any(k in user_lower for k in ["column", "salary_band", "band", "seniority", "naya column", "add column"]):
         proposal = {
             "id": f"prop_{uuid.uuid4().hex[:6]}",
             "type": "add_synthetic_columns",
@@ -571,68 +583,111 @@ def send_synthia_message(req: SynthiaMessageRequest):
             ]
         }
         if detected_lang == "ur":
-            response_text = "میں نے آپ کے ڈیٹا سیٹ کے لیے 'salary_band' کا مصنوعی کالم تجویز کیا ہے۔ یہ پے رول اور انکم ٹیسٹنگ کے لیے موزوں ہے۔ کیا آپ اسے لاگو کرنا چاہتے ہیں؟"
+            response_text = "میں نے آپ کے ڈیٹا سیٹ کے لیے 'salary_band' کا مصنوعی کالم تجویز کیا ہے۔ کیا آپ اسے لاگو کرنا چاہتے ہیں؟"
         elif detected_lang == "ur-Latn":
             response_text = "Main ne aap ke dataset ke liye 'salary_band' synthetic column tajweez ki hai. Yeh payroll testing ke liye bohot mufeed rahegi. Kya main isse add kar doon?"
         else:
-            response_text = "I recommend adding a 'salary_band' synthetic column to classify records into salary brackets. I have prepared a proposal below for your confirmation."
+            response_text = "I recommend adding a 'salary_band' synthetic column to classify records into salary brackets. You can confirm the proposal to apply it to your dataset."
 
-    elif any(k in user_lower for k in ["model", "ctgan", "tvae", "statistical", "best", "konsa", "behtar"]):
+    elif any(k in user_lower for k in ["benchmark", "model benchmark"]) and any(k in user_lower for k in ["kaise", "how", "what", "compare", "kaam"]):
+        # Direct authoritative answer on benchmark
         if detected_lang == "ur":
-            response_text = "سٹیٹسٹیکل بیس لائن فوری پری ویو کے لیے بہترین ہے۔ پیچیدہ رشتوں اور نان لینیئر پیٹرنز کے لیے CTGAN یا TVAE ماڈلز کا انتخاب کریں۔"
+            response_text = "ماڈل بینچ مارکنگ سٹیٹسٹیکل بیس لائن، CTGAN اور TVAE کا باقاعدہ موازنہ کرتی ہے تاکہ آپ کے ڈیٹا سیٹ کے لیے بہترین ماڈل منتخب کیا جا سکے۔"
         elif detected_lang == "ur-Latn":
-            response_text = "Statistical Baseline adapter sub-second generation ke liye best hai. Agar complex correlations capture karni hain to CTGAN ya TVAE model select karein."
+            response_text = "Model Benchmarking Statistical Baseline, CTGAN aur TVAE models ka empirical muwazna karta hai taake validity aur distribution fidelity verify ho sakay."
         else:
-            response_text = "For instant previews, the Statistical Baseline provides sub-second generation. For non-linear relationships and high-dimensional categorical features, CTGAN or TVAE are recommended."
-
-    elif any(k in user_lower for k in ["privacy", "mask", "safe", "pii", "hifazat", "mehfooz"]):
-        if detected_lang == "ur":
-            response_text = "ہیک ڈیٹا V2 میں ڈفرینشل پرائیویسی (ε=0.8)، SHA-256 ہیشنگ اور زیرو نالج جنریشن فعال ہیں، تاکہ کوئی بھی اصلی PII ریکارڈ ظاہر نہ ہو۔"
-        elif detected_lang == "ur-Latn":
-            response_text = "HackData V2 mein differential privacy (ε=0.8), deterministic SHA-256 masking, aur zero-knowledge generation enabled hain. Koi bhi real PII record leak nahi hota."
-        else:
-            response_text = "HackData V2 applies differential privacy (ε=0.8), deterministic SHA-256 masking, and zero-knowledge generation. Zero source PII records are ever exposed."
+            response_text = "Model Benchmarking evaluates empirical performance across Statistical Baseline, CTGAN, and TVAE adapters, measuring fidelity, training latency, and schema validity."
 
     else:
-        # Check if Groq assistant API key is configured
+        # Try Groq AI Assistant with active credentials
         api_key = settings.GROQ_ASSISTANT_API_KEY or settings.GROQ_API_KEY
+        groq_success = False
+
         if api_key:
             try:
                 from groq import Groq
                 client = Groq(api_key=api_key)
                 system_prompt = (
-                    "You are Synthia, the voice and text intelligent assistant for HackData V2 synthetic data platform. "
-                    "Adapt automatically to the user's language: "
-                    "- If user speaks/writes Urdu in Arabic script, respond fluently in natural Urdu script. "
-                    "- If user speaks/writes Roman Urdu (Urdu in English alphabet), respond fluently in natural Roman Urdu. "
-                    "- If user speaks/writes English, respond fluently in clear professional English. "
-                    "Keep responses concise (1-3 sentences) suitable for voice TTS. Focus on dataset profiling, synthetic column additions, CTGAN/TVAE models, and privacy."
+                    "You are Synthia, the intelligent voice and text guide for HackData V2 (Schema-aware Synthetic Data Platform). "
+                    f"{dataset_context_str} "
+                    "System context and capabilities: "
+                    "- TSTR (Train on Synthetic, Test on Real): Trains ML models solely on synthetic data and validates them against real test sets to measure predictive fidelity. "
+                    "- Model Benchmarking: Empirically compares the Statistical Baseline, CTGAN, and TVAE adapters. Always refer explicitly to Statistical Baseline, CTGAN, and TVAE when discussing benchmarks. "
+                    "- Controlled Regeneration: Diagnostically regenerates underperforming columns while freezing valid columns. "
+                    "- Synthetic Columns: Allows users to define custom synthetic features directly into the dataset profile. "
+                    "- Privacy Protection: Uses differential privacy (epsilon=0.8), deterministic SHA-256 masking, and zero PII exposure. "
+                    "\nCRITICAL RULES: "
+                    "1. NEVER repeat or echo the user's query back to them (never say 'I have analyzed your query' or quote their text). "
+                    "2. Answer directly, accurately, and concisely (2 to 3 sentences maximum, optimized for spoken voice TTS). "
+                    "3. Automatically respond in the user's language: Urdu script if Urdu, Roman Urdu if Urdu in English alphabet, or English."
                 )
-                completion = client.chat.completions.create(
-                    model=settings.GROQ_MODEL or "llama-3.3-70b-versatile",
-                    messages=[
-                        {"role": "system", "content": system_prompt},
-                        {"role": "user", "content": user_text}
-                    ],
-                    max_tokens=150,
-                    temperature=0.3,
-                )
-                response_text = completion.choices[0].message.content.strip()
+
+                models_to_try = [settings.GROQ_MODEL, "qwen/qwen3.8-27b", "openai/gpt-oss-120b", "openai/gpt-oss-20b"]
+                models_to_try = list(dict.fromkeys([m for m in models_to_try if m]))
+
+                for model_candidate in models_to_try:
+                    try:
+                        completion = client.chat.completions.create(
+                            model=model_candidate,
+                            messages=[
+                                {"role": "system", "content": system_prompt},
+                                {"role": "user", "content": user_text}
+                            ],
+                            max_tokens=160,
+                            temperature=0.3,
+                        )
+                        raw_content = completion.choices[0].message.content
+                        if raw_content and raw_content.strip():
+                            response_text = raw_content.strip()
+                            groq_success = True
+                            break
+                    except Exception as inner_e:
+                        logger.warning(f"Groq model {model_candidate} failed: {inner_e}")
+                        continue
             except Exception as e:
-                logger.warning(f"Synthia Groq call fallback: {e}")
+                logger.warning(f"Synthia Groq invocation exception: {e}")
+
+        # Intelligent Domain Knowledge Fallback if Groq unavailable
+        if not groq_success or not response_text:
+            if any(k in user_lower for k in ["tst", "tstr", "utility", "test", "metric", "fidelity"]):
                 if detected_lang == "ur":
-                    response_text = "میں آپ کے ڈیٹا سیٹ کی جانچ، سنتھیٹک کالمز اور ماڈل بینچ مارک میں مدد کر سکتی ہوں۔ آپ کیا تشکیل دینا چاہتے ہیں؟"
+                    response_text = "TSTR (ٹرین آن سنتھیٹک، ٹیسٹ آن ریل) چیک کرتا ہے کہ مصنوعی ڈیٹا پر تربیت یافتہ مشین لرننگ ماڈل اصلی ڈیٹا پر کیسی درستگی دیتا ہے۔ یہ سنتھیٹک ڈیٹا کی افادیت کی تصدیق کرتا ہے۔"
                 elif detected_lang == "ur-Latn":
-                    response_text = "Main aap ke dataset ki schema analysis, synthetic columns addition, aur model benchmark mein madad kar sakti hoon. Aap kya configure karna chahte hain?"
+                    response_text = "TSTR (Train on Synthetic, Test on Real) yeh check karta hai ke synthetic data par train hone wala ML model real data par kitna accurate perform karta hai. Yeh synthetic data ki predictive utility verify karta hai."
                 else:
-                    response_text = f"I've analyzed your query: '{user_text}'. I can assist with synthetic column generation, model benchmarking, or TSTR utility evaluation. What would you like to configure?"
-        else:
-            if detected_lang == "ur":
-                response_text = "میں آپ کے ڈیٹا سیٹ کی جانچ، سنتھیٹک کالمز اور ماڈل بینچ مارک میں مدد کر سکتی ہوں۔ آپ کیا تشکیل دینا چاہتے ہیں؟"
-            elif detected_lang == "ur-Latn":
-                response_text = "Main aap ke dataset ki schema analysis, synthetic columns addition, aur model benchmark mein madad kar sakti hoon. Aap kya configure karna chahte hain?"
+                    response_text = "TSTR (Train on Synthetic, Test on Real) trains an ML model exclusively on your generated synthetic data and evaluates it against real test data to verify predictive utility and statistical fidelity."
+
+            elif any(k in user_lower for k in ["model", "ctgan", "tvae", "statistical", "benchmark", "best"]):
+                if detected_lang == "ur":
+                    response_text = "ماڈل بینچ مارکنگ سٹیٹسٹیکل بیس لائن، CTGAN اور TVAE کا موازنہ کرتی ہے۔ فوری پری ویو کے لیے بیس لائن اور پیچیدہ تعلقات کے لیے CTGAN یا TVAE بہترین ہیں۔"
+                elif detected_lang == "ur-Latn":
+                    response_text = "Model Benchmarking Statistical Baseline, CTGAN aur TVAE models ka muwazna karta hai. Fast preview ke liye baseline aur complex patterns ke liye CTGAN best hai."
+                else:
+                    response_text = "Model Benchmarking runs empirical head-to-head comparisons across Statistical Baseline, CTGAN, and TVAE, evaluating fidelity, schema validity, training speed, and novelty."
+
+            elif any(k in user_lower for k in ["privacy", "mask", "safe", "pii", "hifazat", "mehfooz"]):
+                if detected_lang == "ur":
+                    response_text = "ہیک ڈیٹا V2 میں ڈفرینشل پرائیویسی (ε=0.8)، SHA-256 ہیشنگ اور زیرو نالج جنریشن فعال ہیں، تاکہ کوئی بھی اصلی PII ریکارڈ ظاہر نہ ہو۔"
+                elif detected_lang == "ur-Latn":
+                    response_text = "HackData V2 mein differential privacy (ε=0.8), SHA-256 deterministic masking, aur zero-knowledge generation enabled hain. Koi bhi real PII record leak nahi hota."
+                else:
+                    response_text = "HackData V2 enforces differential privacy (ε=0.8), deterministic SHA-256 masking, and zero-knowledge generation so that real PII records are never exposed."
+
+            elif any(k in user_lower for k in ["regen", "fix", "repair", "quality"]):
+                if detected_lang == "ur":
+                    response_text = "کنٹرولڈ ری جنریشن کے ذریعے آپ کم کوالٹی والے کالمز کو دوبارہ بنا سکتے ہیں جبکہ درست کالمز کو برقرار رکھا جاتا ہے۔"
+                elif detected_lang == "ur-Latn":
+                    response_text = "Controlled Regeneration se aap underperforming columns ko dobara synthesize kar sakte hain jabke compliant columns freeze rehte hain."
+                else:
+                    response_text = "Controlled Regeneration lets you diagnostically re-synthesize underperforming columns while locking and preserving compliant ones."
+
             else:
-                response_text = f"I've analyzed your query: '{user_text}'. I can assist with synthetic column generation, model benchmarking, or TSTR utility evaluation. What would you like to configure?"
+                if detected_lang == "ur":
+                    response_text = "میں آپ کے ڈیٹا سیٹ کے ماڈل بینچ مارک، TSTR یوٹیلیٹی ٹیسٹ اور سنتھیٹک کالمز میں فوری مدد کر سکتی ہوں۔ آپ کیا جاننا چاہتے ہیں؟"
+                elif detected_lang == "ur-Latn":
+                    response_text = "Main aap ke dataset ke model benchmark, TSTR utility test, aur synthetic columns mein madad kar sakti hoon. Aap kya check karna chahte hain?"
+                else:
+                    response_text = "I can guide you through TSTR utility evaluation, model benchmarking across CTGAN/TVAE, synthetic columns, and privacy protections. What would you like to explore?"
 
     assistant_msg = {
         "id": f"msg_{len(session['messages'])}",
