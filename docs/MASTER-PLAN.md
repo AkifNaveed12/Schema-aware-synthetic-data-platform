@@ -1,126 +1,581 @@
-# HACKDATA V2 — MASTER EXECUTION PLAN
+HACKDATA V2 — MASTER EXECUTION PLAN
 
-> **Single Source of Truth for Project Orchestration**  
-> **Challenge:** Synthetic Data Platform (`theme.pdf`)  
-> **Current Phase:** Phase 0 — Baseline Theme Analysis & Documentation Generation (COMPLETED · AWAITING HUMAN REVIEW)  
-> **Next Milestone:** Phase 1 — Application Development Kickoff (Requires Human Team Review & Sign-Off)
-
----
+Single Source of Truth for Project Orchestration
+Challenge: Synthetic Data Platform (theme.pdf)
+Current Phase: Phase 0 — Baseline Theme Analysis & Documentation Generation
+Status: COMPLETED · AWAITING HUMAN REVIEW
+Next Milestone: Phase 1 — Application Development Kickoff
+Gate: Human team review and sign-off required before development
 
 ## 1. Executive Summary & Mission
 
-### 1.1 The Challenge
-Modern software engineering teams face severe bottlenecks due to:
-1. **Privacy & compliance barriers** preventing production data sharing.
-2. **Limited, messy datasets** lacking realistic distributions and stress-testing edge cases.
-3. **Multi-week procurement cycles** to secure sanctioned test extracts.
+1.1 The Challenge
 
-### 1.2 The Solution
-**HackData V2 Synthetic Data Platform:** A unified, zero-code web workspace providing on-demand synthetic generation across three core data modalities:
-- **Tabular Data:** Statistically faithful numeric & categorical distributions with seed determinism and column-level privacy rules (masking, hashing, differential noise).
-- **Relational Structures:** 100% referential integrity across multi-table hierarchies (`Customers -> Orders -> Order Items`) with configurable cardinalities (1:1, 1:N, N:N) and cross-table mathematical reconciliation.
-- **Document Generator:** Templated, localized invoices and running-balance bank statements with strict arithmetic consistency.
-- **Unified AI Layer:** Infers schemas from samples, synthesizes realistic human content, and injects meaningful edge cases across all three generation engines.
+The challenge identifies three major problems:
 
----
+Privacy & compliance barriers — production data may be sensitive or unsuitable for unrestricted development/testing.
+Limited and messy datasets — teams need realistic distributions and meaningful edge cases.
+Slow data procurement — obtaining sanctioned test data can introduce significant delays.
+1.2 The Solution
+
+HackData V2 is a unified synthetic-data workspace for generating realistic, privacy-safe data across three core modalities:
+
+Modality Core Capability
+Tabular Statistically faithful numeric/categorical synthetic data with configurable generation and privacy controls
+Relational Multi-table synthetic datasets with PK/FK integrity, configurable relationships, and cross-table consistency
+Documents Synthetic invoices and bank statements with realistic content and deterministic business-rule validation
+
+A cross-cutting AI layer supports:
+
+Schema understanding and inference
+Semantic content synthesis
+Meaningful edge-case generation
+Natural-language configuration where applicable
+1.3 Core Architectural Principle
+
+AI is not the bulk data generator.
+
+The platform follows a hybrid architecture:
+
+Input
+↓
+Schema / Data Understanding
+↓
+DataProfile
+↓
+Specialized Generation Engines
+├── Tabular
+├── Relational
+└── Document
+↓
+Constraint & Business-Rule Validation
+↓
+Quality Evaluation
+├── Statistical Fidelity
+├── Structural Integrity
+├── Privacy
+├── Utility
+└── Business Rules
+↓
+PASS ─────────→ Export
+│
+FAIL
+↓
+Controlled Regeneration
 
 ## 2. Project State Dashboard
 
-| Metric | Current Status | Notes |
-| :--- | :--- | :--- |
-| **Current Execution Pass** | Pass 1: Theme Analysis & Doc Baseline | Complete. Ready for Git commit and push to `main`. |
-| **Theme Source Analysis** | 100% Complete | 12 of 12 slides visually and textually verified from `theme.pdf`. |
-| **Documentation Baseline** | 100% Complete | All 11 core documentation files created/updated in `docs/`. |
-| **Development Status** | FROZEN / STOPPED | Development agents halted pending manual human review. |
-| **Architecture Status** | Approved (FastAPI + Next.js 15) | Detailed in `docs/ARCHITECTURE.md`. |
-| **API Contract Status** | Baseline Specified | Detailed in `docs/API-CONTRACT.md`. |
-| **UI Compliance Status** | Baseline Specified (3-Pane Layout) | Detailed in `docs/UI-REQUIREMENTS.md`. |
-| **QA Plan Status** | Baseline Specified | Detailed in `docs/TEST-PLAN.md`. |
-| **Deployment Target** | Vercel (FE) + Render (BE) + Supabase | Detailed in `docs/DEPLOYMENT.md`. |
+Metric Current Status Notes
+Current Execution Pass Phase 0 Complete Documentation baseline ready for human review
+Theme Analysis Complete Official theme analyzed across all 12 pages
+Documentation Baseline Complete All 11 core documentation files established
+Development Status FROZEN No implementation should begin before human sign-off
+Architecture Approved FastAPI backend + React/Next.js frontend
+API Contract Baseline Specified Defined in docs/API-CONTRACT.md
+UI Requirements Baseline Specified Unified workspace experience derived from the theme
+QA Plan Baseline Specified Defined in docs/TEST-PLAN.md
+AI Provider Groq Provider abstraction retained for future replacement
+Deployment Strategy Localhost First Cloud deployment is optional if time permits
+Database Optional / Supporting Supabase/PostgreSQL-compatible persistence only where useful
+Human Review Gate Pending Akif, Haroon, and Hamza must review and approve
 
----
+## 3. Specialist Agent Ownership
 
-## 3. Specialist Agent Ownership & Matrix
+Role Responsibility Primary Deliverables Status
+Project Lead / Architect — Akif Orchestration, requirements, architecture, backend, AI, integration, final execution Architecture, decisions, backend, AI, integration ACTIVE
+Frontend — Haroon UI implementation, workspace interaction, responsive behavior, frontend state Frontend application STANDING BY
+QA / Security / Integration — Hamza Testing, security verification, integration verification, quality gates Test suites, QA reports, security checks STANDING BY
+Deployment — Akif Deployment and production verification if required Vercel/Render configuration OPTIONAL / LATER
+3.1 Ownership Rules
+Akif owns the overall architecture and integration.
+Haroon owns frontend implementation.
+Hamza owns formal QA, security, and integration verification.
+All team members perform local testing during development.
+No specialist should silently modify another specialist's core responsibility without coordination.
+The master plan and approved documentation remain the source of truth.
 
-| Specialist Agent | Domain & Scope | Primary Deliverables | Status |
-| :--- | :--- | :--- | :---: |
-| **Project Lead** | Orchestration, requirements, priorities, master plan, quality gates | `docs/MASTER-PLAN.md`, `docs/REQUIREMENTS.md`, execution control | **ACTIVE** |
-| **Architect** | System design, technical trade-offs, architecture decisions | `docs/ARCHITECTURE.md`, `docs/DECISIONS.md` | Ready |
-| **Frontend Agent** | 3-pane workspace UI, responsive layouts, design tokens, live preview | Next.js components, Zustand state, Tailwind styling | Standing By |
-| **Backend Agent** | FastAPI service, tabular engine, relational DAG engine, document generator | `backend/app/engine/`, statistical distributions, API endpoints | Standing By |
-| **AI Engineer** | LLM orchestration, schema understanding, semantic text synthesis, edge-cases | `backend/app/ai/`, Gemini integration, prompt pipelines | Standing By |
-| **Integration Agent** | Cross-modality plumbing, live debounced preview, export serializers | End-to-end data flow, schema-to-UI binding | Standing By |
-| **QA / Security Agent**| Mathematical reconciliation audit, referential integrity tests, UI compliance | Test suites (`tests/`), Playwright browser tests, security audit | Standing By |
-| **Deployment Agent** | Containerization, Vercel & Render configuration, smoke verification | Dockerfile, cloud deployment, production verification | Standing By |
+## 4. Execution Priorities
 
----
+4.1 P0 — Mandatory MVP
 
-## 4. Priority Feature Matrix
+The MVP must establish the complete end-to-end synthetic-data pipeline.
 
-```
-[P0 Mandatory MVP]
-├── Tabular Engine (Distributions, seed reproducibility, row count)
-├── Relational Engine (100% FK integrity, 1:1 & 1:N cardinalities, Customers->Orders->Items)
-├── Document Engine (Invoices with reconciled totals, Bank statements with running balance)
-├── Unified 3-Pane UI (Left Nav, Center Live Canvas, Right Config Drawer)
-├── Live Preview Reactivity (<200ms preview reload)
-├── Privacy Controls (Masking, Hashing, Differential Noise)
-└── Export Multi-Format Engine (CSV, JSON, SQL Dump, PDF)
+[P0 — Mandatory]
 
-[P1 Core Quality & Demo Value]
-├── AI Schema Understanding (Infers types from uploaded sample CSV/JSON)
-├── AI Semantic Content Synthesis (Natural names, companies, line items)
-├── AI Edge-Case Injection (Nulls, boundary spikes, anomaly badges)
-├── Regional Invoice Templating (Currency symbols, date formats, tax labels)
-└── Seed Lock / Refresh Button
+├── Schema / Input Understanding
+├── DataProfile Representation
+│
+├── Tabular Engine
+│ ├── Numeric & categorical distributions
+│ ├── Row count
+│ ├── Seed reproducibility
+│ ├── Missingness / outliers
+│ └── Privacy controls
+│
+├── Relational Engine
+│ ├── PK/FK integrity
+│ ├── 1:1 / 1:N relationships
+│ ├── Multi-table generation
+│ └── Cross-table consistency
+│
+├── Document Engine
+│ ├── Invoices
+│ ├── Bank statements
+│ ├── Deterministic calculations
+│ └── Rendered document output
+│
+├── Validation
+│ ├── Structural validation
+│ ├── Business-rule validation
+│ ├── Statistical validation
+│ └── Privacy checks
+│
+├── Quality Evaluation
+│ ├── Statistical fidelity
+│ ├── Structural fidelity
+│ ├── Privacy
+│ └── Utility where feasible
+│
+├── Controlled Regeneration
+│
+├── Unified Workspace Experience
+│
+└── Export of Validated Results
+4.2 P1 — Core Quality & Demo Value
+[P1 — Quality]
 
-[P2 Enhancements]
-├── Query-Style Generation ("last 90 days, balance over $500")
-├── N:N Relational Cardinalities via join tables
-└── In-Browser SQL DDL Previewer
+├── AI-assisted schema understanding
+├── AI semantic content synthesis
+├── AI edge-case injection
+├── Regional invoice configuration
+├── Locale & currency configuration
+├── Privacy configuration
+├── Configurable preview
+└── Seed / regeneration controls
+4.3 P2 — Enhancements
+[P2 — Enhancements]
 
-[P3 Differentiators]
-├── Live Interactive ERD Schema Canvas
-├── Differential Privacy Epsilon Calibration Slider
-└── Export Archive Packaging (Multi-table ZIP)
-```
+├── Natural-language/query-style generation
+├── N:N relational cardinalities through join tables
+├── Advanced document variations
+└── Additional export/preview capabilities
+4.4 P3 — Optional Differentiators
 
----
+These features are implemented only if the core pipeline is stable:
 
-## 5. Live Demonstration Flight Plan (Winning 3-Minute Demo)
+[P3 — Optional]
 
-1. **Minute 1: The Problem & Tabular Generation**
-   - Demonstrate the scarcity and privacy lockouts of production data.
-   - Show the live 3-pane workspace.
-   - Adjust row count and random seed; show live rows updating in `<200ms`.
-   - Toggle privacy masking and differential noise; highlight instantaneous data protection.
-2. **Minute 2: Relational Structures & Integrity**
-   - Switch to `Relational` view (`Customers -> Orders -> Order Items`).
-   - Demonstrate 100% referential integrity: zero orphaned foreign keys.
-   - Highlight mathematical reconciliation: show that order total equals the exact sum of order line items.
-3. **Minute 3: Document Generation & AI Synthesis**
-   - Switch to `Documents -> Invoices`: show rendered `#INV-10432` with perfectly balanced totals.
-   - Switch to `Documents -> Bank Statements`: show running transaction ledger where `balance == prev_balance + credit - debit`.
-   - Demonstrate AI edge-case injection.
-   - Click `Export`: download complete package (CSV, JSON, SQL dump) in one second.
+├── Interactive ERD visualization
+├── Advanced differential-privacy configuration
+├── Multi-table export packaging
+└── Additional document types
 
----
+Priority Rule: Quality and fidelity take precedence over feature count.
 
-## 6. Definition of Done (DoD)
+## 5. Quality-First Execution Strategy
 
-The project will be declared complete only when:
-1. **Mandatory Scope Functional:** Tabular, Relational, and Document engines generate valid data matching all theme specifications.
-2. **Mathematical Truth Verified:** 100% referential integrity (0 orphaned FKs) and $0.00 calculation variance across invoices and bank balances.
-3. **UI Compliance Audited:** 3-pane layout strictly matches Theme Slide 10 with sub-200ms live preview reactivity.
-4. **AI Layer Integrated:** AI infers schemas, synthesizes natural language content, and injects realistic edge cases across all three data types.
-5. **Multi-Format Export Operable:** CSV, JSON, SQL DDL dumps, and printable PDF documents download cleanly.
-6. **Production Deployed:** Deployed and verified live on Vercel (Frontend) and Render (Backend).
-7. **Demo Rehearsed:** 3-minute critical user journey executes smoothly without errors.
+5.1 Generation Pipeline
 
----
+Every major generation workflow should follow:
 
-## 7. Immediate Next Steps (Human Review Boundary)
+INPUT
+↓
+UNDERSTAND
+↓
+PROFILE
+↓
+GENERATE
+↓
+VALIDATE
+↓
+EVALUATE
+↓
+PASS? ── YES ──→ EXPORT
+│
+NO
+↓
+CONTROLLED REGENERATION
+5.2 Quality Dimensions
+Dimension Examples
+Statistical Fidelity Distributions, proportions, correlations, missingness, outliers
+Structural Fidelity PK/FK integrity, cardinalities, relationships
+Business Consistency Invoice totals, taxes, line items, running balances
+Privacy Masking, hashing, controlled noise, avoidance of direct record reproduction
+Utility TSTR or other meaningful downstream utility evaluation where feasible
+5.3 Quality Gate
 
-1. **Phase 0 Documentation Check:** Completed.
-2. **Git Commit & Push:** Commit documentation baseline to `main` branch.
-3. **Handoff to Human Team:** Stop and wait for Akif, Haroon, and Hamza to review, refine, and approve the baseline documentation before Phase 1 development commences.
+A generation should not be exported simply because data was successfully produced.
+
+The result must first pass the applicable validation and evaluation checks.
+
+## 6. AI Strategy
+
+6.1 AI Responsibilities
+
+The AI layer should focus on tasks requiring semantic reasoning:
+
+Schema interpretation
+Semantic column/type understanding
+Realistic names and free text
+Document semantics
+Edge-case specification
+Natural-language configuration
+6.2 Bulk Generation Rule
+
+The LLM must not be called once per generated row or document.
+
+Instead:
+
+User Input
+↓
+Groq / AI Service
+↓
+Structured Generation Specification
+↓
+Specialized Local Generation Engine
+↓
+Bulk Synthetic Data
+6.3 AI Service Controls
+
+The AI service should provide:
+
+Structured input/output
+Request caching
+Schema-analysis deduplication
+Rate limiting
+Retry with exponential backoff
+Token budgeting
+Usage tracking
+Provider abstraction
+6.4 Initial Provider
+
+Groq is the initial AI provider.
+
+The implementation should maintain a provider abstraction so the model/provider can be changed without redesigning the generation engines.
+
+## 7. Frontend Execution Direction
+
+7.1 Unified Workspace
+
+The frontend should provide a unified workspace covering:
+
+Tabular generation
+Relational generation
+Document generation
+Configuration
+Preview
+Validation/evaluation feedback
+Export
+
+The theme establishes the workspace experience, but does not require an implementation-specific fixed three-pane architecture.
+
+7.2 Frontend Ownership
+
+Haroon owns:
+
+Visual implementation
+Component architecture
+Interaction design
+Responsive behavior
+Frontend state management
+Preview experience
+Theme-aligned UI implementation
+7.3 Performance Principle
+
+Preview interactions should feel responsive.
+
+A rigid <200ms requirement is not an architectural guarantee. Actual performance targets should be established through profiling and optimized where practical.
+
+## 8. Live Demonstration Plan
+
+8.1 Demonstration Objective
+
+The demo should prove the platform's core value rather than attempt to demonstrate every feature.
+
+8.2 Suggested Flow
+Part 1 — Problem & Tabular Data
+Introduce the data scarcity/privacy problem.
+Provide a sample/schema.
+Demonstrate schema understanding.
+Generate synthetic tabular data.
+Change row count/seed/configuration.
+Show privacy configuration.
+Show validation/evaluation results.
+Part 2 — Relational Data
+Load or define a relational structure.
+Generate related tables.
+Demonstrate PK/FK integrity.
+Demonstrate cardinality.
+Demonstrate cross-table consistency.
+Show validation results.
+Part 3 — Documents
+Generate an invoice.
+Demonstrate line-item/tax/total reconciliation.
+Generate a bank statement.
+Demonstrate transaction/running-balance consistency.
+Show AI-assisted semantic content.
+Export the validated result.
+8.3 Demo Rule
+
+The final demonstration should prioritize:
+
+Correctness
+Data quality
+Validation evidence
+End-to-end workflow
+UI polish
+
+Feature breadth should not compromise the reliability of the demonstrated pipeline.
+
+## 9. Definition of Done
+
+The project is complete when the following conditions are satisfied.
+
+9.1 Functional Scope
+Tabular generation works end-to-end.
+Relational generation works end-to-end.
+Document generation works end-to-end.
+Schema-aware processing is functional.
+AI-assisted semantic capabilities are integrated where required.
+9.2 Data Quality
+Generated data passes applicable statistical validation.
+PK/FK relationships contain no invalid references.
+Applicable cardinality constraints are respected.
+Invoice calculations reconcile.
+Bank-statement running balances reconcile.
+Applicable privacy checks pass.
+Utility evaluation is implemented where feasible.
+9.3 Validation & Regeneration
+Validation occurs before export.
+Failed generations can be diagnosed.
+Controlled regeneration is supported.
+Export operates on the validated generation.
+9.4 Frontend
+Unified workspace is functional.
+Tabular, relational, and document workflows are accessible.
+Configuration changes correctly affect generation/preview.
+Validation/evaluation results are visible.
+Export workflow is usable.
+Responsive behavior is verified.
+9.5 Export
+CSV export works where applicable.
+JSON export works where applicable.
+SQL/database-compatible export works where applicable.
+Document/PDF export works where applicable.
+9.6 QA & Security
+Unit tests pass.
+Integration tests pass.
+API tests pass.
+Frontend workflow tests pass where applicable.
+Security checks pass.
+Invalid input and failure paths are tested.
+9.7 Deployment
+Localhost MVP works reliably.
+Cloud deployment is not mandatory for MVP.
+If time permits, Vercel frontend deployment is verified.
+If time permits, Render backend deployment is verified.
+Production deployment must not delay or destabilize the core MVP.
+9.8 Demo
+Critical user journey is rehearsed.
+Core generation workflows are reliable.
+Validation evidence is available.
+Demo can be completed without depending on unstable external services.
+
+## 10. Execution Phases
+
+Phase 0 — Theme Analysis & Documentation
+
+Status: COMPLETED
+
+Analyze official theme.
+Extract requirements.
+Establish architecture.
+Establish API contract.
+Establish task ownership.
+Establish QA strategy.
+Establish deployment strategy.
+Produce the 11 documentation files.
+Cross-check documentation consistency.
+Phase 1 — Foundation
+
+Gate: Human approval required.
+
+Repository/application structure.
+Backend foundation.
+Frontend foundation.
+API contract implementation.
+Shared models.
+DataProfile.
+Generation job/state model.
+Initial validation framework.
+Phase 2 — Core Generation Engines
+Tabular engine.
+Relational engine.
+Document engine.
+Deterministic business rules.
+Initial validation.
+Phase 3 — AI & Quality Layer
+Groq integration.
+Schema understanding.
+Semantic synthesis.
+Edge-case specification.
+AI caching/rate limiting/retry.
+Statistical evaluation.
+Structural evaluation.
+Privacy evaluation.
+Utility evaluation where feasible.
+Controlled regeneration.
+Phase 4 — Frontend Integration
+Unified workspace.
+Configuration.
+Preview.
+Generation controls.
+Validation/evaluation results.
+Export workflow.
+Phase 5 — Integration & QA
+End-to-end integration.
+API testing.
+Frontend testing.
+Cross-modality verification.
+Security testing.
+Performance profiling.
+Failure-path testing.
+Phase 6 — Demo Stabilization
+Seeded demo datasets.
+Demo workflow.
+Error recovery.
+Performance cleanup.
+Final QA.
+Demo rehearsal.
+Phase 7 — Optional Deployment
+
+Only if sufficient time remains:
+
+Frontend → Vercel
+Backend → Render
+Database → Supabase/PostgreSQL-compatible
+
+Deployment must not compromise the localhost MVP.
+
+## 11. Human Review Boundary
+
+11.1 Current State
+
+Phase 0 is complete.
+
+Development remains frozen until the human team reviews the documentation.
+
+11.2 Reviewers
+Akif
+Haroon
+Hamza
+11.3 Review Checklist
+
+The team should verify:
+
+Theme requirements are correctly represented.
+Architecture is technically feasible.
+API contract matches the architecture.
+Task ownership is clear.
+QA strategy covers critical correctness requirements.
+UI direction matches the theme without over-constraining implementation.
+AI usage is realistic and cost/token conscious.
+MVP scope is achievable within the hackathon timeline.
+Optional features are clearly separated from mandatory scope.
+No feature is being prioritized over synthetic-data quality.
+11.4 Approval Gate
+
+After review:
+
+Human Review
+↓
+Approved?
+┌──┴──┐
+NO YES
+↓ ↓
+Revise Phase 1
+Docs Development
+
+No implementation agent should treat the documentation as final until this gate is passed.
+
+## 12. Immediate Next Steps
+
+Review all 11 documentation files.
+Resolve any contradictions between documents.
+Confirm responsibilities for Akif, Haroon, and Hamza.
+Confirm P0/P1 scope against the remaining hackathon time.
+Commit the approved documentation baseline.
+Push the approved baseline to main.
+Start Phase 1 only after human sign-off.
+
+## 13. Master Execution Rules
+
+Rule 1 — Documentation Before Development
+
+No development agent should invent requirements that are absent from the approved documentation.
+
+Rule 2 — Quality Before Breadth
+
+A smaller number of highly reliable capabilities is preferable to a broad set of unreliable generators.
+
+Rule 3 — AI Is Selective
+
+Use AI where semantic reasoning adds value. Do not use an LLM as a row-by-row synthetic-data engine.
+
+Rule 4 — Validate Before Export
+
+Generated data must pass applicable validation/evaluation before being treated as an exportable result.
+
+Rule 5 — Deterministic Business Logic
+
+Arithmetic and strict business constraints should be handled by deterministic application logic rather than relying on LLM reasoning.
+
+Rule 6 — Localhost First
+
+The MVP must be independently usable locally. Cloud infrastructure is optional and comes later.
+
+Rule 7 — No Premature Optimization Guarantees
+
+Performance targets should be measured and optimized through profiling rather than assuming fixed latency guarantees.
+
+Rule 8 — Human Approval Is a Hard Gate
+
+The transition from documentation to implementation requires explicit team review.
+
+Rule 9 — One Source of Truth
+
+When implementation conflicts with approved documentation, stop and resolve the discrepancy rather than silently changing architecture or requirements.
+
+## 14. Final Project Direction
+
+                 HACKDATA V2
+                      │
+                      ▼
+              Unified Workspace
+                      │
+                      ▼
+             Schema / Data Input
+                      │
+                      ▼
+                 DataProfile
+                      │
+          ┌───────────┼───────────┐
+          ▼           ▼           ▼
+       Tabular     Relational   Documents
+       Engine       Engine       Engine
+          │           │           │
+          └───────────┼───────────┘
+                      ▼
+             Validation Layer
+                      │
+                      ▼
+             Quality Evaluation
+                      │
+                ┌─────┴─────┐
+                ▼           ▼
+              PASS         FAIL
+                │           │
+                ▼           ▼
+             Export     Regenerate
+
+The central objective is not simply to generate synthetic data. It is to generate synthetic data that is structurally valid, statistically meaningful, privacy-aware, business-consistent, and demonstrably useful.

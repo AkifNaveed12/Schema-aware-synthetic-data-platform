@@ -1,154 +1,1017 @@
 # HACKDATA V2 — SYSTEM ARCHITECTURE
 
-> **Source Reference:** `theme.pdf` (Slide 4 System Design, Slide 3 Pipeline, Slide 9 AI Layer, Slide 11 Judging Criteria)  
-> **Core Principle:** Simple, modular, schema-aware generation pipeline delivering sub-second preview latency and verified data integrity.
+> **Project:** HackData V2  
+> **Official Theme:** Synthetic Data Platform  
+> **Architecture Principle:** Schema-aware, modular, quality-first synthetic data generation.  
+> **Execution Strategy:** Localhost-first with optional deployment after MVP stability.  
+> **Status:** Finalized Architecture Baseline
 
 ---
 
-## 1. Architectural Overview & System Topology
+## 1. Architectural Overview
 
-The platform implements a modular architecture composed of a reactive **3-Pane Frontend** (Next.js/React), a high-performance **Synthetic Generation Backend** (Python/FastAPI), a unified **AI Semantic Layer** (LLM inference), and an optional **Supabase Persistence Layer**.
+HackData V2 follows a modular architecture built around a unified schema-aware synthetic-data pipeline.
 
-```mermaid
-flowchart TD
-    subgraph Client ["Client Layer (Next.js / React)"]
-        UI["3-Pane Workspace UI"]
-        Sidebar["Workspace Nav (Tabular / Relational / Docs)"]
-        Canvas["Live Preview Canvas (<200ms Shimmer)"]
-        Config["Configuration Panel (Seed, Rows, Locale, Privacy)"]
-    end
+The system consists of:
 
-    subgraph API_Gateway ["API Layer (FastAPI)"]
-        Router["FastAPI Application Router"]
-        InferEndpoint["/api/schema/infer"]
-        GenTabular["/api/generate/tabular"]
-        GenRelational["/api/generate/relational"]
-        GenDocs["/api/generate/documents"]
-        ExportEndpoint["/api/export"]
-    end
+1. Frontend application
+2. FastAPI backend
+3. Schema understanding layer
+4. Central `DataProfile`
+5. Specialized generation engines
+6. Validation engine
+7. Quality evaluation engine
+8. AI service layer
+9. Export engine
+10. Optional persistence layer
 
-    subgraph Engine ["Unified Generation Engine (Python)"]
-        SchemaParser["Schema & Sample Parser"]
-        TabularEngine["Tabular Engine (NumPy / SciPy / Privacy Transforms)"]
-        RelationalEngine["Relational Engine (DAG Dependency & FK Integrity)"]
-        DocumentEngine["Document Engine (Invoices & Statement Ledgers)"]
-        Reconciler["Mathematical Reconciliation Validator"]
-    end
+The core architecture is:
 
-    subgraph AI_Layer ["AI Layer (LLM Multi-Task Orchestrator)"]
-        SchemaUnderstanding["Schema Understanding & Type Inference"]
-        SemanticSynthesis["Realistic Content Synthesis (Names/Addresses/Free-text)"]
-        EdgeCaseInjector["Edge-Case Injection (Nulls/Outliers/Boundary Anomalies)"]
-    end
-
-    subgraph Storage ["Storage & External Layer"]
-        SupabaseDB[("Supabase PostgreSQL (Presets & Schemas)")]
-        DiskCache["In-Memory / Fast Cache"]
-    end
-
-    UI --> Router
-    Router --> InferEndpoint
-    Router --> GenTabular
-    Router --> GenRelational
-    Router --> GenDocs
-    Router --> ExportEndpoint
-
-    InferEndpoint --> SchemaParser
-    InferEndpoint --> SchemaUnderstanding
-
-    GenTabular --> TabularEngine
-    GenRelational --> RelationalEngine
-    GenDocs --> DocumentEngine
-
-    TabularEngine --> AI_Layer
-    RelationalEngine --> AI_Layer
-    DocumentEngine --> AI_Layer
-
-    RelationalEngine --> Reconciler
-    DocumentEngine --> Reconciler
-
-    Router -.-> SupabaseDB
+```text
+User
+  ↓
+Frontend
+  ↓
+FastAPI API
+  ↓
+Orchestrator
+  ↓
+Schema Understanding
+  ↓
+DataProfile
+  ↓
+┌──────────────┬───────────────┬────────────────────┐
+│              │               │                    │
+▼              ▼               ▼                    ▼
+Tabular      Relational      Document          Future Engines
+Engine         Engine         Engine
+│              │               │
+└──────────────┴───────────────┘
+               ↓
+        Validation Engine
+               ↓
+        Evaluation Engine
+               ↓
+        ┌──────┴──────┐
+        │             │
+      PASS           FAIL
+        │             │
+        ▼             ▼
+     Export       Regenerate
 ```
 
----
+The architecture is designed so that AI provides semantic intelligence while deterministic/statistical engines handle bulk data generation and critical business logic.
 
-## 2. Component Subsystems
+## 2. Core Architectural Principles
 
-### 2.1 Frontend Architecture (`frontend/`)
+2.1 Schema-Aware Generation
 
-- **Framework:** Next.js (App Router) / React 19, TypeScript.
-- **Styling & Components:** Tailwind CSS, Radix UI primitives, Lucide icons, class-variance-authority (CVA).
-- **State Management:** Zustand for active pane state, preview cache, configuration state, and debounced generation triggers.
-- **Layout Paradigm:** Fixed viewport 3-pane layout (`h-screen overflow-hidden`):
-  - Left: `w-64` Workspace Navigation Sidebar.
-  - Center: `flex-1` Live Preview Canvas with virtualized tables / rendered documents.
-  - Right: `w-80` Configuration Drawer with real-time controls.
-- **Reactivity Strategy:** 150ms debounce on slider/input changes to trigger live preview endpoint, rendering instant optimistic updates without UI freezes.
+The system must understand the structure and semantics of the requested data before generation.
 
-### 2.2 Backend Architecture (`backend/`)
+The pipeline must not behave as a simple random-data generator.
 
-- **Framework:** Python 3.11+ with FastAPI and Uvicorn.
-- **Why Python:** Native scientific library ecosystem (NumPy, SciPy, Pandas, Faker) provides statistical distribution fitting, differential noise algorithms, and seamless LLM SDK integrations.
-- **Core Pipeline Modules (`backend/app/engine/`):**
-  1. **`schema_parser.py`:** Parses SQL DDL, JSON Schema, and sample CSV files into internal abstract schema graphs.
-  2. **`tabular_engine.py`:** Generates numeric columns (normal, log-normal, exponential, uniform) and categorical columns with configurable null and outlier probabilities. Applies column-level privacy transforms (masking, hashing, Laplace noise).
-  3. **`relational_engine.py`:** Topological sort (DAG) over foreign-key relationships. Generates parent records first (`Customers`), samples primary keys to populate foreign keys in child records (`Orders`), and propagates down to grandchild records (`Order Items`) with configurable 1:1, 1:N, and N:N cardinalities.
-  4. **`document_engine.py`:** Generates structured document representations:
-     - Invoices: Computes unit prices, quantities, taxes, discounts, and guarantees mathematical sum matching.
-     - Bank Statements: Generates chronologically sorted credit/debit transaction streams and maintains unbroken running balance math.
-  5. **`reconciliation.py`:** Post-generation verification validator checking 100% referential integrity and zero arithmetic variance.
-  6. **`exporter.py`:** Serializes in-memory datasets into CSV, JSON, SQL DDL+Insert dumps, and downloadable PDF-ready documents.
+2.2 Specialized Generation Engines
 
-### 2.3 AI Layer (`backend/app/ai/`)
+Different data modalities require different generation strategies.
 
-- **Orchestrator:** Unified LLM service using Google Gemini (with graceful mock/offline fallback).
-- **Three Core AI Functions (Theme Slide 9):**
-  1. **Schema Understanding:** Given sample rows, infers semantic intents (e.g. classifying a text column as "corporate domain name" vs "personal email") without manual configuration.
-  2. **Realistic Content Synthesis:** Generates high-entropy realistic text fields (company names, street addresses, invoice descriptions) that read naturally.
-  3. **Edge-Case Injection:** Recommends and injects stress-testing edge cases (negative balances, UTF-8 emoji strings, leap year dates, extreme outlier values).
+The system therefore separates:
 
----
+Tabular generation
+Relational generation
+Document generation
 
-## 3. Data Flow & Generation Lifecycle
+Each engine is independently testable and replaceable.
 
-```
-[User adjusts slider in Config Panel]
-                ↓ (Debounced HTTP POST /api/generate)
-[FastAPI Router validates Pydantic request]
-                ↓
-[Deterministic PRNG initialized with Seed]
-                ↓
-[AI Layer populates semantic dictionaries / edge cases]
-                ↓
-[Generation Engine computes distributions & relational links]
-                ↓
-[Reconciliation Validator verifies math & foreign keys]
-                ↓
-[FastAPI returns JSON preview payload (<200ms)]
-                ↓
-[Live Canvas renders updated rows & document preview]
-```
+2.3 AI as a Cross-Cutting Intelligence Layer
 
----
+AI is not the primary bulk-data generator.
 
-## 4. Privacy & Security Architecture
+AI assists with:
 
-1. **Zero Production Data Retention:** The platform operates in a zero-retention mode. Sample files are parsed in memory and discarded.
-2. **Column-Level Privacy Transformers:**
-   - **Masking:** Regex-based PII replacement preserving format (e.g. `j****@example.com`, `***-**-1234`).
-   - **Hashing:** Cryptographic one-way hashing (`SHA-256`) for identifiers.
-   - **Differential Noise:** Epsilon-calibrated Laplace / Gaussian noise added to continuous numeric features.
-3. **Environment Security:** API keys (Gemini, Supabase) stored strictly in server-side environment variables, never sent to the browser.
+Schema understanding
+Semantic type inference
+Relationship interpretation
+Natural-language query interpretation
+Realistic semantic content
+Edge-case proposals
+Document semantics
 
----
+Bulk generation remains primarily local and deterministic/statistical.
 
-## 5. Technology Stack Summary
+2.4 Validation Before Export
 
-| Layer                   | Primary Technology                                    | Justification                                                                       |
-| :---------------------- | :---------------------------------------------------- | :---------------------------------------------------------------------------------- |
-| **Frontend**            | Next.js 15 / React 19 + Tailwind CSS                  | Rapid UI velocity, strict component modularity, instant reactive preview.           |
-| **Backend**             | Python 3.11+ / FastAPI                                | High performance, native NumPy/SciPy statistical distributions, Faker, and AI SDKs. |
-| **AI Integration**      | Google Gemini API (gemini-2.5-flash / gemini-1.5-pro) | High throughput, low latency, structured JSON output mode, cost-effective.          |
-| **Database (Optional)** | Supabase (PostgreSQL)                                 | Instant relational schema storage, presets, and authentication if required.         |
-| **Export Formats**      | CSV (RFC 4180), JSON, PostgreSQL SQL Dump, HTML/PDF   | Full fidelity output for test suites, DB staging, and document pipelines.           |
-| **Deployment**          | Vercel (Frontend) + Render (Backend API Service)      | Production-ready, reproducible Docker deployment with continuous integration.       |
+Generated data must pass mandatory validation before it becomes exportable.
+
+Generate
+↓
+Validate
+↓
+Evaluate
+↓
+PASS → Export
+
+FAIL
+↓
+Adjust / Regenerate
+2.5 Quality Over Superficial Breadth
+
+The architecture prioritizes:
+
+Correctness
+↓
+Fidelity
+↓
+Structural Integrity
+↓
+Privacy
+↓
+Business Correctness
+↓
+Performance
+↓
+Breadth
+
+Additional modalities must not compromise the reliability of the core system.
+
+## 3. System Topology
+
+![alt text](image.png)
+
+## 4. Frontend Architecture
+
+4.1 Frontend Responsibilities
+
+The frontend is responsible for:
+
+User interaction
+Dataset/schema configuration
+Generation controls
+Preview rendering
+Validation results
+Evaluation results
+Regeneration controls
+Export controls
+Job progress
+Error presentation
+
+The frontend must not implement core generation or validation logic.
+
+4.2 Frontend Technology
+
+The implementation may use the team's selected React/Next.js stack.
+
+The exact frontend framework and component system are implementation decisions and are not treated as requirements of the synthetic-data engine.
+
+4.3 Workspace Experience
+
+The application should provide a unified workspace for:
+
+Tabular
+Relational
+Documents
+
+The workspace should allow users to:
+
+Configure generation
+Preview generated data
+Inspect validation/evaluation
+Regenerate when required
+Export validated results
+
+The visual layout remains under frontend ownership.
+
+4.4 Preview Strategy
+
+The frontend must not trigger full dataset generation whenever a configuration value changes.
+
+Preview requests should:
+
+Generate a small sample
+Use lightweight processing
+Avoid unnecessary LLM calls
+Use debouncing where appropriate
+Reuse cached information where possible
+
+## 5. Backend Architecture
+
+5.1 FastAPI API Layer
+
+FastAPI provides the HTTP interface between the frontend and backend services.
+
+Responsibilities include:
+
+Request validation
+Authentication/security boundaries where applicable
+Routing
+Error handling
+Request IDs
+Job creation
+Response serialization
+
+Generation logic must remain outside route handlers.
+
+5.2 Generation Orchestrator
+
+The orchestrator coordinates the complete generation lifecycle.
+
+Conceptually:
+
+Request
+↓
+Validate Input
+↓
+Load / Create DataProfile
+↓
+Select Generation Engine
+↓
+Generate
+↓
+Validate
+↓
+Evaluate
+↓
+PASS / FAIL
+
+The orchestrator must not contain modality-specific generation algorithms.
+
+## 6. DataProfile
+
+DataProfile is the central internal representation connecting schema understanding with generation.
+
+6.1 DataProfile Structure
+DataProfile
+├── modality
+├── schema
+├── tables
+├── columns
+├── data types
+├── semantic types
+├── formats
+├── distributions
+├── correlations
+├── relationships
+├── constraints
+├── privacy configuration
+├── generation configuration
+└── evaluation configuration
+6.2 DataProfile Responsibilities
+
+The DataProfile must allow the system to:
+
+Normalize input information
+Reuse schema analysis
+Select generation strategies
+Preserve relationships
+Configure validation
+Configure evaluation
+Support deterministic regeneration
+Avoid repeated AI calls
+
+## 7. Schema Understanding Layer
+
+7.1 Input Sources
+
+The schema understanding layer may process:
+
+Schema definitions
+SQL DDL
+JSON Schema
+CSV samples
+JSON samples
+User-defined configuration
+7.2 Deterministic Schema Analysis
+
+Traditional parsing should be used wherever possible for:
+
+Column names
+Data types
+Table names
+Primary keys
+Foreign keys
+Basic constraints
+File structure
+7.3 AI-Assisted Understanding
+
+AI may be used for information that requires semantic interpretation, such as:
+
+customer_name → full name
+email_address → email
+monthly_income → currency
+company_description → business text
+
+AI output must be converted into structured DataProfile information.
+
+## 8. Tabular Generation Engine
+
+8.1 Responsibilities
+
+The tabular engine generates synthetic single-table datasets.
+
+It must support applicable:
+
+Numeric distributions
+Categorical distributions
+Dates
+Strings
+Missing values
+Outliers
+Semantic fields
+Random seeds
+Privacy transformations
+8.2 Generation Strategy
+
+The exact synthetic-data algorithm must be selected according to dataset characteristics.
+
+Potential approaches may include:
+
+Statistical sampling
+Copula-based methods
+Machine-learning-based synthetic generators
+Faker-assisted semantic generation
+Custom deterministic generators
+
+No single algorithm should be assumed to be optimal for every dataset.
+
+8.3 Bulk Generation
+
+Bulk generation must run locally wherever practical.
+
+LLMs must not be called once per generated row.
+
+## 9. Relational Generation Engine
+
+9.1 Responsibilities
+
+The relational engine treats related tables as one coherent dataset.
+
+It must preserve:
+
+Primary keys
+Foreign keys
+Relationships
+Cardinalities
+Parent-child dependencies
+Cross-table business rules
+9.2 Dependency Graph
+
+The engine should construct a dependency graph from table relationships.
+
+Example:
+
+Customers
+↓
+Orders
+↓
+Order Items
+
+Parent records must be generated before dependent child records.
+
+9.3 Relationship Support
+
+The engine should support:
+
+1:1
+1:N
+N:N through junction tables
+9.4 Cross-Table Consistency
+
+Business calculations must be deterministic.
+
+Example:
+
+# Order.total_amount
+
+SUM(OrderItem.quantity × OrderItem.unit_price)
+
+## 10. Document Generation Engine
+
+10.1 Supported Core Documents
+
+The initial document engine focuses on:
+
+Invoices
+Bank statements
+
+Additional document types may be added later if time and quality permit.
+
+10.2 Invoice Architecture
+
+Invoice generation should separate:
+
+Semantic Content +
+Deterministic Calculations +
+Document Template
+↓
+Invoice
+
+Critical calculations must never depend solely on LLM output.
+
+10.3 Invoice Calculations
+line_amount
+=
+quantity × unit_price
+
+# subtotal
+
+Σ(line_amount)
+
+# total
+
+subtotal + tax - discount
+
+All calculations must be validated.
+
+10.4 Bank Statement Architecture
+
+The bank statement engine generates:
+
+Transactions
+Merchant descriptions
+Debits
+Credits
+Starting balance
+Running balances
+Ending balance
+
+The running balance must be deterministic:
+
+# current_balance
+
+previous_balance
+
+- credit
+
+* debit
+
+## 11. AI Service Architecture
+
+11.1 Provider
+
+The initial AI provider is Groq.
+
+The provider must be accessed through a dedicated AI service abstraction.
+
+Generation engines must not directly depend on Groq-specific APIs.
+
+11.2 AI Service Responsibilities
+
+The AI service manages:
+
+Model selection
+Prompt construction
+Structured output
+Request validation
+Response parsing
+Caching
+Rate limiting
+Retry/backoff
+Token budgeting
+Usage tracking
+Error normalization
+11.3 AI Tasks
+
+The AI service may provide:
+
+Schema Understanding
+
+Infer semantic meaning from samples/schema.
+
+Semantic Content
+
+Generate realistic:
+
+Names
+Addresses
+Companies
+Descriptions
+Free text
+Query Interpretation
+
+Convert natural-language requests into structured generation configuration.
+
+Edge-Case Proposals
+
+Suggest meaningful:
+
+Nulls
+Boundary values
+Rare categories
+Outliers
+Domain-specific edge cases
+
+## 12. LLM Efficiency Architecture
+
+12.1 Caching
+
+Equivalent AI requests should reuse cached responses.
+
+Schema analysis is a primary caching candidate.
+
+12.2 Request Deduplication
+
+Equivalent simultaneous requests should be deduplicated where practical.
+
+12.3 Rate Limiting
+
+The AI service must implement application-level rate limiting.
+
+This protects the application from excessive API usage and provider throttling.
+
+12.4 Retry and Backoff
+
+Transient provider failures should use:
+
+Bounded Retries
+
+- Exponential Backoff
+- Optional Jitter
+
+Infinite retry loops are prohibited.
+
+12.5 Token Budget
+
+AI requests should contain only the information required for the task.
+
+The system must avoid sending:
+
+Entire large datasets
+Repeated schema information
+Unnecessary context
+Previously generated rows
+
+## 13. Validation Architecture
+
+Validation is a mandatory stage after generation.
+
+13.1 Structural Validation
+
+Check:
+
+Schema conformity
+Data types
+Required fields
+Primary keys
+Foreign keys
+Cardinality
+Relationships
+13.2 Mathematical Validation
+
+Check:
+
+Invoice totals
+Taxes
+Discounts
+Order totals
+Running balances
+Other configured calculations
+13.3 Statistical Validation
+
+Where source/profile information exists, compare:
+
+Numeric distributions
+Categorical frequencies
+Correlations
+Missingness
+Ranges
+Outliers
+13.4 Privacy Validation
+
+Where source data is supplied, evaluate:
+
+Exact record overlap
+Sensitive value reuse
+Identifier leakage
+Suspicious memorization
+
+## 14. Evaluation Architecture
+
+The evaluation layer measures synthetic-data quality beyond basic schema validity.
+
+14.1 Statistical Fidelity
+
+Measures how closely generated data resembles the target statistical profile.
+
+14.2 Structural Fidelity
+
+Measures:
+
+Relationship preservation
+Referential integrity
+Cardinality
+Schema correctness
+14.3 Business Fidelity
+
+Measures whether domain-specific rules remain valid.
+
+Examples:
+
+Invoice totals
+Bank balances
+Order totals
+Configured constraints
+14.4 Utility Evaluation
+
+Where feasible, support TSTR:
+
+Synthetic Data
+↓
+Train Model
+↓
+Test on Real Data
+
+Utility evaluation must only be performed when an appropriate evaluation dataset is available.
+
+## 15. Regeneration Architecture
+
+Failed validation/evaluation should trigger controlled regeneration.
+
+Generation
+↓
+Validation
+↓
+Evaluation
+↓
+PASS ─────────────→ Export
+
+FAIL
+↓
+Diagnose Failure
+↓
+Adjust Parameters
+↓
+Regenerate
+↓
+Validate Again
+15.1 Regeneration Rules
+
+The system must:
+
+Identify the failure where possible
+Adjust relevant parameters
+Use a new seed where appropriate
+Limit retry attempts
+Prevent infinite regeneration loops
+
+## 16. Job Architecture
+
+Large generation/evaluation tasks should use background jobs.
+
+16.1 Suitable Asynchronous Operations
+
+Examples:
+
+Large tabular generation
+Large relational generation
+Bulk document generation
+Expensive evaluation
+Large exports
+16.2 Job Lifecycle
+QUEUED
+↓
+RUNNING
+↓
+VALIDATING
+↓
+EVALUATING
+↓
+COMPLETED
+
+Failure:
+
+RUNNING
+↓
+FAILED
+16.3 Job Isolation
+
+Long-running workloads must not unnecessarily block the FastAPI request lifecycle.
+
+## 17. Export Architecture
+
+The export layer receives an already-generated and validated dataset.
+
+Generation
+↓
+Validation
+↓
+Evaluation
+↓
+Validated Generation
+↓
+Export
+
+The export layer must not silently regenerate data.
+
+17.1 Supported Formats
+
+Depending on modality:
+
+CSV
+JSON
+SQL
+PDF/document output
+17.2 Export Validation
+
+Before export, the system must verify:
+
+Generation exists
+Required validation passed
+Format is supported
+Dataset is complete
+No internal metadata/secrets are exposed
+
+## 18. Privacy & Security Architecture
+
+18.1 Data Minimization
+
+The system should process only the information required for generation and evaluation.
+
+Large source datasets must not be unnecessarily sent to external AI services.
+
+18.2 Temporary Input Handling
+
+Uploaded files should use controlled temporary storage where necessary.
+
+Temporary data should be cleaned up according to the configured lifecycle.
+
+18.3 Column-Level Privacy
+
+Supported mechanisms may include:
+
+Masking
+SHA-256 hashing
+Synthetic replacement
+Controlled numerical noise
+
+Privacy transformations must not silently break required structural constraints.
+
+18.4 API Secret Protection
+
+Secrets must:
+
+Remain server-side
+Be loaded through environment variables
+Never be committed to Git
+Never be sent to the frontend
+
+This includes:
+
+Groq credentials
+Supabase credentials
+Deployment credentials
+18.5 Input Security
+
+The backend must validate:
+
+Request bodies
+File types
+File sizes
+File content
+User-controlled configuration
+
+Arbitrary filesystem paths must never be accepted from untrusted input.
+
+## 19. Persistence Architecture
+
+Persistence is optional for the core generation pipeline.
+
+19.1 Local-First Operation
+
+The MVP should work without requiring a cloud database for core synthetic-data generation.
+
+19.2 Supabase
+
+Supabase/PostgreSQL may be used for:
+
+Presets
+Saved schemas
+Saved generation configurations
+Optional project state
+
+The generation engines must not depend on Supabase for basic local operation.
+
+19.3 Temporary Data
+
+Generated data may remain in memory or controlled temporary storage during the generation/export lifecycle.
+
+## 20. Localhost-First Deployment Architecture
+
+The primary MVP topology is:
+
+Browser
+↓
+Local Frontend
+↓
+Local FastAPI
+↓
+Local Generation / Validation
+↓
+Local Compute
+↓
+Groq only when AI reasoning is required
+
+The purpose of localhost-first execution is:
+
+Faster experimentation
+Greater control
+Reduced deployment risk
+Local compute utilization
+Easier debugging
+Reduced dependence on cloud infrastructure
+
+## 21. Optional Cloud Deployment
+
+Cloud deployment is not an MVP dependency.
+
+If the MVP is stable and sufficient time remains:
+
+Frontend → Vercel
+Backend → Render
+
+The architecture must remain deployment-compatible without hardcoding cloud-specific behavior into the generation engines.
+
+## 22. Technology Stack
+
+Layer Technology Purpose
+Frontend React / Next.js User workspace and visualization
+Backend Python / FastAPI API and orchestration
+Data Processing Pandas / NumPy Data manipulation and numerical processing
+Statistics SciPy / selected statistical libraries Distribution analysis and evaluation
+Synthetic Generation Selected local/statistical generators Bulk synthetic data
+Semantic Data Faker + AI where appropriate Realistic semantic values
+AI Groq API Schema understanding and semantic intelligence
+Validation Custom Python validation layer Structural/business validation
+Evaluation Custom statistical/utility layer Fidelity/privacy/utility evaluation
+Persistence Supabase/PostgreSQL (optional) Presets and saved state
+Export CSV / JSON / SQL / PDF tooling Dataset/document export
+Deployment Vercel + Render (optional) Post-MVP deployment
+
+## 23. Backend Logical Structure
+
+The backend should maintain clear separation of concerns.
+
+A conceptual structure is:
+
+backend/
+└── app/
+├── api/
+│ └── routes/
+│
+├── models/
+│ ├── requests/
+│ └── responses/
+│
+├── core/
+│ ├── config/
+│ ├── errors/
+│ └── logging/
+│
+├── schema/
+│ ├── parser/
+│ └── profiler/
+│
+├── engine/
+│ ├── tabular/
+│ ├── relational/
+│ └── document/
+│
+├── validation/
+│
+├── evaluation/
+│
+├── ai/
+│ ├── service/
+│ ├── cache/
+│ └── providers/
+│
+├── jobs/
+│
+├── export/
+│
+└── main.py
+
+The exact folder structure may be adjusted during implementation if required, but the separation of responsibilities must remain.
+
+## 24. End-to-End Data Flow
+
+The canonical flow is:
+
+1. User provides schema/sample/configuration
+   ↓
+2. FastAPI validates request
+   ↓
+3. Schema parser analyzes deterministic structure
+   ↓
+4. AI assists with semantic understanding if required
+   ↓
+5. DataProfile is created
+   ↓
+6. Appropriate generation engine is selected
+   ↓
+7. Local engine generates synthetic data
+   ↓
+8. Structural/business validation runs
+   ↓
+9. Statistical/privacy/utility evaluation runs
+   ↓
+10. PASS → generation becomes exportable
+    ↓
+11. FAIL → controlled regeneration
+    ↓
+12. Validated dataset is exported
+
+## 25. Architectural Invariants
+
+The following rules must always remain true:
+
+Invariant 1
+
+AI must not become the bulk-data generator.
+
+Invariant 2
+
+Critical arithmetic must be deterministic.
+
+Invariant 3
+
+Foreign keys must reference valid primary keys.
+
+Invariant 4
+
+Failed mandatory validation must prevent export.
+
+Invariant 5
+
+Frontend must not contain provider secrets.
+
+Invariant 6
+
+Large workloads must not unnecessarily block HTTP requests.
+
+Invariant 7
+
+Repeated AI requests should be cached or deduplicated where possible.
+
+Invariant 8
+
+The core MVP must operate locally.
+
+Invariant 9
+
+Generation engines must remain independent of the AI provider.
+
+Invariant 10
+
+Adding new modalities must not compromise the quality of existing modalities.
+
+## 26. Architecture Success Criteria
+
+The architecture is considered successfully implemented when:
+
+Schema/sample input can become a DataProfile.
+DataProfile can drive the appropriate generation engine.
+Tabular data can be generated locally.
+Relational data preserves relationships.
+Documents preserve business calculations.
+Validation catches structural/business failures.
+Evaluation measures synthetic-data quality.
+Failed outputs can be regenerated.
+AI is used selectively.
+Groq requests are cached and rate-limited.
+Large jobs can execute asynchronously.
+Validated data can be exported.
+The entire MVP operates on localhost.
+Optional cloud deployment does not require architectural rewrites.
+
+## 27. Final Architecture Principle
+
+HackData V2 is fundamentally:
+
+A schema-aware, AI-assisted, multi-modal synthetic-data generation and evaluation platform.
+
+The architecture must therefore optimize for:
+
+UNDERSTAND
+↓
+PROFILE
+↓
+GENERATE
+↓
+VALIDATE
+↓
+EVALUATE
+↓
+REGENERATE IF REQUIRED
+↓
+EXPORT
+
+The AI layer provides intelligence.
+
+The specialized engines provide generation.
+
+The validation/evaluation layers provide trust.
+
+The API provides orchestration.
+
+The frontend provides the user experience.
+
+The complete system works locally first and can be deployed later without changing the core architecture.
