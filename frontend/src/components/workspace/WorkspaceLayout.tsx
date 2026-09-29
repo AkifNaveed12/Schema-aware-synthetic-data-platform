@@ -81,32 +81,58 @@ export const WorkspaceLayout: React.FC = () => {
   const [isExportOpen, setIsExportOpen] = useState(false);
 
   // Sub-second reactive preview recomputation
-  const recomputePreview = useCallback(async (currentConfig: GenerationConfig) => {
-    setIsLoading(true);
-
-    if (activeModality === 'tabular') {
-      const res = await fetchTabularPreview(currentConfig);
-      setTabularRows(res.data);
-    } else if (activeModality === 'relational') {
-      const res = await fetchRelationalPreview(currentConfig);
-      setRelationalDataset(res.data);
-    } else if (activeModality === 'documents') {
-      if (activeDocSubtype === 'invoices') {
-        const res = await fetchInvoicePreview(currentConfig);
-        setInvoice(res.data);
-      } else {
-        const res = await fetchBankStatementPreview(currentConfig);
-        setBankStatement(res.data);
-      }
-    }
-
-    setIsLoading(false);
-  }, [activeModality, activeDocSubtype]);
-
-  // Initial and reactive trigger on settings change
   useEffect(() => {
-    recomputePreview(config);
-  }, [config, activeModality, activeDocSubtype, recomputePreview]);
+    let isCancelled = false;
+
+    const run = async () => {
+      setIsLoading(true);
+      if (activeModality === 'tabular') {
+        const res = await fetchTabularPreview(config);
+        if (!isCancelled) setTabularRows(res.data);
+      } else if (activeModality === 'relational') {
+        const res = await fetchRelationalPreview(config);
+        if (!isCancelled) setRelationalDataset(res.data);
+      } else if (activeModality === 'documents') {
+        if (activeDocSubtype === 'invoices') {
+          const res = await fetchInvoicePreview(config);
+          if (!isCancelled) setInvoice(res.data);
+        } else {
+          const res = await fetchBankStatementPreview(config);
+          if (!isCancelled) setBankStatement(res.data);
+        }
+      }
+      if (!isCancelled) setIsLoading(false);
+    };
+
+    run();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [config, activeModality, activeDocSubtype]);
+
+  const recomputePreview = useCallback(() => {
+    setIsLoading(true);
+    const run = async () => {
+      if (activeModality === 'tabular') {
+        const res = await fetchTabularPreview(config);
+        setTabularRows(res.data);
+      } else if (activeModality === 'relational') {
+        const res = await fetchRelationalPreview(config);
+        setRelationalDataset(res.data);
+      } else if (activeModality === 'documents') {
+        if (activeDocSubtype === 'invoices') {
+          const res = await fetchInvoicePreview(config);
+          setInvoice(res.data);
+        } else {
+          const res = await fetchBankStatementPreview(config);
+          setBankStatement(res.data);
+        }
+      }
+      setIsLoading(false);
+    };
+    run();
+  }, [config, activeModality, activeDocSubtype]);
 
   const handleConfigChange = (updated: Partial<GenerationConfig>) => {
     setConfig((prev) => ({ ...prev, ...updated }));
@@ -137,7 +163,7 @@ export const WorkspaceLayout: React.FC = () => {
         invoice={invoice}
         bankStatement={bankStatement}
         isLoading={isLoading}
-        onRefresh={() => recomputePreview(config)}
+        onRefresh={recomputePreview}
         onApplyBankQuery={handleApplyBankQuery}
       />
 

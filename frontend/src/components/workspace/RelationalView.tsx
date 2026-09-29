@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { RelationalDataset } from '../../types';
 import { SchemaGraphSVG } from '../visualizations/SchemaGraphSVG';
-import { CheckCircle2, Table, Key, Link as LinkIcon, AlertCircle } from 'lucide-react';
+import { CheckCircle2, Table, Key, Link as LinkIcon } from 'lucide-react';
 
 interface RelationalViewProps {
   dataset: RelationalDataset;
@@ -88,9 +88,9 @@ export const RelationalView: React.FC<RelationalViewProps> = ({
           )}
 
           {activeTable === 'customers' && (
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse whitespace-nowrap">
               <thead>
-                <tr className="bg-slate-50 border-b border-brand-border text-[11px] font-semibold text-brand-secondary uppercase tracking-wider sticky top-0">
+                <tr className="bg-slate-50 border-b border-brand-border text-[11px] font-semibold text-brand-secondary uppercase tracking-wider sticky top-0 h-11">
                   <th className="py-2.5 px-4 font-mono">
                     <span className="flex items-center gap-1">
                       <Key className="w-3 h-3 text-amber-500" /> customer_id (PK)
@@ -102,9 +102,9 @@ export const RelationalView: React.FC<RelationalViewProps> = ({
                   <th className="py-2.5 px-4">Tier</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-brand-border text-xs">
+              <tbody className="divide-y divide-brand-border text-xs tabular-nums">
                 {dataset.customers.map((c) => (
-                  <tr key={c.customer_id} className="hover:bg-slate-50">
+                  <tr key={c.customer_id} className="hover:bg-slate-50 h-11">
                     <td className="py-2.5 px-4 font-mono font-medium text-brand-hero">
                       {c.customer_id}
                     </td>
@@ -123,9 +123,9 @@ export const RelationalView: React.FC<RelationalViewProps> = ({
           )}
 
           {activeTable === 'orders' && (
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse whitespace-nowrap">
               <thead>
-                <tr className="bg-slate-50 border-b border-brand-border text-[11px] font-semibold text-brand-secondary uppercase tracking-wider sticky top-0">
+                <tr className="bg-slate-50 border-b border-brand-border text-[11px] font-semibold text-brand-secondary uppercase tracking-wider sticky top-0 h-11">
                   <th className="py-2.5 px-4 font-mono">
                     <span className="flex items-center gap-1">
                       <Key className="w-3 h-3 text-amber-500" /> order_id (PK)
@@ -141,9 +141,9 @@ export const RelationalView: React.FC<RelationalViewProps> = ({
                   <th className="py-2.5 px-4">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-brand-border text-xs">
+              <tbody className="divide-y divide-brand-border text-xs tabular-nums">
                 {dataset.orders.map((o) => (
-                  <tr key={o.order_id} className="hover:bg-slate-50">
+                  <tr key={o.order_id} className="hover:bg-slate-50 h-11">
                     <td className="py-2.5 px-4 font-mono font-medium text-brand-hero">
                       {o.order_id}
                     </td>
@@ -166,9 +166,9 @@ export const RelationalView: React.FC<RelationalViewProps> = ({
           )}
 
           {activeTable === 'order_items' && (
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse whitespace-nowrap">
               <thead>
-                <tr className="bg-slate-50 border-b border-brand-border text-[11px] font-semibold text-brand-secondary uppercase tracking-wider sticky top-0">
+                <tr className="bg-slate-50 border-b border-brand-border text-[11px] font-semibold text-brand-secondary uppercase tracking-wider sticky top-0 h-11">
                   <th className="py-2.5 px-4 font-mono">
                     <span className="flex items-center gap-1">
                       <Key className="w-3 h-3 text-amber-500" /> item_id (PK)

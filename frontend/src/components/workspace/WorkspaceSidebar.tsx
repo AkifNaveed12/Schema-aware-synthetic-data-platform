@@ -18,7 +18,7 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   activeSeed,
 }) => {
   return (
-    <aside className="flex flex-col justify-between w-60 h-full bg-brand-sidebar text-slate-300 p-4 border-r border-slate-800 select-none">
+    <aside className="hidden md:flex flex-col justify-between w-64 min-w-[256px] h-full bg-brand-sidebar text-slate-300 p-4 border-r border-slate-800 select-none">
       {/* Top Section */}
       <div className="flex flex-col gap-6">
         {/* Workspace Eyebrow */}

@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "typecheck": "tsc --noEmit",
     "lint": "oxlint",
+    "test": "node --experimental-strip-types src/utils/generators.test.mjs",
     "preview": "vite preview"
   },
   "dependencies": {

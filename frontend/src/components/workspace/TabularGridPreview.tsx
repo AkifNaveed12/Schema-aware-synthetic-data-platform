@@ -82,9 +82,9 @@ export const TabularGridPreview: React.FC<TabularGridPreviewProps> = ({
         )}
 
         <div className="overflow-x-auto flex-1">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead>
-              <tr className="bg-slate-50 border-b border-brand-border text-[11px] font-semibold text-brand-secondary uppercase tracking-wider sticky top-0 z-1">
+              <tr className="bg-slate-50 border-b border-brand-border text-[11px] font-semibold text-brand-secondary uppercase tracking-wider sticky top-0 z-1 h-11">
                 <th className="py-2.5 px-4 font-mono w-24">ID</th>
                 <th className="py-2.5 px-4">Name</th>
                 <th className="py-2.5 px-4">Email</th>
@@ -94,26 +94,26 @@ export const TabularGridPreview: React.FC<TabularGridPreviewProps> = ({
                 <th className="py-2.5 px-4 font-mono text-[10px]">Synthetic Hash</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-brand-border text-xs">
+            <tbody className="divide-y divide-brand-border text-xs tabular-nums">
               {filteredRows.map((row) => (
                 <tr
                   key={row.id}
-                  className="hover:bg-teal-50/40 transition-colors group"
+                  className="hover:bg-teal-50/40 transition-colors group h-11"
                 >
                   {/* ID */}
-                  <td className="py-3 px-4 font-mono font-medium text-brand-hero">
+                  <td className="py-2.5 px-4 font-mono font-medium text-brand-hero">
                     {row.id}
                   </td>
 
                   {/* Name */}
-                  <td className="py-3 px-4 font-medium text-brand-hero">
+                  <td className="py-2.5 px-4 font-medium text-brand-hero">
                     {row.name}
                   </td>
 
-                  {/* Email (with masked cell styling per DESIGN.md) */}
-                  <td className="py-3 px-4 font-mono text-slate-600">
+                  {/* Email (with masked cell styling per DESIGN.md: font-mono bg-slate-100/60 text-slate-400 rounded px-1.5) */}
+                  <td className="py-2.5 px-4 font-mono text-slate-600">
                     {row.email.includes('•••') ? (
-                      <span className="inline-flex items-center gap-1 font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-500 text-[11px] border border-slate-200">
+                      <span className="inline-flex items-center gap-1 font-mono bg-slate-100/80 px-2 py-0.5 rounded text-slate-500 text-[11px] border border-slate-200">
                         <ShieldAlert className="w-3 h-3 text-brand-teal" />
                         {row.email}
                       </span>
@@ -123,17 +123,17 @@ export const TabularGridPreview: React.FC<TabularGridPreviewProps> = ({
                   </td>
 
                   {/* Signup */}
-                  <td className="py-3 px-4 font-mono text-slate-500">
+                  <td className="py-2.5 px-4 font-mono text-slate-500">
                     {row.signupDate}
                   </td>
 
                   {/* Balance (right aligned mono) */}
-                  <td className="py-3 px-4 text-right font-mono font-semibold text-brand-hero">
+                  <td className="py-2.5 px-4 text-right font-mono font-semibold text-brand-hero">
                     ${row.balance.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </td>
 
                   {/* Status badge */}
-                  <td className="py-3 px-4">
+                  <td className="py-2.5 px-4">
                     <span
                       className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium uppercase tracking-wider ${
                         row.status === 'verified'
@@ -149,7 +149,7 @@ export const TabularGridPreview: React.FC<TabularGridPreviewProps> = ({
                   </td>
 
                   {/* Synthetic Hash */}
-                  <td className="py-3 px-4 font-mono text-[10px] text-slate-400">
+                  <td className="py-2.5 px-4 font-mono text-[10px] text-slate-400">
                     <span className="inline-flex items-center gap-1">
                       <Hash className="w-2.5 h-2.5 text-slate-400" />
                       {row.syntheticHash}

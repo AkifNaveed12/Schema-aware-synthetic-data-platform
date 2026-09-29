@@ -110,9 +110,9 @@ export const BankStatementPreview: React.FC<BankStatementPreviewProps> = ({
 
         {/* Ledger Table matching Slide 8 */}
         <div className="overflow-x-auto flex-1">
-          <table className="w-full text-left border-collapse">
+          <table className="w-full text-left border-collapse whitespace-nowrap">
             <thead>
-              <tr className="bg-slate-50 border-b border-brand-border text-[11px] font-semibold text-brand-secondary uppercase tracking-wider sticky top-0">
+              <tr className="bg-slate-50 border-b border-brand-border text-[11px] font-semibold text-brand-secondary uppercase tracking-wider sticky top-0 h-11">
                 <th className="py-2.5 px-4 font-mono w-24">Date</th>
                 <th className="py-2.5 px-4">Description</th>
                 <th className="py-2.5 px-4">Category</th>
@@ -121,28 +121,28 @@ export const BankStatementPreview: React.FC<BankStatementPreviewProps> = ({
                 <th className="py-2.5 px-4 text-right font-mono w-32">Balance</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-brand-border text-xs">
+            <tbody className="divide-y divide-brand-border text-xs tabular-nums">
               {statement.transactions.map((t) => (
-                <tr key={t.id} className="hover:bg-slate-50/60 transition-colors">
+                <tr key={t.id} className="hover:bg-slate-50/60 transition-colors h-11">
                   {/* Date */}
-                  <td className="py-3 px-4 font-mono font-medium text-brand-hero">
+                  <td className="py-2.5 px-4 font-mono font-medium text-brand-hero">
                     {t.date.slice(5)}
                   </td>
 
                   {/* Description */}
-                  <td className="py-3 px-4 font-medium text-brand-hero">
+                  <td className="py-2.5 px-4 font-medium text-brand-hero">
                     {t.description}
                   </td>
 
                   {/* Category */}
-                  <td className="py-3 px-4">
+                  <td className="py-2.5 px-4">
                     <span className="text-[10px] font-mono bg-slate-100 px-2 py-0.5 rounded text-slate-600">
                       {t.category}
                     </span>
                   </td>
 
                   {/* Debit (Neutral / subtle red) */}
-                  <td className="py-3 px-4 text-right font-mono text-rose-600">
+                  <td className="py-2.5 px-4 text-right font-mono text-rose-600">
                     {t.debit !== null ? (
                       <span className="inline-flex items-center gap-0.5">
                         <ArrowDownRight className="w-3 h-3 text-rose-500" />
@@ -154,7 +154,7 @@ export const BankStatementPreview: React.FC<BankStatementPreviewProps> = ({
                   </td>
 
                   {/* Credit (Neutral / subtle green) */}
-                  <td className="py-3 px-4 text-right font-mono text-emerald-600 font-semibold">
+                  <td className="py-2.5 px-4 text-right font-mono text-emerald-600 font-semibold">
                     {t.credit !== null ? (
                       <span className="inline-flex items-center gap-0.5">
                         <ArrowUpRight className="w-3 h-3 text-emerald-500" />
@@ -165,8 +165,8 @@ export const BankStatementPreview: React.FC<BankStatementPreviewProps> = ({
                     )}
                   </td>
 
-                  {/* Balance (Bold Mono) */}
-                  <td className="py-3 px-4 text-right font-mono font-bold text-brand-hero">
+                  {/* Balance (bold mono, right aligned) */}
+                  <td className="py-2.5 px-4 text-right font-mono font-bold text-brand-hero">
                     ${t.balance.toFixed(2)}
                   </td>
                 </tr>

@@ -1,4 +1,4 @@
-import {
+import type {
   TabularRow,
   RelationalDataset,
   CustomerRecord,
@@ -9,7 +9,7 @@ import {
   BankStatementDocument,
   BankTransaction,
   GenerationConfig,
-} from '../types';
+} from '../types/index.ts';
 
 // Simple deterministic PRNG (Mulberry32)
 export function createPRNG(seed: number) {
