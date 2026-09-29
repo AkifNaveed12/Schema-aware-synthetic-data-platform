@@ -235,7 +235,7 @@ class EvaluationData(BaseModel):
 # 8. Export
 class ExportRequest(BaseModel):
     format: Literal["csv", "json", "sql", "pdf", "zip"] = "json"
-    modality: Literal["tabular", "relational", "document"] = "tabular"
+    modality: Literal["tabular", "relational", "document", "documents"] = "tabular"
     dataset: Dict[str, Any]
     filename: Optional[str] = "synthetic_export"
 
@@ -250,7 +250,7 @@ class ExportData(BaseModel):
 # 9. AI Intelligence
 class AIQueryInterpretRequest(BaseModel):
     query: str
-    modality: Literal["tabular", "relational", "document"] = "tabular"
+    modality: Literal["tabular", "relational", "document", "documents"] = "tabular"
 
 class AIQueryInterpretData(BaseModel):
     modality: str

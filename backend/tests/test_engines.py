@@ -182,3 +182,47 @@ def test_evaluation_endpoint():
     assert data["statistical_fidelity"]["status"] == "passed"
     assert data["structural_fidelity"]["status"] == "passed"
     assert data["privacy_compliance"]["status"] == "passed"
+
+def test_evaluation_document_invoice_and_statement():
+    # 1. Invoice evaluation
+    inv_res = client.post("/api/v1/generate/documents/invoice", json={"count": 1, "random_seed": 10432})
+    assert inv_res.status_code == 200
+    inv_eval = client.post("/api/v1/evaluate", json={"modality": "documents", "dataset": inv_res.json()["data"]})
+    assert inv_eval.status_code == 200
+    inv_data = inv_eval.json()["data"]
+    assert inv_data["overall_status"] == "passed"
+    assert inv_data["business_rules"]["status"] == "passed"
+    assert inv_data["business_rules"]["score"] == 1.0
+
+    # 2. Bank statement evaluation
+    stmt_res = client.post("/api/v1/generate/documents/bank-statement", json={"random_seed": 42})
+    assert stmt_res.status_code == 200
+    stmt_eval = client.post("/api/v1/evaluate", json={"modality": "documents", "dataset": stmt_res.json()["data"]})
+    assert stmt_eval.status_code == 200
+    stmt_data = stmt_eval.json()["data"]
+    assert stmt_data["overall_status"] == "passed"
+    assert stmt_data["business_rules"]["status"] == "passed"
+    assert stmt_data["business_rules"]["score"] == 1.0
+
+def test_export_service_relational_and_documents():
+    # 1. Relational SQL export
+    rel_res = client.post("/api/v1/generate/relational", json={"random_seed": 42})
+    assert rel_res.status_code == 200
+    rel_export = client.post("/api/v1/export", json={
+        "format": "sql",
+        "modality": "relational",
+        "dataset": rel_res.json()["data"]
+    })
+    assert rel_export.status_code == 200
+    assert "CREATE TABLE IF NOT EXISTS customers" in rel_export.json()["data"]["raw_content"]
+    assert "INSERT INTO customers" in rel_export.json()["data"]["raw_content"]
+
+    # 2. Bank statement CSV export
+    stmt_res = client.post("/api/v1/generate/documents/bank-statement", json={"random_seed": 42})
+    stmt_export = client.post("/api/v1/export", json={
+        "format": "csv",
+        "modality": "documents",
+        "dataset": stmt_res.json()["data"]
+    })
+    assert stmt_export.status_code == 200
+    assert "date,description,debit,credit,balance" in stmt_export.json()["data"]["raw_content"]
