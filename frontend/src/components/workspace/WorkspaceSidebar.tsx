@@ -1,5 +1,5 @@
 import React from 'react';
-import { Table, Network, FileText, Receipt, Landmark, Shield, Sparkles } from 'lucide-react';
+import { Table, Network, FileText, Receipt, Landmark, Shield, Sparkles, Upload } from 'lucide-react';
 import { ModalityType, DocumentSubtype } from '../../types';
 
 interface WorkspaceSidebarProps {
@@ -9,6 +9,7 @@ interface WorkspaceSidebarProps {
   onSelectDocSubtype: (subtype: DocumentSubtype) => void;
   activeSeed: number;
   onOpenEvaluation?: () => void;
+  onOpenUploadModal?: () => void;
 }
 
 export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
@@ -18,6 +19,7 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   onSelectDocSubtype,
   activeSeed,
   onOpenEvaluation,
+  onOpenUploadModal,
 }) => {
   return (
     <aside className="flex flex-col justify-between w-60 h-full bg-brand-sidebar text-slate-300 p-4 border-r border-slate-800 select-none">
@@ -33,8 +35,18 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
           </span>
         </div>
 
+        {/* Upload Custom Dataset Action */}
+        <button
+          onClick={onOpenUploadModal}
+          className="flex items-center justify-center gap-2 w-full px-3 py-2 rounded-lg text-xs font-bold text-white bg-teal-600 hover:bg-teal-500 shadow-xs transition-all active:scale-98"
+        >
+          <Upload className="w-3.5 h-3.5" />
+          <span>Upload Dataset</span>
+        </button>
+
         {/* Primary Modality Navigation */}
         <nav className="flex flex-col gap-1.5">
+
           {/* Tabular Button */}
           <button
             onClick={() => onSelectModality('tabular')}

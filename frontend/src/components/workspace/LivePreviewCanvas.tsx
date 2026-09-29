@@ -26,6 +26,7 @@ interface LivePreviewCanvasProps {
   onRefresh: () => void;
   onApplyBankQuery: (query: string) => void;
   onOpenEvaluation?: () => void;
+  onOpenUploadModal?: () => void;
 }
 
 export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({
@@ -40,6 +41,7 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({
   onRefresh,
   onApplyBankQuery,
   onOpenEvaluation,
+  onOpenUploadModal,
 }) => {
   return (
     <main className="flex-1 flex flex-col h-full bg-brand-stage overflow-hidden p-6 select-text">
@@ -73,6 +75,16 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({
 
         {/* Action Controls & Shimmer Indicator */}
         <div className="flex items-center gap-3">
+          {onOpenUploadModal && modality === 'tabular' && (
+            <button
+              onClick={onOpenUploadModal}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 shadow-micro transition-all cursor-pointer"
+            >
+              <Sparkles className="w-3.5 h-3.5 text-teal-600" />
+              Upload Dataset
+            </button>
+          )}
+
           {isLoading && (
             <div className="flex items-center gap-1.5 font-mono text-xs text-brand-teal bg-teal-50 px-3 py-1 rounded-lg border border-teal-200 animate-pulse">
               <Sparkles className="w-3.5 h-3.5 animate-spin" />
@@ -94,6 +106,7 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({
           </button>
         </div>
       </div>
+
 
       {/* Main Canvas Body */}
       <div className="flex-1 overflow-hidden pt-4">

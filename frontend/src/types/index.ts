@@ -162,3 +162,124 @@ export interface ExportData {
   size_bytes: number;
 }
 
+// --- Real Pipeline & Ingestion Types (Part I & II) ---
+
+export interface QualityFinding {
+  column?: string;
+  issue_type: string;
+  severity: 'critical' | 'high' | 'medium' | 'low';
+  count: number;
+  rate: number;
+  description: string;
+  examples?: any[];
+}
+
+export interface CleaningAction {
+  action_type: string;
+  column?: string;
+  rows_affected: number;
+  before_value?: any;
+  after_value?: any;
+  description: string;
+}
+
+export interface InferredColumnProfile {
+  name: string;
+  original_name?: string;
+  data_type: string;
+  semantic_type?: string;
+  is_primary_key: boolean;
+  is_foreign_key?: boolean;
+  null_rate: number;
+  unique_count?: number;
+  total_count?: number;
+  min_value?: any;
+  max_value?: any;
+  mean_value?: number;
+  sample_values?: any[];
+  outlier_rate?: number;
+  ai_confidence?: number;
+}
+
+export interface SourceFingerprint {
+  source_fingerprint: string;
+  input_filename?: string;
+  input_modality: string;
+  row_count: number;
+  column_count: number;
+  schema_hash?: string;
+}
+
+export interface DatasetProfile {
+  profile_id: string;
+  dataset_id?: string;
+  name: string;
+  modality: 'tabular' | 'relational' | 'document';
+  tables: Array<{
+    name: string;
+    row_count: number;
+    primary_key: string;
+    columns: InferredColumnProfile[];
+  }>;
+  source_fingerprint?: SourceFingerprint;
+  quality_findings: QualityFinding[];
+  cleaning_actions: CleaningAction[];
+  generation_defaults?: {
+    row_count: number;
+    seed: number;
+    model_strategy: string;
+  };
+}
+
+export interface IngestedDatasetResponse {
+  dataset_id: string;
+  filename: string;
+  modality: string;
+  source_fingerprint: string;
+  row_count: number;
+  column_count: number;
+  columns: string[];
+  quality_findings: number;
+  profile: DatasetProfile;
+}
+
+export interface GenerationJobStatus {
+  job_id: string;
+  dataset_id: string;
+  state: 'queued' | 'preprocessing' | 'training' | 'generating' | 'validating' | 'evaluating' | 'completed' | 'failed' | 'cancelled';
+  progress: number;
+  message: string;
+  error?: string;
+  logs: string[];
+  created_at: number;
+  completed_at?: number;
+  has_result: boolean;
+  result?: {
+    job_id: string;
+    dataset_id: string;
+    selected_model: string;
+    rows_generated: number;
+    columns: string[];
+    rows: Record<string, any>[];
+    total_rows: number;
+    seed: number;
+    validation: any;
+    evaluation: {
+      selected_model: string;
+      overall_score: number;
+      candidates: Array<{
+        name: string;
+        overall_score: number;
+        distribution_fidelity: number;
+        schema_fidelity: number;
+        novelty_rate: number;
+        privacy_score: number;
+        fit_time_ms: number;
+        sample_time_ms: number;
+        selection_reason: string;
+      }>;
+    };
+  };
+}
+
+
