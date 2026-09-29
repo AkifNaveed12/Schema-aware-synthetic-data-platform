@@ -43,7 +43,7 @@ COPY worker/ ./worker/
 RUN chown -R hackdata:hackdata /app
 USER hackdata
 
-# No EXPOSE — this is a background worker, not an HTTP service
+EXPOSE 8000
 
 # Start the standalone ML worker process
 CMD ["python", "-u", "worker/main.py"]
