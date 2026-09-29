@@ -1,5 +1,5 @@
 from typing import Any, Dict, List, Literal, Optional, Union
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from backend.app.models.data_profile import DataProfile, ColumnProfile, TableProfile, RelationshipProfile
 
 # 1. Health
@@ -57,6 +57,23 @@ class TabularGenerateRequest(BaseModel):
     preview_only: bool = False
     apply_privacy: bool = True
 
+    @model_validator(mode="before")
+    @classmethod
+    def extract_nested_payload(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            gen = data.get("generation")
+            if isinstance(gen, dict):
+                for k, v in gen.items():
+                    if k not in data or data[k] is None:
+                        data[k] = v
+            priv = data.get("privacy")
+            if isinstance(priv, dict):
+                if "enabled" in priv and "apply_privacy" not in data:
+                    data["apply_privacy"] = priv["enabled"]
+            if "preview" in data and "preview_only" not in data:
+                data["preview_only"] = data["preview"]
+        return data
+
 class TabularGenerateData(BaseModel):
     columns: List[str]
     rows: List[Dict[str, Any]]
@@ -75,6 +92,26 @@ class RelationalGenerateRequest(BaseModel):
     table_row_counts: Optional[Dict[str, int]] = None
     preview_only: bool = False
     reconcile_totals: bool = True
+
+    @model_validator(mode="before")
+    @classmethod
+    def extract_nested_payload(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            gen = data.get("generation")
+            if isinstance(gen, dict):
+                for k, v in gen.items():
+                    if k not in data or data[k] is None:
+                        data[k] = v
+                if "tables" in gen and isinstance(gen["tables"], dict):
+                    table_counts = {}
+                    for t_name, t_cfg in gen["tables"].items():
+                        if isinstance(t_cfg, dict) and "row_count" in t_cfg:
+                            table_counts[t_name] = t_cfg["row_count"]
+                    if table_counts and "table_row_counts" not in data:
+                        data["table_row_counts"] = table_counts
+            if "preview" in data and "preview_only" not in data:
+                data["preview_only"] = data["preview"]
+        return data
 
 class RelationalGenerateData(BaseModel):
     tables: Dict[str, List[Dict[str, Any]]]
@@ -148,6 +185,17 @@ class BankStatementGenerateRequest(BaseModel):
     query_filter: Optional[str] = None  # e.g., "last 90 days, balance over $500"
     locale: str = "en_US"
     currency: str = "USD"
+
+    @model_validator(mode="before")
+    @classmethod
+    def extract_nested_payload(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            q = data.get("query")
+            if isinstance(q, dict) and "natural_language" in q:
+                data["query_filter"] = q["natural_language"]
+            elif isinstance(q, str):
+                data["query_filter"] = q
+        return data
 
 class BankStatementGenerateData(BaseModel):
     statement: BankStatementDocument
