@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Database, LayoutGrid, Terminal, ShieldCheck, Download, Menu, X } from 'lucide-react';
+import { Database, LayoutGrid, Terminal, Download, Menu, X } from 'lucide-react';
 
 interface TopNavProps {
   currentView: 'workspace' | 'landing';
@@ -86,11 +86,6 @@ export const TopNav: React.FC<TopNavProps> = ({
             </span>
           </div>
 
-          {/* Privacy seal — lg+ only */}
-          <div className="hidden lg:flex items-center gap-1.5 text-xs text-brand-secondary">
-            <ShieldCheck className="h-4 w-4 text-brand-teal" />
-            <span className="font-medium text-[11px]">Differential Privacy ε=0.8</span>
-          </div>
 
           {/* Download Dataset — desktop */}
           <button

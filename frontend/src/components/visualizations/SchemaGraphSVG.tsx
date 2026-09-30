@@ -1,5 +1,5 @@
 import React from 'react';
-import { Key, Link as LinkIcon, CheckCircle2 } from 'lucide-react';
+import { Key, Link as LinkIcon } from 'lucide-react';
 
 interface SchemaGraphSVGProps {
   className?: string;
@@ -19,10 +19,6 @@ export const SchemaGraphSVG: React.FC<SchemaGraphSVGProps> = ({
         <div className="flex items-center gap-2">
           <span className="text-xs font-semibold uppercase tracking-wider text-brand-secondary">
             Relational Schema Topology
-          </span>
-          <span className="inline-flex items-center gap-1 rounded-full bg-teal-50 px-2 py-0.5 text-[11px] font-medium text-brand-teal border border-teal-200">
-            <CheckCircle2 className="w-3 h-3 text-brand-teal" />
-            Referential Integrity: 100% Valid
           </span>
         </div>
         <div className="flex items-center gap-3 text-xs text-brand-secondary">
@@ -76,6 +72,7 @@ export const SchemaGraphSVG: React.FC<SchemaGraphSVGProps> = ({
 
           {/* Connection Line 1: Customers (right: 220, y: 110) -> Orders (left: 310, y: 110) */}
           <path
+            id="conn-path-1"
             d="M 220 110 C 265 110, 265 110, 304 110"
             fill="none"
             stroke="url(#linkGrad)"
@@ -83,6 +80,12 @@ export const SchemaGraphSVG: React.FC<SchemaGraphSVGProps> = ({
             strokeDasharray="4 2"
             markerEnd="url(#arrow-teal)"
           />
+          {/* Animated travelling dot on connection 1 */}
+          <circle r="4" fill="#0D9488" opacity="0.85">
+            <animateMotion dur="2.2s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1">
+              <mpath href="#conn-path-1" />
+            </animateMotion>
+          </circle>
           {/* Cardinality badge 1:N */}
           <rect x="250" y="96" width="30" height="18" rx="4" fill="#E6F4F1" stroke="#99F6E4" />
           <text x="265" y="109" textAnchor="middle" fill="#0F766E" fontSize="10" fontFamily="JetBrains Mono" fontWeight="600">
@@ -91,6 +94,7 @@ export const SchemaGraphSVG: React.FC<SchemaGraphSVGProps> = ({
 
           {/* Connection Line 2: Orders (right: 530, y: 110) -> Order Items (left: 620, y: 110) */}
           <path
+            id="conn-path-2"
             d="M 530 110 C 575 110, 575 110, 614 110"
             fill="none"
             stroke="url(#linkGradCyan)"
@@ -98,6 +102,12 @@ export const SchemaGraphSVG: React.FC<SchemaGraphSVGProps> = ({
             strokeDasharray="4 2"
             markerEnd="url(#arrow-cyan)"
           />
+          {/* Animated travelling dot on connection 2 */}
+          <circle r="4" fill="#0284C7" opacity="0.85">
+            <animateMotion dur="2.2s" begin="0.8s" repeatCount="indefinite" calcMode="spline" keySplines="0.4 0 0.6 1">
+              <mpath href="#conn-path-2" />
+            </animateMotion>
+          </circle>
           {/* Cardinality badge 1:N */}
           <rect x="560" y="96" width="30" height="18" rx="4" fill="#E0F2FE" stroke="#BAE6FD" />
           <text x="575" y="109" textAnchor="middle" fill="#0369A1" fontSize="10" fontFamily="JetBrains Mono" fontWeight="600">

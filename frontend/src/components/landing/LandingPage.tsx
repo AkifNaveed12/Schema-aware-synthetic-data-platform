@@ -14,6 +14,7 @@ import {
 import { SchemaGraphSVG } from '../visualizations/SchemaGraphSVG';
 import { DistributionHistogram } from '../visualizations/DistributionHistogram';
 import { LedgerSparkline } from '../visualizations/LedgerSparkline';
+import { HowItWorks } from './HowItWorks';
 
 interface LandingPageProps {
   onOpenWorkspace: () => void;
@@ -114,43 +115,43 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenWorkspace }) => 
                     <tr className="hover:bg-slate-50">
                       <td className="py-2 px-3 font-bold text-brand-hero">10231</td>
                       <td className="py-2 px-3 font-sans font-medium text-brand-hero">Maria Chen</td>
-                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">m.•••••@synthdata.io</td>
+                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">m.ch••••@gmail.com</td>
                       <td className="py-2 px-3 text-right font-semibold">$482.10</td>
                     </tr>
                     <tr className="hover:bg-slate-50">
                       <td className="py-2 px-3 font-bold text-brand-hero">10232</td>
                       <td className="py-2 px-3 font-sans font-medium text-brand-hero">Ahmed Raza</td>
-                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">a.•••••@synthdata.io</td>
+                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">a.ra••••@yahoo.com</td>
                       <td className="py-2 px-3 text-right font-semibold">$129.55</td>
                     </tr>
                     <tr className="hover:bg-slate-50">
                       <td className="py-2 px-3 font-bold text-brand-hero">10233</td>
                       <td className="py-2 px-3 font-sans font-medium text-brand-hero">Sofia Ivanova</td>
-                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">s.•••••@synthdata.io</td>
+                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">s.iv••••@hotmail.com</td>
                       <td className="py-2 px-3 text-right font-semibold">$918.42</td>
                     </tr>
                     <tr className="hover:bg-slate-50">
                       <td className="py-2 px-3 font-bold text-brand-hero">10234</td>
                       <td className="py-2 px-3 font-sans font-medium text-brand-hero">Marcus Vance</td>
-                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">m.•••••@synthdata.io</td>
+                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">m.va••••@gmail.com</td>
                       <td className="py-2 px-3 text-right font-semibold">$1,420.00</td>
                     </tr>
                     <tr className="hover:bg-slate-50">
                       <td className="py-2 px-3 font-bold text-brand-hero">10235</td>
                       <td className="py-2 px-3 font-sans font-medium text-brand-hero">Elena Reyes</td>
-                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">e.•••••@synthdata.io</td>
+                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">e.re••••@outlook.com</td>
                       <td className="py-2 px-3 text-right font-semibold">$310.20</td>
                     </tr>
                     <tr className="hover:bg-slate-50">
                       <td className="py-2 px-3 font-bold text-brand-hero">10236</td>
                       <td className="py-2 px-3 font-sans font-medium text-brand-hero">Lucas Schmidt</td>
-                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">l.•••••@synthdata.io</td>
+                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">l.sc••••@yahoo.com</td>
                       <td className="py-2 px-3 text-right font-semibold">$2,450.80</td>
                     </tr>
                     <tr className="hover:bg-slate-50">
                       <td className="py-2 px-3 font-bold text-brand-hero">10237</td>
                       <td className="py-2 px-3 font-sans font-medium text-brand-hero">Fatima Al-Mansoor</td>
-                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">f.•••••@synthdata.io</td>
+                      <td className="py-2 px-3 text-slate-500 font-mono bg-slate-100/60 rounded px-1.5">f.al••••@hotmail.com</td>
                       <td className="py-2 px-3 text-right font-semibold">$1,150.30</td>
                     </tr>
                   </tbody>
@@ -174,10 +175,6 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenWorkspace }) => 
                     Tile B · Relational Topology
                   </span>
                 </div>
-                <span className="inline-flex items-center gap-1 font-mono text-[10px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
-                  <CheckCircle2 className="w-3 h-3 text-emerald-600" />
-                  Referential Integrity 100%
-                </span>
               </div>
               <p className="text-xs text-brand-secondary mb-3">
                 Customers (PK) → Orders (PK/FK) → Order Items (PK/FK). Order totals match line items.
@@ -204,7 +201,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenWorkspace }) => 
                     Tile C · Reconciled Invoice
                   </span>
                 </div>
-                <span className="text-[10px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                <span className="text-[10px] font-mono text-brand-hero bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
                   INV-10432
                 </span>
               </div>
@@ -251,7 +248,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenWorkspace }) => 
                 <span className="text-xs font-bold text-brand-hero uppercase tracking-wider">
                   Tile D · Bank Ledger Balance
                 </span>
-                <span className="text-[10px] font-mono text-slate-500 bg-slate-100 px-2 py-0.5 rounded">ACID Ledger</span>
+                <span className="text-[10px] font-mono text-brand-hero bg-teal-50 px-2 py-0.5 rounded border border-teal-200">ACID Ledger</span>
               </div>
               <p className="text-xs text-brand-secondary mb-2">
                 Deterministic running balance calculation matching official theme specs.
@@ -286,7 +283,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenWorkspace }) => 
                     Tile E · Distribution Charts
                   </span>
                 </div>
-                <span className="font-mono text-[10px] text-brand-teal bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
+                <span className="font-mono text-[10px] text-brand-hero bg-teal-50 px-2 py-0.5 rounded border border-teal-200">
                   Statistical Fidelity
                 </span>
               </div>
@@ -385,6 +382,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenWorkspace }) => 
           </div>
         </div>
       </section>
+
+      {/* 2b. How DataVault Works — animated flow diagram */}
+      <HowItWorks />
 
       {/* 3. System Architecture & Workflow */}
       <section className="px-6 py-16 max-w-6xl mx-auto w-full">

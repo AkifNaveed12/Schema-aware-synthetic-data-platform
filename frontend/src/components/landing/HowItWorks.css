@@ -1,0 +1,60 @@
+/* ===== HowItWorks.css — dv-flow responsive wrapper & theme token bridge ===== */
+
+/* SVG fills its wrapper, no fixed height = no layout shift */
+.dv-flow-slot svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Desktop slot — allow full viewBox to render (loop arrow is inside viewBox) */
+.dv-flow-slot--desktop {
+  overflow: visible;
+}
+
+/* Mobile slot hidden by default */
+.dv-flow-slot--mobile {
+  display: none;
+  max-width: 420px;
+  margin: 0 auto;
+  /* Clip the regeneration-loop arrow that extends to x=352 (just outside 360px viewBox) */
+  overflow: hidden;
+}
+
+/* Responsive switch */
+@media (max-width: 720px) {
+  .dv-flow-slot--desktop {
+    display: none;
+  }
+  .dv-flow-slot--mobile {
+    display: block;
+  }
+}
+
+/*
+ * Theme token bridge.
+ * Maps site design tokens -> SVG custom properties.
+ * Higher specificity wins over the embedded <style> defaults.
+ *
+ * IMPORTANT: --dv-bg must be a REAL color, not transparent.
+ * The Export button text uses fill:var(--dv-bg) (white text on teal pill).
+ * The tick-on-accent (.tkd) uses stroke:var(--dv-bg) to cut the check through the circle.
+ * Setting transparent makes both invisible.
+ */
+.dv-flow-wrap .dv-flow {
+  /* accent */
+  --dv-acc: #0D9488;
+  /* foreground */
+  --dv-fg: #1C1D1F;
+  /* muted text */
+  --dv-mut: #6F7988;
+  /* border / line */
+  --dv-ln: #E2E8F0;
+  /* card surface */
+  --dv-card: #FFFFFF;
+  /* background — must be the page's actual background so Export text & tick strokes are visible */
+  --dv-bg: #F8F7F4;
+  /* warn — keep brand amber as-is */
+  /* --dv-warn intentionally not overridden */
+}
+
