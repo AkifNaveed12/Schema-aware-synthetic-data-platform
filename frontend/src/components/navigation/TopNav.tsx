@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Database, LayoutGrid, Terminal, ShieldCheck, Cpu, Download, Menu, X } from 'lucide-react';
+import { Database, LayoutGrid, Terminal, ShieldCheck, Download, Menu, X } from 'lucide-react';
 
 interface TopNavProps {
   currentView: 'workspace' | 'landing';
@@ -30,9 +30,11 @@ export const TopNav: React.FC<TopNavProps> = ({
             onClick={() => { onViewChange('landing'); closeMobile(); }}
             className="flex items-center gap-2 sm:gap-2.5 transition-opacity hover:opacity-90 shrink-0"
           >
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-navy text-brand-teal shadow-xs">
-              <Cpu className="h-4 w-4 text-brand-teal" />
-            </div>
+            <img
+              src="/logo.jpeg"
+              alt="DataVault logo"
+              className="h-8 w-8 rounded-lg object-contain shadow-xs"
+            />
             <div className="flex flex-col text-left">
               <span className="font-semibold text-sm leading-tight tracking-tight text-brand-hero">
                 Data<span className="text-brand-teal font-bold">Vault</span>
