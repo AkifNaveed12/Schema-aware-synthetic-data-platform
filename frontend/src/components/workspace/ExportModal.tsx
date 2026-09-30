@@ -78,7 +78,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     if (selectedFormat === 'sql') {
       if (modality === 'relational') {
         const sqlLines = [
-          '-- HACKDATA V2: SYNTHETIC RELATIONAL EXPORT',
+          '-- DATAVAULT: SYNTHETIC RELATIONAL EXPORT',
           '-- Referential Integrity: 100% Valid',
           '',
           'CREATE TABLE customers (customer_id INT PRIMARY KEY, name VARCHAR(255), email VARCHAR(255), country VARCHAR(100), tier VARCHAR(50));',

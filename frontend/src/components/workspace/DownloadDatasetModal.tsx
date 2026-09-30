@@ -95,7 +95,7 @@ export const DownloadDatasetModal: React.FC<DownloadDatasetModalProps> = ({
             </div>
             <div>
               <h2 className="text-sm font-bold text-brand-hero leading-tight">Download Sample Dataset</h2>
-              <p className="text-[11px] text-brand-secondary font-mono">Ready-to-use datasets for testing HackData</p>
+              <p className="text-[11px] text-brand-secondary font-mono">Ready-to-use datasets for testing DataVault</p>
             </div>
           </div>
           <button
@@ -140,7 +140,7 @@ export const DownloadDatasetModal: React.FC<DownloadDatasetModalProps> = ({
         {/* Footer */}
         <div className="px-5 py-3 border-t border-brand-border bg-slate-50 shrink-0">
           <p className="text-[11px] text-brand-secondary font-mono text-center">
-            Download → Upload into HackData → Analyze → Generate → Export
+            Download → Upload into DataVault → Analyze → Generate → Export
           </p>
         </div>
       </div>

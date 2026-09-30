@@ -31,7 +31,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenWorkspace }) => 
         {/* Eyebrow Pill */}
         <div className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50/80 px-3 py-1 text-xs font-mono font-medium text-brand-teal mb-6 shadow-xs animate-in fade-in slide-in-from-bottom-2 duration-300">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>HACKDATA V2 · SCHEMA-AWARE SYNTHETIC DATA WORKBENCH</span>
+          <span>DATAVAULT · SCHEMA-AWARE SYNTHETIC DATA WORKBENCH</span>
         </div>
 
         {/* Hero Title (#1C1D1F) */}
@@ -456,7 +456,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenWorkspace }) => 
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6 text-center sm:text-left">
           <div>
             <span className="text-[11px] font-mono tracking-widest text-teal-400 uppercase font-semibold">
-              READY FOR HACKDATAV2 DEPLOYMENT
+              READY FOR DATAVAULT DEPLOYMENT
             </span>
             <h3 className="text-xl font-bold text-white mt-1">
               Start generating compliance-safe synthetic data

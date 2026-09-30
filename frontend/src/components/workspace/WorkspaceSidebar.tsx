@@ -236,7 +236,7 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
         </button>
 
         <div className="rounded-lg bg-slate-50 p-2.5 border border-brand-border text-[10px] text-brand-secondary leading-relaxed">
-          <span className="text-brand-teal font-semibold">HackData V2 Engine</span>
+          <span className="text-brand-teal font-semibold">DataVault Engine</span>
           <p className="mt-0.5">Schema-aware deterministic pipeline with Groq AI semantic layer.</p>
         </div>
       </div>

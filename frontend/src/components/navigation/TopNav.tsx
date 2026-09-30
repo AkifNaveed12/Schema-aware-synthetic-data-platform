@@ -35,7 +35,7 @@ export const TopNav: React.FC<TopNavProps> = ({
             </div>
             <div className="flex flex-col text-left">
               <span className="font-semibold text-sm leading-tight tracking-tight text-brand-hero">
-                HackData <span className="text-brand-teal font-bold">V2</span>
+                Data<span className="text-brand-teal font-bold">Vault</span>
               </span>
               <span className="hidden sm:block font-mono text-[10px] text-brand-secondary tracking-normal">
                 SYNTHETIC DATA PLATFORM

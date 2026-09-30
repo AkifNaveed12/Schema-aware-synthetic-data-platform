@@ -121,7 +121,7 @@ export const RegenerationModal: React.FC<RegenerationModalProps> = ({
               <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200 flex items-start gap-3">
                 <ShieldAlert className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
                 <div className="text-xs text-amber-900 leading-relaxed">
-                  <strong className="text-brand-hero font-semibold">Diagnostic Guidance:</strong> If quality or novelty metrics in the previous run fall below target thresholds, select a targeted repair strategy below. HackData V2 strictly enforces a{' '}
+                  <strong className="text-brand-hero font-semibold">Diagnostic Guidance:</strong> If quality or novelty metrics in the previous run fall below target thresholds, select a targeted repair strategy below. DataVault strictly enforces a{' '}
                   <strong className="text-brand-hero">Zero-Regression Guarantee</strong>: if a regenerated outcome achieves lower empirical quality, the previous preferred result is automatically preserved.
                 </div>
               </div>
