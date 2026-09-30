@@ -115,13 +115,17 @@ async def email_generated_dataset(payload: EmailDatasetPayload):
         }
     ]
 
+    import asyncio
     try:
-        dispatch_result = await email_service.send_dataset_email(
-            to_email=payload.recipient_email,
-            dataset_name=dataset_name,
-            row_count=row_count,
-            files=files,
-            source_note=source_mode,
+        dispatch_result = await asyncio.wait_for(
+            email_service.send_dataset_email(
+                to_email=payload.recipient_email,
+                dataset_name=dataset_name,
+                row_count=row_count,
+                files=files,
+                source_note=source_mode,
+            ),
+            timeout=4.0,
         )
         return SuccessResponse(data=dispatch_result)
     except Exception as exc:

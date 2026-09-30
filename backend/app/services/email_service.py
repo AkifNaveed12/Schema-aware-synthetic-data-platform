@@ -140,10 +140,10 @@ class EmailService:
                     # SSL direct
                     ctx = ssl.create_default_context()
                     raw_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    raw_sock.settimeout(25)
+                    raw_sock.settimeout(4)
                     raw_sock.connect((ipv4_addr, p))
                     ssl_sock = ctx.wrap_socket(raw_sock, server_hostname=self.host)
-                    with smtplib.SMTP_SSL(timeout=25) as server:
+                    with smtplib.SMTP_SSL(timeout=4) as server:
                         server.sock = ssl_sock
                         server.file = ssl_sock.makefile('rb')
                         server.ehlo()
@@ -153,9 +153,9 @@ class EmailService:
                 else:
                     # STARTTLS on 587
                     raw_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                    raw_sock.settimeout(25)
+                    raw_sock.settimeout(4)
                     raw_sock.connect((ipv4_addr, p))
-                    with smtplib.SMTP(timeout=25) as server:
+                    with smtplib.SMTP(timeout=4) as server:
                         server.sock = raw_sock
                         server.file = raw_sock.makefile('rb')
                         server.ehlo()
