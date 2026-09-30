@@ -53,24 +53,46 @@ export const LedgerSparkline: React.FC<LedgerSparklineProps> = ({
         {/* Shaded Area */}
         <path d={areaD} fill="url(#balanceSparkGrad)" />
 
-        {/* Trajectory Line */}
-        <path d={pathD} fill="none" stroke="#0D9488" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+        {/* Trajectory Segments with Semantic Color Differentiation */}
+        {points.map((pt, idx) => {
+          if (idx === 0) return null;
+          const prevPt = points[idx - 1];
+          const isUpward = pt.val >= prevPt.val;
+          const strokeColor = isUpward ? '#0D9488' : '#E11D48'; // Positive/healthy teal vs declining restrained red
+          return (
+            <line
+              key={`seg-${idx}`}
+              x1={prevPt.x}
+              y1={prevPt.y}
+              x2={pt.x}
+              y2={pt.y}
+              stroke={strokeColor}
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          );
+        })}
 
-        {/* Data points */}
-        {points.map((pt, idx) => (
-          <circle
-            key={idx}
-            cx={pt.x}
-            cy={pt.y}
-            r={idx === 0 || idx === points.length - 1 ? 3.5 : 2}
-            fill="#FFFFFF"
-            stroke="#0D9488"
-            strokeWidth="2"
-            className="transition-all hover:r-4"
-          >
-            <title>{`Step ${idx + 1}: $${pt.val.toFixed(2)}`}</title>
-          </circle>
-        ))}
+        {/* Data points with matching semantic accents */}
+        {points.map((pt, idx) => {
+          const isUpward = idx === 0 || pt.val >= points[idx - 1].val;
+          const pointColor = idx === 0 ? '#0D9488' : isUpward ? '#0D9488' : '#E11D48';
+          return (
+            <circle
+              key={idx}
+              cx={pt.x}
+              cy={pt.y}
+              r={idx === 0 || idx === points.length - 1 ? 3.5 : 2}
+              fill="#FFFFFF"
+              stroke={pointColor}
+              strokeWidth="2"
+              className="transition-all hover:r-4"
+            >
+              <title>{`Step ${idx + 1}: $${pt.val.toFixed(2)} (${isUpward ? 'Deposit/Surplus' : 'Debit/Withdrawal'})`}</title>
+            </circle>
+          );
+        })}
       </svg>
 
       <div className="flex justify-between items-center text-[10px] font-mono text-brand-secondary">

@@ -39,8 +39,8 @@ export const DistributionHistogram: React.FC<DistributionHistogramProps> = ({
       <svg width="100%" height={height} viewBox={`0 0 ${width} ${height}`} className="overflow-visible">
         <defs>
           <linearGradient id="tealBarGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#0D9488" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#0D9488" stopOpacity="0.4" />
+            <stop offset="0%" stopColor="#0D9488" stopOpacity="0.85" />
+            <stop offset="100%" stopColor="#0D9488" stopOpacity="0.35" />
           </linearGradient>
         </defs>
         {bins.map((freq, idx) => {
@@ -63,10 +63,35 @@ export const DistributionHistogram: React.FC<DistributionHistogramProps> = ({
             </g>
           );
         })}
+
+        {/* Semantic Density Curve Overlay in restrained amber/orange */}
+        {(() => {
+          const curvePts = bins.map((freq, idx) => ({
+            x: idx * (barWidth + 3) + barWidth / 2,
+            y: height - Math.max(4, (freq / maxFreq) * (height - 12)),
+          }));
+          const curveD = curvePts.reduce((acc, pt, idx) => {
+            return idx === 0 ? `M ${pt.x} ${pt.y}` : `${acc} L ${pt.x} ${pt.y}`;
+          }, '');
+          return (
+            <path
+              d={curveD}
+              fill="none"
+              stroke="#F59E0B"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="drop-shadow-xs"
+            />
+          );
+        })()}
       </svg>
       <div className="flex justify-between items-center text-[10px] font-mono text-brand-secondary px-0.5">
         <span>${Math.round(min)}</span>
-        <span className="text-brand-teal font-medium">Log-Normal Skewed</span>
+        <span className="flex items-center gap-1 text-brand-teal font-medium">
+          <span className="inline-block w-2.5 h-0.5 bg-[#F59E0B] rounded"></span>
+          <span>Log-Normal Skewed</span>
+        </span>
         <span>${Math.round(max)}</span>
       </div>
     </div>

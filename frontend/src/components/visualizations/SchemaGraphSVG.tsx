@@ -53,9 +53,24 @@ export const SchemaGraphSVG: React.FC<SchemaGraphSVGProps> = ({
             >
               <path d="M 0 1 L 8 5 L 0 9 z" fill="#0D9488" />
             </marker>
+            <marker
+              id="arrow-cyan"
+              viewBox="0 0 10 10"
+              refX="6"
+              refY="5"
+              markerWidth="6"
+              markerHeight="6"
+              orient="auto-start-reverse"
+            >
+              <path d="M 0 1 L 8 5 L 0 9 z" fill="#0284C7" />
+            </marker>
             <linearGradient id="linkGrad" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="#0D9488" stopOpacity="0.8" />
               <stop offset="100%" stopColor="#0D9488" stopOpacity="0.8" />
+            </linearGradient>
+            <linearGradient id="linkGradCyan" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stopColor="#0284C7" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#0284C7" stopOpacity="0.8" />
             </linearGradient>
           </defs>
 
@@ -78,14 +93,14 @@ export const SchemaGraphSVG: React.FC<SchemaGraphSVGProps> = ({
           <path
             d="M 530 110 C 575 110, 575 110, 614 110"
             fill="none"
-            stroke="url(#linkGrad)"
+            stroke="url(#linkGradCyan)"
             strokeWidth="2"
             strokeDasharray="4 2"
-            markerEnd="url(#arrow-teal)"
+            markerEnd="url(#arrow-cyan)"
           />
           {/* Cardinality badge 1:N */}
-          <rect x="560" y="96" width="30" height="18" rx="4" fill="#E6F4F1" stroke="#99F6E4" />
-          <text x="575" y="109" textAnchor="middle" fill="#0F766E" fontSize="10" fontFamily="JetBrains Mono" fontWeight="600">
+          <rect x="560" y="96" width="30" height="18" rx="4" fill="#E0F2FE" stroke="#BAE6FD" />
+          <text x="575" y="109" textAnchor="middle" fill="#0369A1" fontSize="10" fontFamily="JetBrains Mono" fontWeight="600">
             1:N
           </text>
 
