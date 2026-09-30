@@ -279,17 +279,17 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
       {isActivated && (
         <div
           onMouseDown={handleMouseDown}
-          className="mb-3 w-80 md:w-96 bg-[#0B132B]/95 backdrop-blur-md border border-indigo-500/40 rounded-2xl shadow-2xl p-4 text-white animate-fadeIn cursor-move overflow-hidden transition-all duration-200"
+          className="mb-3 w-80 md:w-96 bg-white/95 backdrop-blur-md border border-brand-border rounded-2xl shadow-modal p-4 text-brand-hero animate-fadeIn cursor-move overflow-hidden transition-all duration-200"
         >
           {/* Header */}
-          <div className="flex items-center justify-between pb-2.5 border-b border-white/10 text-xs">
+          <div className="flex items-center justify-between pb-2.5 border-b border-brand-border text-xs">
             <div className="flex items-center gap-2">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
               </span>
-              <span className="font-semibold text-slate-200">Synthia Voice</span>
-              <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 font-mono">
+              <span className="font-semibold text-brand-hero">Synthia Voice</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded bg-teal-50 text-teal-700 border border-teal-200 font-mono font-medium">
                 {detectedLang === 'ur' ? 'اردو' : detectedLang === 'ur-Latn' ? 'Roman Urdu' : 'English'}
               </span>
             </div>
@@ -303,7 +303,7 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
                   setTtsEnabled(!ttsEnabled);
                 }}
                 className={`p-1 rounded transition-colors ${
-                  ttsEnabled ? 'text-indigo-400 hover:text-indigo-300' : 'text-slate-500'
+                  ttsEnabled ? 'text-brand-teal hover:text-brand-teal-hover' : 'text-slate-400'
                 }`}
                 title={ttsEnabled ? 'Mute Speech' : 'Unmute Speech'}
               >
@@ -311,7 +311,7 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
               </button>
               <button
                 onClick={() => handleToggleActivate()}
-                className="p-1 text-slate-400 hover:text-white rounded transition-colors"
+                className="p-1 text-slate-400 hover:text-slate-700 rounded transition-colors"
                 title="Deactivate Synthia"
               >
                 <X className="w-3.5 h-3.5" />
@@ -324,20 +324,20 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
             {isListening && (
               <div className="flex flex-col items-center justify-center py-2 space-y-2">
                 <div className="flex items-center gap-1.5 h-6">
-                  <span className="w-1 bg-indigo-400 rounded-full animate-bounce h-4" />
-                  <span className="w-1 bg-purple-400 rounded-full animate-bounce h-6 delay-75" />
-                  <span className="w-1 bg-cyan-400 rounded-full animate-bounce h-5 delay-150" />
-                  <span className="w-1 bg-emerald-400 rounded-full animate-bounce h-3 delay-100" />
+                  <span className="w-1 bg-teal-500 rounded-full animate-bounce h-4" />
+                  <span className="w-1 bg-teal-600 rounded-full animate-bounce h-6 delay-75" />
+                  <span className="w-1 bg-emerald-500 rounded-full animate-bounce h-5 delay-150" />
+                  <span className="w-1 bg-teal-400 rounded-full animate-bounce h-3 delay-100" />
                 </div>
-                <p className="text-xs text-indigo-300 font-medium animate-pulse">
+                <p className="text-xs text-brand-teal font-medium animate-pulse">
                   Listening... speak in English, Urdu, or Roman Urdu
                 </p>
               </div>
             )}
 
             {loading && !isListening && (
-              <div className="flex items-center justify-center gap-2 py-3 text-xs text-slate-400">
-                <span className="w-3 h-3 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin" />
+              <div className="flex items-center justify-center gap-2 py-3 text-xs text-brand-secondary">
+                <span className="w-3 h-3 border-2 border-brand-teal border-t-transparent rounded-full animate-spin" />
                 <span>Analyzing dataset context...</span>
               </div>
             )}
@@ -346,17 +346,17 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
             {!isListening && !loading && latestResponse && (
               <div className="space-y-2">
                 {currentQuery && (
-                  <p className="text-[11px] text-slate-400 italic line-clamp-1">
+                  <p className="text-[11px] text-brand-secondary italic line-clamp-1">
                     "{currentQuery}"
                   </p>
                 )}
-                <div className="p-2.5 rounded-xl bg-slate-900/80 border border-slate-800 text-xs text-slate-200 leading-relaxed">
+                <div className="p-2.5 rounded-xl bg-slate-50 border border-brand-border text-xs text-brand-hero leading-relaxed">
                   <div className="flex items-start gap-2">
                     {isSpeaking && (
                       <span className="flex gap-0.5 items-end h-4 mt-0.5">
-                        <span className="w-0.5 bg-emerald-400 h-2 animate-pulse" />
-                        <span className="w-0.5 bg-emerald-400 h-4 animate-pulse delay-75" />
-                        <span className="w-0.5 bg-emerald-400 h-2.5 animate-pulse delay-150" />
+                        <span className="w-0.5 bg-emerald-500 h-2 animate-pulse" />
+                        <span className="w-0.5 bg-emerald-500 h-4 animate-pulse delay-75" />
+                        <span className="w-0.5 bg-emerald-500 h-2.5 animate-pulse delay-150" />
                       </span>
                     )}
                     <p className="flex-1">{latestResponse}</p>
@@ -365,9 +365,9 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
 
                 {/* Structured 1-click Proposal Action (if available) */}
                 {activeProposal && (
-                  <div className="p-2 rounded-lg bg-indigo-950/60 border border-indigo-500/30 flex items-center justify-between gap-2">
-                    <div className="flex items-center gap-1.5 text-[11px] text-indigo-200">
-                      <Sparkles className="w-3 h-3 text-indigo-400" />
+                  <div className="p-2 rounded-lg bg-teal-50/70 border border-teal-200 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5 text-[11px] text-teal-900 font-medium">
+                      <Sparkles className="w-3 h-3 text-brand-teal" />
                       <span>{activeProposal.title}</span>
                     </div>
                     <button
@@ -375,8 +375,8 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
                       disabled={proposalApplied || applyingProposal}
                       className={`px-2.5 py-1 rounded text-[11px] font-medium flex items-center gap-1 transition-all ${
                         proposalApplied
-                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                          : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-sm'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : 'bg-brand-teal hover:bg-brand-teal-hover text-white shadow-sm'
                       }`}
                     >
                       {proposalApplied ? (
@@ -399,7 +399,7 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
             )}
 
             {!isListening && !loading && !latestResponse && (
-              <p className="text-center py-2 text-xs text-slate-400">
+              <p className="text-center py-2 text-xs text-brand-secondary">
                 Click the mic below or speak to ask Synthia.
               </p>
             )}
@@ -413,7 +413,7 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
                 processUserQuery(inputText);
               }
             }}
-            className="flex items-center gap-1.5 pt-2 border-t border-white/10"
+            className="flex items-center gap-1.5 pt-2 border-t border-brand-border"
           >
             <button
               type="button"
@@ -423,8 +423,8 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
               }}
               className={`p-2 rounded-xl transition-all ${
                 isListening
-                  ? 'bg-red-500 text-white animate-pulse'
-                  : 'bg-slate-800 text-indigo-400 hover:bg-slate-700'
+                  ? 'bg-rose-500 text-white animate-pulse'
+                  : 'bg-slate-100 text-brand-teal hover:bg-slate-200'
               }`}
               title={isListening ? 'Stop Listening' : 'Speak'}
             >
@@ -436,13 +436,13 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
               value={inputText}
               onChange={(e) => setInputText(e.target.value)}
               placeholder="Or type query..."
-              className="flex-1 px-3 py-1.5 text-xs bg-slate-950/80 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
+              className="flex-1 px-3 py-1.5 text-xs bg-slate-50 border border-brand-border rounded-xl text-brand-hero placeholder-slate-400 focus:outline-none focus:border-brand-teal focus:bg-white"
             />
 
             <button
               type="submit"
               disabled={!inputText.trim() || loading}
-              className="p-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-40 text-white rounded-xl transition-colors"
+              className="p-2 bg-brand-teal hover:bg-brand-teal-hover disabled:opacity-40 text-white rounded-xl transition-colors"
             >
               <Send className="w-3 h-3" />
             </button>
@@ -459,8 +459,8 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
           onClick={handleToggleActivate}
           className={`relative flex items-center justify-center w-14 h-14 rounded-full transition-all duration-300 shadow-2xl ${
             isActivated
-              ? 'bg-gradient-to-r from-red-600 via-purple-600 to-indigo-600 ring-4 ring-indigo-400/40 scale-105'
-              : 'bg-gradient-to-r from-indigo-600 via-purple-600 to-indigo-700 hover:scale-110 active:scale-95'
+              ? 'bg-gradient-to-r from-teal-600 to-emerald-600 ring-4 ring-teal-400/40 scale-105'
+              : 'bg-gradient-to-r from-teal-600 to-teal-700 hover:scale-110 active:scale-95 shadow-lg shadow-teal-700/25'
           } text-white border border-white/20`}
           title={isActivated ? 'Deactivate Synthia' : 'Activate Synthia Voice Assistant'}
         >
@@ -468,8 +468,8 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
           <span
             className={`absolute inset-0 rounded-full transition-opacity duration-300 ${
               isActivated
-                ? 'animate-ping bg-indigo-500 opacity-25'
-                : 'opacity-0 group-hover:opacity-20 bg-indigo-400'
+                ? 'animate-ping bg-teal-500 opacity-25'
+                : 'opacity-0 group-hover:opacity-20 bg-teal-400'
             }`}
           />
 
@@ -484,12 +484,12 @@ export const SynthiaAssistant: React.FC<SynthiaAssistantProps> = ({
           )}
 
           {/* Active Status Dot */}
-          <span className="absolute top-1 right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-slate-900 shadow-sm" />
+          <span className="absolute top-1 right-1 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white shadow-sm" />
         </button>
 
         {/* Small Hover Badge when Idle */}
         {!isActivated && (
-          <span className="absolute bottom-16 right-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900/95 text-white text-[10px] font-medium px-2 py-1 rounded-md border border-slate-800 whitespace-nowrap shadow-lg">
+          <span className="absolute bottom-16 right-0 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity bg-brand-hero text-white text-[10px] font-medium px-2 py-1 rounded-md border border-slate-700 whitespace-nowrap shadow-lg">
             Synthia Voice AI
           </span>
         )}
