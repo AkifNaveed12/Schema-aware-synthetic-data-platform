@@ -77,29 +77,29 @@ export const RegenerationModal: React.FC<RegenerationModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto animate-fadeIn">
-      <div className="bg-[#0F172A] border border-[#1E293B] rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col my-auto max-h-[90vh]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs p-4 overflow-y-auto animate-fadeIn">
+      <div className="bg-white border border-brand-border rounded-2xl w-full max-w-4xl shadow-2xl overflow-hidden flex flex-col my-auto max-h-[90vh]">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-[#1E293B] flex items-center justify-between bg-[#111C35]/50">
+        <div className="px-6 py-4 border-b border-brand-border flex items-center justify-between bg-slate-50">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400">
+            <div className="p-2 rounded-xl bg-amber-50 border border-amber-200 text-amber-600">
               <RefreshCw className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h3 className="text-lg font-semibold text-white tracking-tight">Controlled Diagnostic Regeneration</h3>
-                <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                <h3 className="text-lg font-semibold text-brand-hero tracking-tight">Controlled Diagnostic Regeneration</h3>
+                <span className="px-2 py-0.5 rounded-full text-[11px] font-medium bg-amber-50 text-amber-700 border border-amber-200">
                   Targeted Optimization
                 </span>
               </div>
-              <p className="text-xs text-slate-400">
-                Actionable repair and optimization on <span className="text-slate-200 font-mono">{datasetName}</span>
+              <p className="text-xs text-brand-secondary">
+                Actionable repair and optimization on <span className="text-brand-hero font-mono">{datasetName}</span>
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-800/60 transition-colors"
+            className="text-brand-secondary hover:text-brand-hero p-2 rounded-lg hover:bg-slate-200/60 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -109,26 +109,26 @@ export const RegenerationModal: React.FC<RegenerationModalProps> = ({
         <div className="p-6 overflow-y-auto space-y-6">
           {!datasetId ? (
             <div className="text-center py-12 text-slate-400">
-              <AlertTriangle className="w-10 h-10 mx-auto mb-3 text-amber-400/80" />
-              <p className="text-sm font-medium text-slate-200">No active dataset selected.</p>
-              <p className="text-xs text-slate-400 mt-1">
+              <AlertTriangle className="w-10 h-10 mx-auto mb-3 text-amber-500" />
+              <p className="text-sm font-medium text-brand-hero">No active dataset selected.</p>
+              <p className="text-xs text-brand-secondary mt-1">
                 Upload a dataset in Workspace to run diagnostic regeneration.
               </p>
             </div>
           ) : (
             <>
               {/* Diagnostic Issue Context */}
-              <div className="p-4 rounded-xl bg-amber-950/20 border border-amber-900/40 flex items-start gap-3">
-                <ShieldAlert className="w-4 h-4 text-amber-400 mt-0.5 shrink-0" />
-                <div className="text-xs text-amber-200/90 leading-relaxed">
-                  <strong className="text-white font-medium">Diagnostic Guidance:</strong> If quality or novelty metrics in the previous run fall below target thresholds, select a targeted repair strategy below. HackData V2 strictly enforces a{' '}
-                  <strong className="text-white">Zero-Regression Guarantee</strong>: if a regenerated outcome achieves lower empirical quality, the previous preferred result is automatically preserved.
+              <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-200 flex items-start gap-3">
+                <ShieldAlert className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />
+                <div className="text-xs text-amber-900 leading-relaxed">
+                  <strong className="text-brand-hero font-semibold">Diagnostic Guidance:</strong> If quality or novelty metrics in the previous run fall below target thresholds, select a targeted repair strategy below. HackData V2 strictly enforces a{' '}
+                  <strong className="text-brand-hero">Zero-Regression Guarantee</strong>: if a regenerated outcome achieves lower empirical quality, the previous preferred result is automatically preserved.
                 </div>
               </div>
 
               {/* Strategy Selector Grid */}
               <div className="space-y-3">
-                <h4 className="text-xs font-semibold text-slate-300 uppercase tracking-wider">
+                <h4 className="text-xs font-semibold text-brand-hero uppercase tracking-wider">
                   Select Actionable Regeneration Strategy
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -140,17 +140,17 @@ export const RegenerationModal: React.FC<RegenerationModalProps> = ({
                         onClick={() => setSelectedStrategy(strat.id)}
                         className={`p-4 rounded-xl border cursor-pointer transition-all ${
                           isSelected
-                            ? 'bg-amber-950/20 border-amber-500/60 shadow-sm'
-                            : 'bg-slate-900/40 border-[#1E293B] hover:border-slate-700'
+                            ? 'bg-amber-50/50 border-amber-400 shadow-xs'
+                            : 'bg-slate-50 border-brand-border hover:bg-slate-100'
                         }`}
                       >
                         <div className="flex items-center justify-between mb-1.5">
-                          <span className="text-xs font-semibold text-white">{strat.name}</span>
-                          <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-800 text-slate-300 border border-slate-700">
+                          <span className="text-xs font-semibold text-brand-hero">{strat.name}</span>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-medium bg-white text-brand-secondary border border-brand-border shadow-micro">
                             {strat.badge}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-400 leading-relaxed">{strat.desc}</p>
+                        <p className="text-xs text-brand-secondary leading-relaxed">{strat.desc}</p>
                       </div>
                     );
                   })}
@@ -158,22 +158,22 @@ export const RegenerationModal: React.FC<RegenerationModalProps> = ({
               </div>
 
               {/* Strategy Parameters */}
-              <div className="p-4 rounded-xl bg-slate-900/50 border border-[#1E293B] space-y-4">
-                <div className="flex items-center gap-2 text-xs font-semibold text-slate-300">
-                  <Sliders className="w-3.5 h-3.5 text-amber-400" />
+              <div className="p-4 rounded-xl bg-slate-50 border border-brand-border space-y-4">
+                <div className="flex items-center gap-2 text-xs font-semibold text-brand-hero">
+                  <Sliders className="w-3.5 h-3.5 text-amber-600" />
                   <span>Strategy Configuration Parameters</span>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {selectedStrategy === 'model' && (
                     <div>
-                      <label className="block text-xs font-medium text-slate-400 mb-1">
+                      <label className="block text-xs font-medium text-brand-secondary mb-1">
                         Generative Model Adapter
                       </label>
                       <select
                         value={modelStrategy}
                         onChange={(e) => setModelStrategy(e.target.value)}
-                        className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-[#1E293B] text-xs text-slate-200 focus:outline-none focus:border-amber-500"
+                        className="w-full px-3 py-2 rounded-lg bg-white border border-brand-border text-xs text-brand-hero focus:outline-none focus:border-brand-teal shadow-micro"
                       >
                         <option value="ctgan">CTGAN (Conditional GAN for tabular data)</option>
                         <option value="tvae">TVAE (Variational Autoencoder)</option>
@@ -183,14 +183,14 @@ export const RegenerationModal: React.FC<RegenerationModalProps> = ({
                   )}
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-400 mb-1">
+                    <label className="block text-xs font-medium text-brand-secondary mb-1">
                       Random Seed Perturbation
                     </label>
                     <input
                       type="number"
                       value={seed}
                       onChange={(e) => setSeed(parseInt(e.target.value) || 42)}
-                      className="w-full px-3 py-2 rounded-lg bg-slate-950 border border-[#1E293B] text-xs text-slate-200 font-mono focus:outline-none focus:border-amber-500"
+                      className="w-full px-3 py-2 rounded-lg bg-white border border-brand-border text-xs text-brand-hero font-mono focus:outline-none focus:border-brand-teal shadow-micro"
                     />
                   </div>
                 </div>
@@ -198,7 +198,7 @@ export const RegenerationModal: React.FC<RegenerationModalProps> = ({
                 <button
                   onClick={handleExecute}
                   disabled={loading}
-                  className="w-full px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-xs font-semibold text-white transition-all shadow-md shadow-amber-600/20 flex items-center justify-center gap-2"
+                  className="w-full px-4 py-2.5 rounded-xl bg-brand-teal hover:bg-brand-teal-hover disabled:opacity-50 text-xs font-semibold text-white transition-all shadow-micro flex items-center justify-center gap-2 cursor-pointer"
                 >
                   {loading ? (
                     <>
@@ -215,24 +215,24 @@ export const RegenerationModal: React.FC<RegenerationModalProps> = ({
               </div>
 
               {error && (
-                <div className="p-4 rounded-xl bg-red-950/30 border border-red-900/50 text-red-300 text-xs flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
+                <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
                   <span>{error}</span>
                 </div>
               )}
 
               {/* Regeneration Outcome Card */}
               {result && (
-                <div className="p-5 rounded-2xl bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 border border-[#1E293B] space-y-4">
+                <div className="p-5 rounded-2xl bg-slate-50 border border-brand-border space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-xs uppercase font-semibold text-slate-400 tracking-wider">
+                    <span className="text-xs uppercase font-semibold text-brand-secondary tracking-wider">
                       Regeneration Run Outcome
                     </span>
                     <span
                       className={`px-2.5 py-0.5 rounded text-xs font-semibold flex items-center gap-1 ${
                         result.status === 'completed'
-                          ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                          : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          : 'bg-amber-50 text-amber-700 border border-amber-200'
                       }`}
                     >
                       {result.status === 'completed' ? (
@@ -249,25 +249,25 @@ export const RegenerationModal: React.FC<RegenerationModalProps> = ({
 
                   {/* Quality Delta Indicators */}
                   <div className="grid grid-cols-3 gap-4 text-center">
-                    <div className="p-3 rounded-xl bg-slate-950 border border-[#1E293B]">
-                      <span className="text-[11px] text-slate-400 block mb-1">Previous Quality</span>
-                      <span className="text-lg font-bold font-mono text-slate-300">
+                    <div className="p-3 rounded-xl bg-white border border-brand-border shadow-micro">
+                      <span className="text-[11px] text-brand-secondary block mb-1">Previous Quality</span>
+                      <span className="text-lg font-bold font-mono text-brand-hero">
                         {(result.previous_quality * 100).toFixed(1)}%
                       </span>
                     </div>
 
-                    <div className="p-3 rounded-xl bg-slate-950 border border-[#1E293B]">
-                      <span className="text-[11px] text-slate-400 block mb-1">New Quality</span>
-                      <span className="text-lg font-bold font-mono text-white">
+                    <div className="p-3 rounded-xl bg-white border border-brand-border shadow-micro">
+                      <span className="text-[11px] text-brand-secondary block mb-1">New Quality</span>
+                      <span className="text-lg font-bold font-mono text-brand-hero">
                         {(result.new_quality * 100).toFixed(1)}%
                       </span>
                     </div>
 
-                    <div className="p-3 rounded-xl bg-slate-950 border border-[#1E293B]">
-                      <span className="text-[11px] text-slate-400 block mb-1">Empirical Delta</span>
+                    <div className="p-3 rounded-xl bg-white border border-brand-border shadow-micro">
+                      <span className="text-[11px] text-brand-secondary block mb-1">Empirical Delta</span>
                       <span
                         className={`text-lg font-bold font-mono flex items-center justify-center gap-1 ${
-                          result.quality_delta >= 0 ? 'text-emerald-400' : 'text-amber-400'
+                          result.quality_delta >= 0 ? 'text-emerald-600' : 'text-amber-600'
                         }`}
                       >
                         {result.quality_delta >= 0 ? (
@@ -280,7 +280,7 @@ export const RegenerationModal: React.FC<RegenerationModalProps> = ({
                     </div>
                   </div>
 
-                  <p className="text-xs text-slate-300 leading-relaxed bg-slate-950/60 p-3 rounded-lg border border-[#1E293B]">
+                  <p className="text-xs text-brand-secondary leading-relaxed bg-white p-3 rounded-lg border border-brand-border shadow-micro">
                     {result.reason}
                   </p>
                 </div>
@@ -290,10 +290,10 @@ export const RegenerationModal: React.FC<RegenerationModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-[#1E293B] bg-[#111C35]/30 flex items-center justify-end">
+        <div className="px-6 py-4 border-t border-brand-border bg-slate-50 flex items-center justify-end">
           <button
             onClick={onClose}
-            className="px-4 py-2 rounded-xl text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+            className="px-4 py-2 rounded-xl text-xs font-medium text-brand-secondary hover:text-brand-hero hover:bg-slate-200/60 transition-colors cursor-pointer"
           >
             Done
           </button>
