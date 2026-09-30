@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface LedgerSparklineProps {
   balances: number[];
@@ -12,6 +12,20 @@ export const LedgerSparkline: React.FC<LedgerSparklineProps> = ({
 }) => {
   if (!balances || balances.length < 2) return null;
 
+  const [phase, setPhase] = useState(0);
+
+  useEffect(() => {
+    let animId: number;
+    const start = performance.now();
+    const tick = (now: number) => {
+      // Decent speed: not full speed, not slow (1.8 rad/s)
+      setPhase(((now - start) / 1000) * 1.8);
+      animId = requestAnimationFrame(tick);
+    };
+    animId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animId);
+  }, []);
+
   const min = Math.min(...balances);
   const max = Math.max(...balances);
   const range = max - min || 1;
@@ -23,7 +37,10 @@ export const LedgerSparkline: React.FC<LedgerSparklineProps> = ({
 
   const points = balances.map((val, idx) => {
     const x = paddingX + (idx / (balances.length - 1)) * (width - 2 * paddingX);
-    const y = height - paddingY - ((val - min) / range) * (height - 2 * paddingY);
+    const baseY = height - paddingY - ((val - min) / range) * (height - 2 * paddingY);
+    // Smooth dynamic wave oscillation across segments at decent speed
+    const wave = Math.sin(phase + idx * 1.25) * 3.5;
+    const y = Math.max(paddingY, Math.min(height - paddingY, baseY + wave));
     return { x, y, val };
   });
 
@@ -93,6 +110,20 @@ export const LedgerSparkline: React.FC<LedgerSparklineProps> = ({
             </circle>
           );
         })}
+
+        {/* Live dynamic beacon on latest point */}
+        {points.length > 0 && (
+          <circle
+            cx={points[points.length - 1].x}
+            cy={points[points.length - 1].y}
+            r="6"
+            fill="none"
+            stroke="#0D9488"
+            strokeWidth="1.5"
+            opacity="0.35"
+            className="animate-ping"
+          />
+        )}
       </svg>
 
       <div className="flex justify-between items-center text-[10px] font-mono text-brand-secondary">

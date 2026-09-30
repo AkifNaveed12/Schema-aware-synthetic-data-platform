@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface DistributionHistogramProps {
   data: number[];
@@ -12,6 +12,20 @@ export const DistributionHistogram: React.FC<DistributionHistogramProps> = ({
   className = '',
 }) => {
   if (!data || data.length === 0) return null;
+
+  const [phase, setPhase] = useState(0);
+
+  useEffect(() => {
+    let animId: number;
+    const start = performance.now();
+    const tick = (now: number) => {
+      // Decent speed: not full speed, not slow (1.6 rad/s)
+      setPhase(((now - start) / 1000) * 1.6);
+      animId = requestAnimationFrame(tick);
+    };
+    animId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animId);
+  }, []);
 
   const min = Math.min(...data);
   const max = Math.max(...data);
@@ -45,8 +59,11 @@ export const DistributionHistogram: React.FC<DistributionHistogramProps> = ({
         </defs>
         {bins.map((freq, idx) => {
           const barHeight = Math.max(3, (freq / maxFreq) * (height - 12));
+          // Subtle harmonic breathing on the bars matching the curve
+          const wave = Math.sin(phase + idx * 1.1) * 2;
+          const dynamicHeight = Math.max(3, Math.min(height - 6, barHeight + wave));
           const x = idx * (barWidth + 3);
-          const y = height - barHeight;
+          const y = height - dynamicHeight;
 
           return (
             <g key={idx} className="group">
@@ -54,7 +71,7 @@ export const DistributionHistogram: React.FC<DistributionHistogramProps> = ({
                 x={x}
                 y={y}
                 width={barWidth}
-                height={barHeight}
+                height={dynamicHeight}
                 rx={2}
                 fill="url(#tealBarGrad)"
                 className="transition-all duration-300 hover:brightness-110"
@@ -64,32 +81,50 @@ export const DistributionHistogram: React.FC<DistributionHistogramProps> = ({
           );
         })}
 
-        {/* Semantic Density Curve Overlay in restrained amber/orange */}
+        {/* Dynamic Semantic Density Curve Overlay in restrained amber/orange */}
         {(() => {
-          const curvePts = bins.map((freq, idx) => ({
-            x: idx * (barWidth + 3) + barWidth / 2,
-            y: height - Math.max(4, (freq / maxFreq) * (height - 12)),
-          }));
+          const curvePts = bins.map((freq, idx) => {
+            const baseX = idx * (barWidth + 3) + barWidth / 2;
+            const baseY = height - Math.max(4, (freq / maxFreq) * (height - 12));
+            // Dynamic undulating wave along the yellow density curve at decent speed
+            const wave = Math.sin(phase + idx * 1.1) * 3.5;
+            const y = Math.max(4, Math.min(height - 4, baseY + wave));
+            return { x: baseX, y };
+          });
           const curveD = curvePts.reduce((acc, pt, idx) => {
             return idx === 0 ? `M ${pt.x} ${pt.y}` : `${acc} L ${pt.x} ${pt.y}`;
           }, '');
           return (
-            <path
-              d={curveD}
-              fill="none"
-              stroke="#F59E0B"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="drop-shadow-xs"
-            />
+            <g>
+              <path
+                d={curveD}
+                fill="none"
+                stroke="#F59E0B"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="drop-shadow-xs"
+              />
+              {/* Dynamic tracking vertices along the yellow curve */}
+              {curvePts.map((pt, idx) => (
+                <circle
+                  key={idx}
+                  cx={pt.x}
+                  cy={pt.y}
+                  r="2"
+                  fill="#FFFFFF"
+                  stroke="#F59E0B"
+                  strokeWidth="1.5"
+                />
+              ))}
+            </g>
           );
         })()}
       </svg>
       <div className="flex justify-between items-center text-[10px] font-mono text-brand-secondary px-0.5">
         <span>${Math.round(min)}</span>
         <span className="flex items-center gap-1 text-brand-teal font-medium">
-          <span className="inline-block w-2.5 h-0.5 bg-[#F59E0B] rounded"></span>
+          <span className="inline-block w-2.5 h-0.5 bg-[#F59E0B] rounded animate-pulse"></span>
           <span>Log-Normal Skewed</span>
         </span>
         <span>${Math.round(max)}</span>
