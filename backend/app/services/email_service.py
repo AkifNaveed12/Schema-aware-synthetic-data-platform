@@ -65,24 +65,41 @@ class EmailService:
 
         try:
             logger.info("Connecting to SMTP server %s:%s...", self.host, self.port)
-            with smtplib.SMTP(self.host, self.port, timeout=20) as server:
-                server.ehlo()
-                if self.port in (587, 25, 2525):
-                    server.starttls()
+            # Use SMTP_SSL for port 465; STARTTLS for 587/25/2525
+            if self.port == 465:
+                import ssl as _ssl
+                ctx = _ssl.create_default_context()
+                with smtplib.SMTP_SSL(self.host, self.port, timeout=30, context=ctx) as server:
                     server.ehlo()
-                if self.username and self.password:
-                    server.login(self.username, self.password)
-                server.sendmail(self.from_email, [to_email], msg.as_string())
-            
+                    if self.username and self.password:
+                        server.login(self.username, self.password)
+                    server.sendmail(self.from_email, [to_email], msg.as_string())
+            else:
+                with smtplib.SMTP(self.host, self.port, timeout=30) as server:
+                    server.ehlo()
+                    if self.port in (587, 25, 2525):
+                        server.starttls()
+                        server.ehlo()
+                    if self.username and self.password:
+                        server.login(self.username, self.password)
+                    server.sendmail(self.from_email, [to_email], msg.as_string())
+
             logger.info("Email successfully dispatched to %s", to_email)
             return {
                 "success": True,
                 "message": f"Dataset successfully dispatched to {to_email}",
                 "recipient": to_email,
             }
+        except smtplib.SMTPAuthenticationError as e:
+            logger.error("SMTP authentication failed: %s", str(e))
+            raise RuntimeError(f"SMTP Authentication Error: Invalid credentials ({str(e)})")
+        except smtplib.SMTPConnectError as e:
+            logger.error("SMTP connection failed: %s", str(e))
+            raise RuntimeError(f"SMTP Connection Error: Cannot reach {self.host}:{self.port} ({str(e)})")
         except Exception as e:
             logger.error("Failed to send SMTP email: %s", str(e), exc_info=True)
             raise RuntimeError(f"SMTP Dispatch Error: {str(e)}")
+
 
     async def send_dataset_email(
         self,

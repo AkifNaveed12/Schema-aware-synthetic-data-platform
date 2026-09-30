@@ -21,6 +21,8 @@ from backend.app.models.envelope import SuccessResponse
 from backend.app.pipeline.ingestion import IngestionError, ingest
 from backend.app.pipeline.profiler import profile_dataframe
 from backend.app.pipeline.cleaner import clean_dataframe
+from backend.app.services.supabase_service import upload_raw_dataset
+
 
 router = APIRouter()
 
@@ -83,6 +85,15 @@ async def ingest_dataset(
         "filename": filename,
         "modality": modality,
     })
+
+    # Upload raw dataset to Supabase Storage so the standalone ML worker
+    # container can retrieve it via download_raw_dataset(dataset_id).
+    # This is a best-effort background operation — failure does not block the response.
+    try:
+        upload_raw_dataset(dataset_id, df)
+    except Exception:
+        pass  # graceful — local-only mode will still work if Supabase is not configured
+
 
     return SuccessResponse(data={
         "dataset_id": dataset_id,

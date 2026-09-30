@@ -6,7 +6,7 @@ import { checkBackendHealth } from './api/client';
 import { Agentation } from 'agentation';
 
 export const App: React.FC = () => {
-  const [currentView, setCurrentView] = useState<'workspace' | 'landing'>('workspace');
+  const [currentView, setCurrentView] = useState<'workspace' | 'landing'>('landing');
   const [isBackendOnline, setIsBackendOnline] = useState(false);
   const [latencyMs, setLatencyMs] = useState(0);
 

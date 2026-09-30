@@ -77,14 +77,28 @@ def _run_job(job: Job) -> None:
         stat_adapter = StatisticalBaselineAdapter()
         candidates.append(("statistical", stat_adapter))
 
-        if model_strategy in ("auto", "ctgan"):
+        # ── OOM safety guard for Render Free tier (512 MB RAM) ────────────
+        # CTGAN/TVAE with high row counts or high-cardinality categoricals
+        # will one-hot encode to thousands of columns and exhaust memory.
+        # Force statistical-only mode in those cases to prevent OOM kills.
+        _max_cat_unique = 0
+        for col in clean_df.select_dtypes(include=["object", "category"]).columns:
+            _max_cat_unique = max(_max_cat_unique, clean_df[col].nunique())
+        _use_deep_models = len(clean_df) <= 2000 and _max_cat_unique <= 100
+        if not _use_deep_models:
+            log(
+                f"OOM guard: rows={len(clean_df)}, max_categorical_unique={_max_cat_unique}. "
+                "Routing to StatisticalBaselineAdapter to protect memory on free tier."
+            )
+
+        if _use_deep_models and model_strategy in ("auto", "ctgan"):
             ca = CTGANAdapter()
             if ca.capabilities().available:
                 candidates.append(("ctgan", ca))
             else:
                 log(f"CTGAN not available: {ca.capabilities().unavailable_reason}")
 
-        if model_strategy in ("auto", "tvae"):
+        if _use_deep_models and model_strategy in ("auto", "tvae"):
             ta = TVAEAdapter()
             if ta.capabilities().available:
                 candidates.append(("tvae", ta))
@@ -92,6 +106,7 @@ def _run_job(job: Job) -> None:
                 log(f"TVAE not available: {ta.capabilities().unavailable_reason}")
 
         det_adapter = DeterministicFallbackAdapter()
+
 
         # ── TRAINING ─────────────────────────────────────────────────────
         job_store.update_job(jid, state="training", progress=20, message="Fitting model(s)…")
