@@ -232,7 +232,7 @@ export const WorkspaceLayout: React.FC = () => {
 
       {/* Mobile sidebar toggle FAB */}
       <button
-        className="md:hidden fixed bottom-4 left-4 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-brand-navy text-white shadow-modal hover:bg-slate-800 transition-colors"
+        className="md:hidden fixed bottom-4 left-4 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-brand-teal text-white shadow-modal hover:bg-brand-teal-hover transition-colors"
         onClick={() => setIsMobileSidebarOpen((v) => !v)}
         aria-label="Toggle sidebar"
       >
