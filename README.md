@@ -145,3 +145,46 @@ python -m pytest backend/tests/ -v
 
 ## 📄 License
 This project is licensed under the MIT License.
+
+---
+
+## 👥 Team & Contributions
+
+### **Muhammad Akif Naveed**
+
+**Contributions:**
+- Backend
+- AI
+- Integration
+- Deployment
+- Multi-Agent Orchestration setup
+- System Design
+- Architecture
+- Project Planning and Idea Research
+
+**Socials:**
+- **LinkedIn:** [https://www.linkedin.com/in/akif-naveed-malik30](https://www.linkedin.com/in/akif-naveed-malik30)
+- **GitHub:** [https://github.com/AkifNaveed12](https://github.com/AkifNaveed12)
+- **Portfolio:** [https://portfolio-muhammad-akif-naveed.vercel.app/](https://portfolio-muhammad-akif-naveed.vercel.app/)
+
+---
+
+### **Hamza Ali**
+
+**Contributions:**
+- Frontend
+- UI/UX Designing
+- Security
+- Quality Assurance
+- System Testing
+
+**Socials:**
+- **LinkedIn:** [https://www.linkedin.com/in/hamza-ali-k712/](https://www.linkedin.com/in/hamza-ali-k712/)
+- **GitHub:** [https://github.com/hamzaali-712](https://github.com/hamzaali-712)
+- **Portfolio:** [https://personal-portfolio-beta-ten-54.vercel.app/](https://personal-portfolio-beta-ten-54.vercel.app/)
+
+---
+
+## 🏆 Achievement
+
+![Achievement](docs/assets/ACHIVEMENT.jpeg)
