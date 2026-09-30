@@ -44,7 +44,7 @@ export const LivePreviewCanvas: React.FC<LivePreviewCanvasProps> = ({
   onOpenUploadModal,
 }) => {
   return (
-    <main className="flex-1 min-w-[480px] lg:min-w-[600px] flex flex-col h-full bg-brand-stage overflow-hidden p-6 select-text">
+    <main className="flex-1 min-w-0 flex flex-col h-full bg-brand-stage overflow-hidden p-3 sm:p-6 select-text">
       {/* Top Canvas Header Bar */}
       <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-brand-border">
         <div>

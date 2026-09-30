@@ -35,7 +35,7 @@ export const ConfigurationPanel: React.FC<ConfigurationPanelProps> = ({
   };
 
   return (
-    <aside className="flex flex-col justify-between w-80 h-full bg-white border-l border-brand-border p-5 select-none overflow-y-auto">
+    <aside className="hidden md:flex flex-col justify-between w-72 lg:w-80 h-full bg-white border-l border-brand-border p-4 lg:p-5 select-none overflow-y-auto shrink-0">
       <div className="flex flex-col gap-6">
         {/* Header */}
         <div className="flex items-center justify-between border-b border-brand-border pb-3">

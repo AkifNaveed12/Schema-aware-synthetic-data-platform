@@ -14,6 +14,8 @@ interface WorkspaceSidebarProps {
   onOpenTstr?: () => void;
   onOpenRegeneration?: () => void;
   onOpenSemantic?: () => void;
+  isMobileOpen?: boolean;
+  onMobileClose?: () => void;
 }
 
 export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
@@ -28,9 +30,15 @@ export const WorkspaceSidebar: React.FC<WorkspaceSidebarProps> = ({
   onOpenTstr,
   onOpenRegeneration,
   onOpenSemantic,
+  isMobileOpen = false,
 }) => {
   return (
-    <aside className="hidden md:flex flex-col justify-between w-64 min-w-[256px] h-full bg-brand-sidebar text-slate-300 p-4 border-r border-slate-800 select-none">
+    <aside className={`flex flex-col justify-between w-64 min-w-[256px] h-full bg-brand-sidebar text-slate-300 p-4 border-r border-slate-800 select-none z-30 transition-transform duration-200
+      ${isMobileOpen
+        ? 'fixed inset-y-0 left-0 translate-x-0 shadow-modal'
+        : 'hidden md:flex -translate-x-full md:translate-x-0 md:static'
+      }`}
+    >
       {/* Top Section */}
       <div className="flex flex-col gap-6">
         {/* Workspace Eyebrow */}

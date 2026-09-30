@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TopNav } from './components/navigation/TopNav';
 import { LandingPage } from './components/landing/LandingPage';
 import { WorkspaceLayout } from './components/workspace/WorkspaceLayout';
+import { DownloadDatasetModal } from './components/workspace/DownloadDatasetModal';
 import { checkBackendHealth } from './api/client';
 import { Agentation } from 'agentation';
 
@@ -9,6 +10,7 @@ export const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<'workspace' | 'landing'>('landing');
   const [isBackendOnline, setIsBackendOnline] = useState(false);
   const [latencyMs, setLatencyMs] = useState(0);
+  const [isDownloadOpen, setIsDownloadOpen] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -36,6 +38,7 @@ export const App: React.FC = () => {
         onViewChange={setCurrentView}
         isBackendOnline={isBackendOnline}
         latencyMs={latencyMs}
+        onOpenDownload={() => setIsDownloadOpen(true)}
       />
 
       {/* Main View Port */}
@@ -46,6 +49,12 @@ export const App: React.FC = () => {
           <LandingPage onOpenWorkspace={() => setCurrentView('workspace')} />
         )}
       </div>
+
+      {/* Download Dataset Modal */}
+      <DownloadDatasetModal
+        isOpen={isDownloadOpen}
+        onClose={() => setIsDownloadOpen(false)}
+      />
 
       {/* Agentation UI toolbar — dev only, tree-shaken from prod bundle */}
       {import.meta.env.DEV && <Agentation />}

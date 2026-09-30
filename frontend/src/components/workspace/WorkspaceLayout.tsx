@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { PanelLeft } from 'lucide-react';
 import {
   ModalityType,
   DocumentSubtype,
@@ -102,6 +103,7 @@ export const WorkspaceLayout: React.FC = () => {
   const [isCustomDatasetActive, setIsCustomDatasetActive] = useState(false);
   const [evaluationData, setEvaluationData] = useState<EvaluationData | null>(null);
   const [isEvalLoading, setIsEvalLoading] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   // Sub-second reactive preview recomputation
   const recomputePreview = useCallback(async (currentConfig: GenerationConfig) => {
@@ -219,6 +221,24 @@ export const WorkspaceLayout: React.FC = () => {
 
   return (
     <div className="relative flex w-full h-[calc(100vh-3.5rem)] overflow-hidden bg-brand-canvas">
+
+      {/* Mobile sidebar backdrop */}
+      {isMobileSidebarOpen && (
+        <div
+          className="md:hidden fixed inset-0 z-30 bg-black/40"
+          onClick={() => setIsMobileSidebarOpen(false)}
+        />
+      )}
+
+      {/* Mobile sidebar toggle FAB */}
+      <button
+        className="md:hidden fixed bottom-4 left-4 z-40 flex h-10 w-10 items-center justify-center rounded-full bg-brand-navy text-white shadow-modal hover:bg-slate-800 transition-colors"
+        onClick={() => setIsMobileSidebarOpen((v) => !v)}
+        aria-label="Toggle sidebar"
+      >
+        <PanelLeft className="h-4 w-4" />
+      </button>
+
       {/* 1. Left Sidebar (Workspace Navigation, #0F172A) */}
       <WorkspaceSidebar
         activeModality={activeModality}
@@ -226,8 +246,12 @@ export const WorkspaceLayout: React.FC = () => {
         onSelectModality={(mod) => {
           setIsCustomDatasetActive(false);
           setActiveModality(mod);
+          setIsMobileSidebarOpen(false);
         }}
-        onSelectDocSubtype={setActiveDocSubtype}
+        onSelectDocSubtype={(sub) => {
+          setActiveDocSubtype(sub);
+          setIsMobileSidebarOpen(false);
+        }}
         activeSeed={config.randomSeed}
         onOpenEvaluation={handleOpenEvaluation}
         onOpenUploadModal={() => setIsUploadOpen(true)}
@@ -235,11 +259,13 @@ export const WorkspaceLayout: React.FC = () => {
         onOpenTstr={() => setIsTstrOpen(true)}
         onOpenRegeneration={() => setIsRegenOpen(true)}
         onOpenSemantic={() => setIsSemanticOpen(true)}
+        isMobileOpen={isMobileSidebarOpen}
+        onMobileClose={() => setIsMobileSidebarOpen(false)}
       />
 
       {/* 2. Center Stage (Natural Language Generator or Live Preview Canvas) */}
       {activeModality === 'natural_language' ? (
-        <div className="flex-1 h-full overflow-hidden">
+        <div className="flex-1 h-full overflow-hidden min-w-0">
           <NaturalLanguageGenerator />
         </div>
       ) : (
