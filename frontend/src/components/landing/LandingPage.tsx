@@ -3,7 +3,6 @@ import {
   Table,
   Network,
   FileText,
-  Sparkles,
   ArrowRight,
   Database,
   Lock,
@@ -28,15 +27,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenWorkspace }) => 
     <div className="flex flex-col min-h-screen bg-gradient-to-b from-white via-[#F8F7F4] to-[#EBEFFE] text-brand-hero">
       {/* 1. Hero Section (Attio Minimalist Aesthetic) */}
       <section className="relative px-6 pt-16 pb-20 sm:pt-24 sm:pb-28 max-w-6xl mx-auto text-center">
-        {/* Eyebrow Pill */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-teal-200 bg-teal-50/80 px-3 py-1 text-xs font-mono font-medium text-brand-teal mb-6 shadow-xs animate-in fade-in slide-in-from-bottom-2 duration-300">
-          <Sparkles className="w-3.5 h-3.5" />
-          <span>DATAVAULT · SCHEMA-AWARE SYNTHETIC DATA WORKBENCH</span>
-        </div>
-
         {/* Hero Title (#1C1D1F) */}
         <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-brand-hero max-w-4xl mx-auto leading-tight sm:leading-tight">
-          Realistic, privacy-safe data —{' '}
+          Realistic, privacy-safe data{' '}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-teal via-teal-700 to-slate-900">
             generated on demand.
           </span>
