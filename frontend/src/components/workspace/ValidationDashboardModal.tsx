@@ -35,7 +35,7 @@ export const ValidationDashboardModal: React.FC<ValidationDashboardModalProps> =
   const isPassed = evaluation?.overall_status !== 'failed';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 animate-in fade-in duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4 animate-in fade-in duration-150">
       <div className="relative flex flex-col w-full max-w-4xl max-h-[90vh] bg-white rounded-2xl border border-brand-border shadow-modal overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-brand-border bg-slate-50">
@@ -68,24 +68,24 @@ export const ValidationDashboardModal: React.FC<ValidationDashboardModalProps> =
         {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-6">
           {/* Top Score Banner */}
-          <div className="flex flex-col sm:flex-row items-center justify-between p-5 rounded-xl bg-gradient-to-r from-teal-900 to-slate-900 text-white shadow-panel gap-4">
+          <div className="flex flex-col sm:flex-row items-center justify-between p-5 rounded-xl bg-teal-50/70 border border-teal-200 text-brand-hero shadow-xs gap-4">
             <div className="flex items-center gap-4">
-              <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-teal-500/20 border border-teal-400/30 text-teal-300 font-mono text-2xl font-bold">
+              <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-white border border-teal-200 text-brand-teal font-mono text-2xl font-bold shadow-xs">
                 {overallScorePercent}%
               </div>
               <div className="flex flex-col">
                 <div className="flex items-center gap-2">
-                  <span className="text-sm font-bold tracking-tight text-white">
+                  <span className="text-sm font-bold tracking-tight text-brand-hero">
                     Overall Synthetic Quality Score
                   </span>
                   <span className={`flex items-center gap-1 text-[11px] font-mono font-semibold px-2 py-0.5 rounded-full ${
-                    isPassed ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30' : 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+                    isPassed ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-rose-100 text-rose-800 border border-rose-300'
                   }`}>
-                    {isPassed ? <CheckCircle2 className="w-3 h-3 text-emerald-400" /> : <AlertTriangle className="w-3 h-3 text-rose-400" />}
+                    {isPassed ? <CheckCircle2 className="w-3 h-3 text-emerald-600" /> : <AlertTriangle className="w-3 h-3 text-rose-600" />}
                     {evaluation?.overall_status?.toUpperCase() || 'PASSED'}
                   </span>
                 </div>
-                <p className="text-xs text-slate-300 mt-1 max-w-lg">
+                <p className="text-xs text-brand-secondary mt-1 max-w-lg">
                   Evaluated across 4 core objective dimensions without human bias. Zero production record exposure detected.
                 </p>
               </div>
@@ -94,7 +94,7 @@ export const ValidationDashboardModal: React.FC<ValidationDashboardModalProps> =
             <button
               onClick={onReevaluate}
               disabled={isLoading}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold transition-all shadow-micro shrink-0 disabled:opacity-50"
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-brand-teal hover:bg-brand-teal-hover text-white text-xs font-semibold transition-all shadow-micro shrink-0 disabled:opacity-50"
             >
               <RotateCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />
               {isLoading ? 'Auditing...' : 'Re-run Evaluation'}
