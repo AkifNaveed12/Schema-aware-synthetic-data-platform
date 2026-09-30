@@ -18,12 +18,11 @@ app = FastAPI(
     redoc_url="/redoc"
 )
 
-# CORS Middleware — in development allow localhost on any port; in production use explicit origins only
-_is_production = settings.ENVIRONMENT.lower() in ("production", "prod")
+# CORS Middleware — permits all configured origins, all .vercel.app subdomains, and local dev
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.cors_origins if "*" not in settings.cors_origins else ["*"],
-    allow_origin_regex=None if _is_production else r"^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
+    allow_origins=settings.cors_origins,
+    allow_origin_regex=r"^https?://([a-zA-Z0-9-]+\.)*vercel\.app$|^https?://(localhost|127\.0\.0\.1)(:\d+)?$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
