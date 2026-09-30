@@ -239,7 +239,7 @@ export const WorkspaceLayout: React.FC = () => {
         <PanelLeft className="h-4 w-4" />
       </button>
 
-      {/* 1. Left Sidebar (Workspace Navigation, #0F172A) */}
+      {/* 1. Left Sidebar (Workspace Navigation, Light Theme) */}
       <WorkspaceSidebar
         activeModality={activeModality}
         activeDocSubtype={activeDocSubtype}
