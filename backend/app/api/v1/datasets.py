@@ -86,13 +86,11 @@ async def ingest_dataset(
         "modality": modality,
     })
 
-    # Upload raw dataset to Supabase Storage so the standalone ML worker
-    # container can retrieve it via download_raw_dataset(dataset_id).
-    # This is a best-effort background operation — failure does not block the response.
-    try:
-        upload_raw_dataset(dataset_id, df)
-    except Exception:
-        pass  # graceful — local-only mode will still work if Supabase is not configured
+    # Upload raw dataset to Supabase Storage asynchronously in background thread
+    # so the response returns to client immediately without latency
+    import threading
+    threading.Thread(target=upload_raw_dataset, args=(dataset_id, df), daemon=True).start()
+
 
 
     return SuccessResponse(data={
