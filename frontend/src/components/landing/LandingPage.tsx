@@ -352,26 +352,26 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onOpenWorkspace }) => 
               </p>
             </div>
 
-            <div className="grid grid-cols-3 gap-2 font-mono text-[11px]">
-              <div className="flex flex-col justify-between p-2.5 bg-emerald-50 rounded-lg border border-emerald-200 text-emerald-800">
-                <span className="font-semibold text-[11px]">Masking</span>
-                <div className="flex items-center justify-between mt-1 text-[10px]">
-                  <span>Email/Name</span>
-                  <span className="font-bold bg-emerald-200/60 px-1 rounded">ACTIVE</span>
+            <div className="grid grid-cols-3 gap-1.5 sm:gap-2 font-mono text-[11px]">
+              <div className="flex flex-col justify-between p-2 sm:p-2.5 bg-emerald-50 rounded-lg border border-emerald-200 text-emerald-800">
+                <span className="font-semibold text-[10px] sm:text-[11px] truncate">Masking</span>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mt-1 text-[10px]">
+                  <span className="truncate">Email/Name</span>
+                  <span className="font-bold bg-emerald-200/60 px-1 py-0.5 rounded text-[9px] sm:text-[10px] w-fit">ACTIVE</span>
                 </div>
               </div>
-              <div className="flex flex-col justify-between p-2.5 bg-teal-50 rounded-lg border border-teal-200 text-teal-800">
-                <span className="font-semibold text-[11px]">Hashing</span>
-                <div className="flex items-center justify-between mt-1 text-[10px]">
-                  <span>SHA-256</span>
-                  <span className="font-bold bg-teal-200/60 px-1 rounded">ACTIVE</span>
+              <div className="flex flex-col justify-between p-2 sm:p-2.5 bg-teal-50 rounded-lg border border-teal-200 text-teal-800">
+                <span className="font-semibold text-[10px] sm:text-[11px] truncate">Hashing</span>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mt-1 text-[10px]">
+                  <span className="truncate">SHA-256</span>
+                  <span className="font-bold bg-teal-200/60 px-1 py-0.5 rounded text-[9px] sm:text-[10px] w-fit">ACTIVE</span>
                 </div>
               </div>
-              <div className="flex flex-col justify-between p-2.5 bg-slate-100 rounded-lg border border-slate-200 text-slate-700">
-                <span className="font-semibold text-[11px]">Diff. Noise</span>
-                <div className="flex items-center justify-between mt-1 text-[10px]">
-                  <span>Laplace</span>
-                  <span className="font-mono">ε = 0.8</span>
+              <div className="flex flex-col justify-between p-2 sm:p-2.5 bg-slate-100 rounded-lg border border-slate-200 text-slate-700">
+                <span className="font-semibold text-[10px] sm:text-[11px] truncate">Diff. Noise</span>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mt-1 text-[10px]">
+                  <span className="truncate">Laplace</span>
+                  <span className="font-mono whitespace-nowrap text-[9px] sm:text-[10px]">ε = 0.8</span>
                 </div>
               </div>
             </div>
