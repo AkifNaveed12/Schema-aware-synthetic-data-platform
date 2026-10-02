@@ -5,7 +5,7 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     PORT: int = 8000
     HOST: str = "0.0.0.0"
-    ALLOWED_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173"
+    ALLOWED_ORIGINS: str = "http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173,https://datavaultplatform.vercel.app,https://datavault.vercel.app,https://schema-aware-synthetic-data-platform.vercel.app"
     GROQ_API_KEY: str = ""
     GROQ_MODEL: str = "qwen/qwen3.8-27b"
     GROQ_ASSISTANT_API_KEY: str = ""

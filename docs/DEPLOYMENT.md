@@ -9,7 +9,7 @@ The production architecture is deployed on a strict ₹0 / $0 zero-cost stack:
          │
          ▼
 [ Vercel Frontend (SPA) ]
-  URL: https://frontend-lac-three-nwfjxct5qr.vercel.app
+  URL: https://datavaultplatform.vercel.app
          │
          │  HTTPS + CORS
          ▼
@@ -37,7 +37,7 @@ The production architecture is deployed on a strict ₹0 / $0 zero-cost stack:
 
 | Resource | Provider | Plan | Live URL / Identifier |
 | :--- | :--- | :--- | :--- |
-| **Frontend** | Vercel | Free (Hobby) | `https://frontend-lac-three-nwfjxct5qr.vercel.app` |
+| **Frontend** | Vercel | Free (Hobby) | `https://datavaultplatform.vercel.app` |
 | **API** | Render | Free | `https://hackdata-api.onrender.com` (`srv-dau4g6lg1s2s73bdrk4g`) |
 | **Worker** | Render | Free | `https://hackdata-worker.onrender.com` (`srv-dau4gmnlot8c739ksh70`) |
 | **Queue** | Render (Valkey) | Free | `hackdata-queue` (`red-dau4eufavr4c73fl0vh0`) |

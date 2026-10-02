@@ -3,7 +3,7 @@
 > **Production-grade, privacy-first, schema-aware synthetic data generation platform.**  
 > Seamlessly synthesizes tabular data, complex multi-table relational databases, and reconciled business documents through state-of-the-art generative AI, deep neural networks (CTGAN/TVAE), and an intelligent natural-language control plane.
 
-[![Live App](https://img.shields.io/badge/Live%20Demo-Vercel-teal?style=for-the-badge&logo=vercel)](https://schema-aware-synthetic-data-platform.vercel.app)
+[![Live App](https://img.shields.io/badge/Live%20Demo-Vercel-teal?style=for-the-badge&logo=vercel)](https://datavaultplatform.vercel.app)
 [![API Docs](https://img.shields.io/badge/API%20Docs-Swagger-blue?style=for-the-badge&logo=fastapi)](https://hackdata-api.onrender.com/docs)
 [![Python 3.11+](https://img.shields.io/badge/Python-3.11%2B-blue?style=for-the-badge&logo=python)](https://python.org)
 [![React 19](https://img.shields.io/badge/Frontend-React%2019%20%7C%20TypeScript-61DAFB?style=for-the-badge&logo=react)](https://react.dev)
@@ -12,7 +12,7 @@
 
 ## 🌐 Live Deployments
 
-- **Frontend Application (Vercel):** [https://schema-aware-synthetic-data-platform.vercel.app](https://schema-aware-synthetic-data-platform.vercel.app)
+- **Frontend Application (Vercel):** [https://datavaultplatform.vercel.app](https://datavaultplatform.vercel.app)
 - **Backend API (Render):** [https://hackdata-api.onrender.com](https://hackdata-api.onrender.com)
 - **Interactive API Documentation:** [https://hackdata-api.onrender.com/docs](https://hackdata-api.onrender.com/docs)
 - **Standalone ML Worker:** Render Cloud Worker Process (Valkey Queue Consumer)
