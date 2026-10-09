@@ -91,14 +91,14 @@ def _run_job(job: Job) -> None:
                 "Routing to StatisticalBaselineAdapter to protect memory on free tier."
             )
 
-        if _use_deep_models and model_strategy in ("auto", "ctgan"):
+        if _use_deep_models and model_strategy == "ctgan":
             ca = CTGANAdapter()
             if ca.capabilities().available:
                 candidates.append(("ctgan", ca))
             else:
                 log(f"CTGAN not available: {ca.capabilities().unavailable_reason}")
 
-        if _use_deep_models and model_strategy in ("auto", "tvae"):
+        if _use_deep_models and model_strategy == "tvae":
             ta = TVAEAdapter()
             if ta.capabilities().available:
                 candidates.append(("tvae", ta))
