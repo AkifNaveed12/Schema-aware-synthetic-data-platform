@@ -40,8 +40,7 @@ COPY backend/ ./backend/
 RUN chown -R hackdata:hackdata /app
 USER hackdata
 
-ENV PORT=10000
-EXPOSE 10000
+EXPOSE 8000
 
 # Start the FastAPI backend
-CMD ["python", "-m", "uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "10000", "--workers", "1", "--log-level", "info"]
+CMD ["python", "-m", "uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--log-level", "info"]
