@@ -88,18 +88,27 @@ def _infer_data_type(series: pd.Series) -> Tuple[str, pd.Series]:
     if len(not_null) == 0:
         return "string", series
 
-    # Date test
-    try:
-        parsed = pd.to_datetime(not_null, infer_datetime_format=True, errors="coerce")
-        if parsed.notna().mean() > 0.85:
-            return "date", series
-    except Exception:
-        pass
+    # Date test on small sample with fast regex pre-filter to prevent CPU-intensive dateutil backtracking
+    sample = not_null.head(30).astype(str)
+    if (sample.str.contains(r"^\d{4}[-/.]\d{1,2}[-/.]\d{1,2}|\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4}|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}", regex=True).mean() > 0.7 or
+        sample.str.contains(r"\d+[-/.: ]\d+", regex=True).mean() > 0.7):
+        try:
+            parsed = pd.to_datetime(sample, errors="coerce", format="mixed")
+            if parsed.notna().mean() > 0.85:
+                return "date", series
+        except Exception:
+            try:
+                parsed = pd.to_datetime(sample, errors="coerce")
+                if parsed.notna().mean() > 0.85:
+                    return "date", series
+            except Exception:
+                pass
 
     # Numeric test
     coerced = pd.to_numeric(not_null, errors="coerce")
-    if coerced.notna().mean() > 0.90:
-        if (coerced % 1 == 0).all():
+    valid_nums = coerced.dropna()
+    if len(valid_nums) / len(not_null) > 0.90:
+        if len(valid_nums) > 0 and (valid_nums % 1 == 0).all():
             return "integer", series
         return "float", series
 

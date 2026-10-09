@@ -107,7 +107,10 @@ def clean_dataframe(
         # ── Coerce date strings to ISO-8601 ────────────────────────────────
         if coerce_dates and dtype_hint == "date":
             try:
-                parsed = pd.to_datetime(series, infer_datetime_format=True, errors="coerce")
+                try:
+                    parsed = pd.to_datetime(series, errors="coerce", format="mixed")
+                except Exception:
+                    parsed = pd.to_datetime(series, errors="coerce")
                 success = int(parsed.notna().sum())
                 before_null = int(series.isna().sum())
                 if success > 0:

@@ -69,6 +69,29 @@ export const DatasetUploadModal: React.FC<DatasetUploadModalProps> = ({
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const handleClose = () => {
+    setStep('upload');
+    setFile(null);
+    setErrorMsg(null);
+    setIngestedData(null);
+    setGeneratedRows([]);
+    setJobStatus(null);
+    setSyntheticColumns([]);
+    onClose();
+  };
+
+  useEffect(() => {
+    if (isOpen) {
+      setStep('upload');
+      setFile(null);
+      setErrorMsg(null);
+      setIngestedData(null);
+      setGeneratedRows([]);
+      setJobStatus(null);
+      setSyntheticColumns([]);
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleFileSelect = (selected: File) => {
@@ -207,7 +230,7 @@ export const DatasetUploadModal: React.FC<DatasetUploadModalProps> = ({
     }));
 
     onApplyGeneratedData(normalized, ingestedData.filename, ingestedData.dataset_id, ingestedData.columns);
-    onClose();
+    handleClose();
   };
 
   return (
@@ -229,7 +252,7 @@ export const DatasetUploadModal: React.FC<DatasetUploadModalProps> = ({
             </div>
           </div>
           <button
-            onClick={onClose}
+            onClick={handleClose}
             className="rounded-lg p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 transition-colors cursor-pointer"
           >
             <X className="h-5 w-5" />
@@ -323,7 +346,7 @@ export const DatasetUploadModal: React.FC<DatasetUploadModalProps> = ({
               <div className="flex justify-end gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={onClose}
+                  onClick={handleClose}
                   className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
                 >
                   Cancel

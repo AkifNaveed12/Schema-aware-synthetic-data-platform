@@ -8,6 +8,7 @@ GET  /api/v1/datasets/{id}        — retrieve stored profile/session
 POST /api/v1/datasets/{id}/generate — submit generation job
 GET  /api/v1/datasets/{id}/export  — export the validated artifact
 """
+import asyncio
 import io
 import uuid
 from typing import Any, Dict, Optional
@@ -40,16 +41,17 @@ async def ingest_dataset(
     raw = await file.read()
     filename = file.filename or "upload.csv"
 
-    # ── Security + parse ──────────────────────────────────────────────────
+    # ── Security + parse (in threadpool to keep event loop responsive) ─────
     try:
-        df, modality, fingerprint = ingest(raw, filename, file.content_type)
+        df, modality, fingerprint = await asyncio.to_thread(ingest, raw, filename, file.content_type)
     except IngestionError as exc:
         raise HTTPException(status_code=422, detail=str(exc))
 
     t_name = table_name or filename.rsplit(".", 1)[0].replace(" ", "_")[:64] or "dataset"
 
-    # ── Profile ───────────────────────────────────────────────────────────
-    profile = profile_dataframe(
+    # ── Profile (in threadpool to prevent blocking health checks) ──────────
+    profile = await asyncio.to_thread(
+        profile_dataframe,
         df,
         table_name=t_name,
         source_bytes=raw,

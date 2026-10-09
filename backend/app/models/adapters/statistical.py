@@ -91,17 +91,26 @@ class StatisticalBaselineAdapter(ModelAdapter):
 
             # ── Date-like ─────────────────────────────────────────────────
             elif len(clean) > 0:
-                try:
-                    parsed = pd.to_datetime(clean, infer_datetime_format=True, errors="coerce")
-                    ok_rate = parsed.notna().mean()
-                    if ok_rate > 0.8:
-                        ts = parsed.dropna().astype("int64") // 10**9
-                        stats["kind"] = "date"
-                        stats["ts_min"] = int(ts.min())
-                        stats["ts_max"] = int(ts.max())
-                    else:
-                        raise ValueError("not date")
-                except Exception:
+                is_date = False
+                sample = clean.head(30).astype(str)
+                if (sample.str.contains(r"^\d{4}[-/.]\d{1,2}[-/.]\d{1,2}|\d{1,2}[-/.]\d{1,2}[-/.]\d{2,4}|\d{4}-\d{2}-\d{2}T\d{2}:\d{2}", regex=True).mean() > 0.7 or
+                    sample.str.contains(r"\d+[-/.: ]\d+", regex=True).mean() > 0.7):
+                    try:
+                        try:
+                            parsed = pd.to_datetime(clean, errors="coerce", format="mixed")
+                        except Exception:
+                            parsed = pd.to_datetime(clean, errors="coerce")
+                        ok_rate = parsed.notna().mean()
+                        if ok_rate > 0.8:
+                            ts = parsed.dropna().astype("int64") // 10**9
+                            stats["kind"] = "date"
+                            stats["ts_min"] = int(ts.min())
+                            stats["ts_max"] = int(ts.max())
+                            is_date = True
+                    except Exception:
+                        pass
+
+                if not is_date:
                     # ── Categorical / string ───────────────────────────────
                     vc = clean.value_counts(normalize=True)
                     if clean.nunique() <= max(50, int(0.1 * len(clean))):
