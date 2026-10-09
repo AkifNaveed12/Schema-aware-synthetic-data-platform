@@ -43,4 +43,4 @@ USER hackdata
 EXPOSE 8000
 
 # Start the FastAPI backend
-CMD ["python", "-m", "uvicorn", "backend.app.main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "1", "--log-level", "info"]
+CMD ["sh", "-c", "python -m uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT:-8000} --workers 1 --log-level info"]

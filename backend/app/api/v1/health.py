@@ -4,7 +4,7 @@ from backend.app.models.schemas import HealthData, ReadinessData, ServiceStatus
 
 router = APIRouter()
 
-@router.get("/health", response_model=SuccessResponse[HealthData])
+@router.api_route("/health", methods=["GET", "HEAD"], response_model=SuccessResponse[HealthData])
 def get_health():
     return SuccessResponse(
         data=HealthData(
@@ -14,7 +14,7 @@ def get_health():
         )
     )
 
-@router.get("/health/ready", response_model=SuccessResponse[ReadinessData])
+@router.api_route("/health/ready", methods=["GET", "HEAD"], response_model=SuccessResponse[ReadinessData])
 def get_readiness():
     return SuccessResponse(
         data=ReadinessData(

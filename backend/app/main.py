@@ -99,7 +99,7 @@ async def generic_exception_handler(request: Request, exc: Exception):
 # Include v1 Router
 app.include_router(api_v1_router, prefix="/api/v1")
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def get_root():
     return {
         "name": "HackData V2 Synthetic Data Platform",
