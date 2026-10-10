@@ -37,7 +37,43 @@ logging.basicConfig(
 )
 logger = logging.getLogger("hackdata.worker.main")
 
-# ── Import core components ────────────────────────────────────────────────────
+# ── Health HTTP server — start BEFORE heavy ML imports ───────────────────────
+# Render's port scan begins immediately when the container starts. Heavy ML
+# imports (torch, ctgan, sdv) can take several minutes on a cold start.
+# Binding port 8000 HERE — before any backend imports — ensures Render detects
+# an open port within seconds and does not time out the deployment.
+
+def _start_health_server() -> None:
+    from http.server import HTTPServer, BaseHTTPRequestHandler
+
+    class _H(BaseHTTPRequestHandler):
+        def do_GET(self):
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+            self.wfile.write(b'{"status":"healthy","service":"hackdata-worker"}')
+
+        def do_HEAD(self):
+            self.send_response(200)
+            self.send_header("Content-Type", "application/json")
+            self.end_headers()
+
+        def log_message(self, fmt, *args):
+            pass  # suppress access logs
+
+    port = int(os.environ.get("PORT", 8000))
+    try:
+        httpd = HTTPServer(("0.0.0.0", port), _H)
+        logger.info("Worker health server listening on 0.0.0.0:%d", port)
+        httpd.serve_forever()
+    except Exception as exc:
+        logger.warning("Health server error on port %d: %s", port, exc)
+
+
+import threading as _threading
+_threading.Thread(target=_start_health_server, daemon=True).start()
+
+# ── Import core components (heavy ML libraries — may take several minutes) ────
 
 from backend.app.core.config import settings
 from backend.app.jobs.job_store import job_store
@@ -48,6 +84,7 @@ from backend.app.services.supabase_service import download_raw_dataset, upload_g
 # ── Graceful shutdown ─────────────────────────────────────────────────────────
 
 _shutdown = False
+
 
 def _handle_signal(signum, frame):
     global _shutdown
@@ -128,26 +165,6 @@ def process_job(message: Dict[str, Any]) -> None:
         logger.warning("Job %s finished with state: %s", job_id, final_job.state)
 
 
-def _start_health_server():
-    import threading
-    from http.server import HTTPServer, BaseHTTPRequestHandler
-    class HealthHandler(BaseHTTPRequestHandler):
-        def do_GET(self):
-            self.send_response(200)
-            self.send_header("Content-Type", "application/json")
-            self.end_headers()
-            self.wfile.write(b'{"status":"healthy","service":"hackdata-worker"}')
-        def log_message(self, format, *args):
-            pass
-    port = int(os.environ.get("PORT", 8000))
-    try:
-        httpd = HTTPServer(("0.0.0.0", port), HealthHandler)
-        logger.info("Worker health HTTP server listening on 0.0.0.0:%d", port)
-        httpd.serve_forever()
-    except Exception as exc:
-        logger.warning("Could not start health server on port %d: %s", port, exc)
-
-
 def run_worker():
     """Main worker event loop."""
     logger.info("=" * 60)
@@ -155,11 +172,6 @@ def run_worker():
     logger.info("REDIS_URL configured: %s", is_queue_configured())
     logger.info("SUPABASE_URL configured: %s", bool(settings.SUPABASE_URL))
     logger.info("=" * 60)
-
-    # Start background health server for Render health check
-    import threading
-    t = threading.Thread(target=_start_health_server, daemon=True)
-    t.start()
 
     if not is_queue_configured():
         logger.error(
